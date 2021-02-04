@@ -159,7 +159,7 @@ public class ServicesHandler {
 
 		try {
             System.out.println("CCHHEECKK NOOOOW");
-            PackageUploader.uploadServicePackageTest(pastryNode, "haalo", "moin", session.getAgent(), supplement);
+            PackageUploader.uploadServicePackageTest(pastryNode, "haalo", "1.2.3", session.getAgent(), supplement);
 			PackageUploader.uploadServicePackage(pastryNode, jarStream, session.getAgent(), supplement);
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
