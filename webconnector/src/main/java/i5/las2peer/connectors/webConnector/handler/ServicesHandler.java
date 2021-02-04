@@ -179,6 +179,43 @@ public class ServicesHandler {
 		}
 	}
 
+	
+	@POST
+	@Path("/testCAE")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response testCAE(@CookieParam(WebConnector.COOKIE_SESSIONID_KEY) String sessionId,
+	 @DefaultValue("") @FormDataParam("supplement") String supplement) throws Exception {
+		AgentSession session = connector.getSessionById(sessionId);
+		if (session == null) {
+			throw new BadRequestException("You have to be logged in to upload");
+		} else if (pastryNode == null) {
+			throw new ServerErrorException(
+					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
+					Status.INTERNAL_SERVER_ERROR);
+		}
+
+
+		try {
+            System.out.println("CCHHEECKK NOOOOW");
+            System.out.println("CCHHEECKK NOOOOW");
+            System.out.println("CCHHEECKK NOOOOW");
+            System.out.println("CCHHEECKK NOOOOW");
+            System.out.println("CCHHEECKK NOOOOW");
+            System.out.println("CCHHEECKK NOOOOW");
+            PackageUploader.uploadServicePackageTest(pastryNode, "haalo", "1.2.3", session.getAgent(), supplement);
+			JSONObject json = new JSONObject();
+			json.put("code", Status.OK.getStatusCode());
+			json.put("text", Status.OK.getStatusCode() + " - Service package upload successful");
+			json.put("msg", "Service package upload successful");
+			return Response.ok(json.toJSONString(), MediaType.APPLICATION_JSON).build();
+		} catch (EnvelopeAlreadyExistsException e) {
+			throw new BadRequestException("Version is already known in the network. To update increase version number", e);
+		} catch (ServicePackageException e) {
+			e.printStackTrace();
+			throw new BadRequestException("Service package upload failed", e);
+		}
+	}
+
 	@POST
 	@Path("/start")
 	public Response handleStartService(@QueryParam("serviceName") String serviceName, @QueryParam("version") String version)

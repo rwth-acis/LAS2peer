@@ -90,30 +90,7 @@ public class PackageUploader {
 			logger.log(Level.SEVERE, "Exception while reading jar file", e);
 		}
 	}
-    public static void uploadServicePackageTest(PastryNodeImpl node, String serviceName, String serviceVersion, 
-    AgentImpl devAgent, String supplement)
-            throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException, EthereumException {
-        if (serviceName == null) {
-            throw new ServicePackageException("No service name given");
-        } else if (serviceVersion == null) {
-            throw new ServicePackageException("No service version given");
-        }
-        System.out.println("TTRRYYYYYY");
-
-        System.out.println(serviceName);
-        System.out.println(serviceVersion);
-        System.out.println(supplement);
-        System.out.println(serviceName);
-        System.out.println(serviceVersion);
-        System.out.println(supplement);
-        if (node instanceof EthereumNode) {
-            registerService((EthereumNode) node, serviceName, serviceVersion, devAgent, supplement);
-        }
-        // storeServiceFiles(node, jarFiles);
-        // LibraryIdentifier libId = storeServiceMetadata(node, serviceName, serviceVersion, depHashes, devAgent);
-        // EnvelopeVersion versionEnv = fetchOrCreateVersionsEnvelope(node, serviceName, devAgent, libId);
-        // node.storeEnvelope(versionEnv, devAgent);
-    }
+   
 
 	/**
 	 * Uploads the complete service (jar) and all its dependencies into the given nodes shared storage to be used for
@@ -212,6 +189,31 @@ public class PackageUploader {
 		node.storeEnvelope(versionEnv, devAgent);
 	}
 
+	public static void uploadServicePackageTest(PastryNodeImpl node, String serviceName, String serviceVersion, 
+    AgentImpl devAgent, String supplement)
+            throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException, EthereumException {
+        if (serviceName == null) {
+            throw new ServicePackageException("No service name given");
+        } else if (serviceVersion == null) {
+            throw new ServicePackageException("No service version given");
+        }
+        System.out.println("TTRRYYYYYY");
+
+        System.out.println(serviceName);
+        System.out.println(serviceVersion);
+        System.out.println(supplement);
+        System.out.println(serviceName);
+        System.out.println(serviceVersion);
+        System.out.println(supplement);
+        if (node instanceof EthereumNode) {
+            registerService((EthereumNode) node, serviceName, serviceVersion, devAgent, supplement);
+        }
+        // storeServiceFiles(node, jarFiles);
+        // LibraryIdentifier libId = storeServiceMetadata(node, serviceName, serviceVersion, depHashes, devAgent);
+        // EnvelopeVersion versionEnv = fetchOrCreateVersionsEnvelope(node, serviceName, devAgent, libId);
+        // node.storeEnvelope(versionEnv, devAgent);
+	}
+	
 	private static void registerService(EthereumNode node, String serviceName, String serviceVersion,
 			AgentImpl devAgent, String supplement)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
