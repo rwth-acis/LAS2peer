@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import i5.las2peer.registry.Util;
 import i5.las2peer.api.p2p.ServiceNameVersion;
 import i5.las2peer.api.persistency.EnvelopeException;
 import i5.las2peer.api.security.AgentAlreadyExistsException;
@@ -303,8 +304,10 @@ public class EthereumNode extends PastryNodeImpl {
 		} else {
 			registerServiceName(serviceName, author);
 		}
-
+		String nodeId = getPastryNode().getId().toStringFull();
 		logger.info("Registering service release '" + serviceName + "', v" + serviceVersion + " ...");
+		int[] version = Util.parseVersion(serviceVersion);
+		registryClient.announceDeployment(serviceName, "", version[0], version[1], version[2], nodeId);
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 
