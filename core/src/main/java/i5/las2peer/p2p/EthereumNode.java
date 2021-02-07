@@ -29,22 +29,21 @@ import i5.las2peer.serialization.SerializationException;
 import i5.las2peer.tools.CryptoException;
 
 /**
- * Node implementation that extends the FreePastry-based node with
- * access to an Ethereum blockchain-based service and user registry.
+ * Node implementation that extends the FreePastry-based node with access to an
+ * Ethereum blockchain-based service and user registry.
  *
  * Access to the registry is encapsulated in the package
- * {@link i5.las2peer.registry}. (The actual Ethereum client is run
- * separately, but see there for details.)
+ * {@link i5.las2peer.registry}. (The actual Ethereum client is run separately,
+ * but see there for details.)
  *
- * The operator of an EthereumNode must have an Ethereum BIP39
- * mnemonic-derived key pair (e.g., as created for EthereumAgents).
- * The Ether funds of that account are used to announce service
- * deployments, i.e., services running at this node.
- * The same account should be used for mining in the Ethereum client,
+ * The operator of an EthereumNode must have an Ethereum BIP39 mnemonic-derived
+ * key pair (e.g., as created for EthereumAgents). The Ether funds of that
+ * account are used to announce service deployments, i.e., services running at
+ * this node. The same account should be used for mining in the Ethereum client,
  * so that new Ether is added.
  *
- * Operations triggered by agents, such as users registering and
- * releasing services, are paid for by them.
+ * Operations triggered by agents, such as users registering and releasing
+ * services, are paid for by them.
  *
  * @see EthereumAgent
  */
@@ -61,18 +60,17 @@ public class EthereumNode extends PastryNodeImpl {
 	private static L2pLogger logger = L2pLogger.getInstance(EthereumNode.class);
 
 	/**
-	 * @param ethereumMnemonic BIP39 Ethereum mnemonic for Node operator's key
-	 *                         pair
-	 * @param ethereumPassword password to be used with mnemonic (may be null
-	 *                               or empty, but obviously that's not
-	 *                               recommended)
-	 * @see PastryNodeImpl#PastryNodeImpl(ClassManager, boolean, InetAddress, Integer, List, SharedStorage.STORAGE_MODE, String, Long)
+	 * @param ethereumMnemonic BIP39 Ethereum mnemonic for Node operator's key pair
+	 * @param ethereumPassword password to be used with mnemonic (may be null or
+	 *                         empty, but obviously that's not recommended)
+	 * @see PastryNodeImpl#PastryNodeImpl(ClassManager, boolean, InetAddress,
+	 *      Integer, List, SharedStorage.STORAGE_MODE, String, Long)
 	 */
 	public EthereumNode(ClassManager classManager, boolean useMonitoringObserver, InetAddress pastryBindAddress,
-						Integer pastryPort, List<String> bootstrap, SharedStorage.STORAGE_MODE storageMode,
-						String storageDir, Long nodeIdSeed, String ethereumMnemonic, String ethereumPassword) {
+			Integer pastryPort, List<String> bootstrap, SharedStorage.STORAGE_MODE storageMode, String storageDir,
+			Long nodeIdSeed, String ethereumMnemonic, String ethereumPassword) {
 		super(classManager, useMonitoringObserver, pastryBindAddress, pastryPort, bootstrap, storageMode, storageDir,
-			nodeIdSeed);
+				nodeIdSeed);
 		this.ethereumMnemonic = ethereumMnemonic;
 		this.ethereumPassword = ethereumPassword;
 	}
@@ -94,8 +92,9 @@ public class EthereumNode extends PastryNodeImpl {
 	}
 
 	/**
-	 * Announce deployment of the service associated with this service
-	 * agent using the service registry.
+	 * Announce deployment of the service associated with this service agent using
+	 * the service registry.
+	 * 
 	 * @param serviceAgent agent of service being started
 	 */
 	public void announceServiceDeployment(ServiceAgent serviceAgent) {
@@ -104,6 +103,7 @@ public class EthereumNode extends PastryNodeImpl {
 
 	/**
 	 * Announce deployment of the service instance.
+	 * 
 	 * @param nameVersion service being started
 	 */
 	public void announceServiceDeployment(ServiceNameVersion nameVersion) {
@@ -122,8 +122,9 @@ public class EthereumNode extends PastryNodeImpl {
 	}
 
 	/**
-	 * Announce end of deployment (i.e., shutdown) of the service
-	 * associated with this service agent using the service registry.
+	 * Announce end of deployment (i.e., shutdown) of the service associated with
+	 * this service agent using the service registry.
+	 * 
 	 * @param serviceAgent agent of service being shut down
 	 */
 	public void announceServiceDeploymentEnd(ServiceAgent serviceAgent) {
@@ -131,8 +132,8 @@ public class EthereumNode extends PastryNodeImpl {
 	}
 
 	/**
-	 * Announce end of deployment (i.e., shutdown) of the service
-	 * instance.
+	 * Announce end of deployment (i.e., shutdown) of the service instance.
+	 * 
 	 * @param nameVersion service being shut down
 	 */
 	private void announceServiceDeploymentEnd(ServiceNameVersion nameVersion) {
@@ -143,7 +144,8 @@ public class EthereumNode extends PastryNodeImpl {
 		int versionPatch = nameVersion.getVersion().getSub();
 		String nodeId = getPastryNode().getId().toStringFull();
 		try {
-			registryClient.announceDeploymentEnd(serviceName, className, versionMajor, versionMinor, versionPatch, nodeId);
+			registryClient.announceDeploymentEnd(serviceName, className, versionMajor, versionMinor, versionPatch,
+					nodeId);
 		} catch (EthereumException e) {
 			logger.severe("Error while announcing end of deployment: " + e);
 		}
@@ -161,7 +163,7 @@ public class EthereumNode extends PastryNodeImpl {
 		Boolean isLocalNodeAdmin = localNodeInfo.getAdminEmail().equals(agentEmail);
 		logger.info("[local isAdmin?] comparing nodeInfo: ");
 		logger.info("[local isAdmin?]  [" + localNodeInfo.getAdminEmail() + "] vs. [" + agentEmail + "]");
-		logger.info("[local isAdmin?]   = " + isLocalNodeAdmin.toString() );
+		logger.info("[local isAdmin?]   = " + isLocalNodeAdmin.toString());
 		return isLocalNodeAdmin;
 	}
 
@@ -174,7 +176,8 @@ public class EthereumNode extends PastryNodeImpl {
 					throw new AgentException("User data in blockchain does not match agent stored in shared storage!");
 				}
 			} catch (EthereumException e) {
-				throw new AgentException("Error while comparing stored agent to user registry. Aborting out of caution.");
+				throw new AgentException(
+						"Error while comparing stored agent to user registry. Aborting out of caution.");
 			}
 		}
 		return agent;
@@ -186,7 +189,7 @@ public class EthereumNode extends PastryNodeImpl {
 			try {
 				registerAgentInBlockchain((EthereumAgent) agent);
 				logger.info("[ETH] Stored agent " + agent.getIdentifier());
-			} catch (AgentException|EthereumException|SerializationException e) {
+			} catch (AgentException | EthereumException | SerializationException e) {
 				logger.warning("Failed to register EthereumAgent; error: " + e);
 				throw new AgentException("Problem storing Ethereum agent", e);
 			}
@@ -234,26 +237,26 @@ public class EthereumNode extends PastryNodeImpl {
 	public float getAgentReputation(String adminName, String adminEmail) {
 		// query node admin reputation
 		AgentImpl ethAgentAgent = null;
-		
+
 		try {
 			ethAgentAgent = getAgentByDetail(null, adminName, adminEmail);
 			ethAgentAgent = getAgent(ethAgentAgent.getIdentifier());
 		} catch (AgentException e) {
-			if ( adminName == null ) adminName = "";
-			if ( adminEmail == null ) adminEmail = "";
-			logger.severe("[Eth Reputation]: couldn't find EthereumAgent called " + adminName.toString() + " with mail " + adminEmail.toString());
+			if (adminName == null)
+				adminName = "";
+			if (adminEmail == null)
+				adminEmail = "";
+			logger.severe("[Eth Reputation]: couldn't find EthereumAgent called " + adminName.toString() + " with mail "
+					+ adminEmail.toString());
 		}
 
-		if ( ethAgentAgent instanceof EthereumAgent )
-		{
-			EthereumAgent ethAgent = (EthereumAgent)ethAgentAgent;
+		if (ethAgentAgent instanceof EthereumAgent) {
+			EthereumAgent ethAgent = (EthereumAgent) ethAgentAgent;
 			String ethAddress = ethAgent.getEthereumAddress();
-			if ( ethAddress != "" )
-			{
+			if (ethAddress != "") {
 				float agentReputation = getRegistryClient().getUserRating(ethAddress);
-				if ( agentReputation > 0 )
-				{
-					logger.fine("[Eth Reputation]: agent " + ethAddress + " is rated " + agentReputation );
+				if (agentReputation > 0) {
+					logger.fine("[Eth Reputation]: agent " + ethAddress + " is rated " + agentReputation);
 					return agentReputation;
 				}
 			}
@@ -264,16 +267,19 @@ public class EthereumNode extends PastryNodeImpl {
 	/** compares agent login name and public key */
 	private boolean agentMatchesUserRegistryData(EthereumAgent agent) throws EthereumException {
 		try {
-			logger.fine("[ETH] matching agent ("+ agent.getLoginName() +") to registry");
-			
+			logger.fine("[ETH] matching agent (" + agent.getLoginName() + ") to registry");
+
 			UserData userInBlockchain = registryClient.getUser(agent.getLoginName());
-			
+
 			logger.finer("MATCHING ID? " + String.valueOf(userInBlockchain.getAgentId().equals(agent.getIdentifier())));
-			logger.finer("MATCHING PubKey? " + String.valueOf(userInBlockchain.getPublicKey().equals(agent.getPublicKey())));
-			// damn, we might not be able to compare the ethereum address, because it may be null if the agent is locked
-			// does it matter? I guess not. if name and pubkey match, do we care who the owner address is?
+			logger.finer(
+					"MATCHING PubKey? " + String.valueOf(userInBlockchain.getPublicKey().equals(agent.getPublicKey())));
+			// damn, we might not be able to compare the ethereum address, because it may be
+			// null if the agent is locked
+			// does it matter? I guess not. if name and pubkey match, do we care who the
+			// owner address is?
 			// let's go with no. TODO: consider implications
-			return true //userInBlockchain.getOwnerAddress().equals(agent.getEthereumAddress())
+			return true // userInBlockchain.getOwnerAddress().equals(agent.getEthereumAddress())
 					&& userInBlockchain.getAgentId().equals(agent.getIdentifier())
 					&& userInBlockchain.getPublicKey().equals(agent.getPublicKey());
 		} catch (NotFoundException e) {
@@ -287,11 +293,11 @@ public class EthereumNode extends PastryNodeImpl {
 	/**
 	 * Registers a service release in the blockchain-based registry.
 	 *
-	 * Also registers the service name to the author, and registers the
-	 * author, if those have not already happened.
+	 * Also registers the service name to the author, and registers the author, if
+	 * those have not already happened.
 	 */
-	public void registerServiceInBlockchain(String serviceName, String serviceVersion, EthereumAgent author, byte[] supplementHash)
-			throws AgentException, SerializationException, EthereumException {
+	public void registerServiceInBlockchain(String serviceName, String serviceVersion, EthereumAgent author,
+			byte[] supplementHash) throws AgentException, SerializationException, EthereumException {
 		if (author.isLocked()) {
 			throw new AgentLockedException("Cannot register service because Ethereum-enabled agent is locked.");
 		}
@@ -311,11 +317,20 @@ public class EthereumNode extends PastryNodeImpl {
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 
+	public void undeployTest(String serviceName, String serviceVersion, EthereumAgent author)
+			throws AgentException, SerializationException, EthereumException {
+		logger.info("Undeploying service release '" + serviceName + "', v" + serviceVersion + " ...");
+		int[] version = Util.parseVersion(serviceVersion);
+		String nodeId = getPastryNode().getId().toStringFull();
+
+		registryClient.announceDeploymentEnd(serviceName, "", version[0], version[1], version[2], nodeId);
+	}
+
 	private boolean isServiceOwner(String authorName, String serviceName) throws EthereumException {
 		try {
 			String serviceOwnerName = getRegistryClient().lookupServiceAuthor(serviceName);
 			return authorName.equals(serviceOwnerName);
-		} catch (NotFoundException|EthereumException e) {
+		} catch (NotFoundException | EthereumException e) {
 			throw new EthereumException("Ownership check errored or was inconsistent, investigate.");
 		}
 	}
@@ -341,7 +356,10 @@ public class EthereumNode extends PastryNodeImpl {
 		getRegistryClient().registerService(name, author);
 	}
 
-	/** uses a cache in contrast to {@link i5.las2peer.p2p.PastryNodeImpl#fetchHashedContent(byte[])} */
+	/**
+	 * uses a cache in contrast to
+	 * {@link i5.las2peer.p2p.PastryNodeImpl#fetchHashedContent(byte[])}
+	 */
 	@Override
 	public byte[] fetchHashedContent(byte[] hash) throws EnvelopeException {
 		if (!hashToData.containsKey(hash)) {
@@ -355,9 +373,9 @@ public class EthereumNode extends PastryNodeImpl {
 	public ReadWriteRegistryClient getRegistryClient() {
 		return registryClient;
 	}
-	
-	//public void registerProfile(EthereumAgent author) throws EthereumException {
-	//	registryClient.registerReputationProfile(author);
-	//}
-	 
+
+	// public void registerProfile(EthereumAgent author) throws EthereumException {
+	// registryClient.registerReputationProfile(author);
+	// }
+
 }
