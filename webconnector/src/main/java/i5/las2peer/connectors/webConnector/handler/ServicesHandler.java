@@ -1,4 +1,5 @@
 package i5.las2peer.connectors.webConnector.handler;
+import i5.las2peer.connectors.webConnector.util.AuthenticationManager;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.jar.JarInputStream;
+import java.util.Base64;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.CookieParam;
@@ -75,6 +77,7 @@ public class ServicesHandler {
 	private final PastryNodeImpl pastryNode;
 	private final EthereumNode ethereumNode;
 	private final ReadOnlyRegistryClient registry;
+	private AuthenticationManager authenticationManager;
 
 	private final L2pLogger logger = L2pLogger.getInstance(ServicesHandler.class);
 
@@ -86,6 +89,8 @@ public class ServicesHandler {
 		pastryNode = (node instanceof PastryNodeImpl) ? (PastryNodeImpl) node : null;
 		ethereumNode = (node instanceof EthereumNode) ? (EthereumNode) node : null;
 		registry = (node instanceof EthereumNode) ? ethereumNode.getRegistryClient() : null;
+		authenticationManager = new AuthenticationManager(connector);
+
 	}
 
 	@GET
@@ -184,7 +189,7 @@ public class ServicesHandler {
 	@POST
 	@Path("/testCAE")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response testCAE(String body, @CookieParam(WebConnector.COOKIE_SESSIONID_KEY) String sessionId)
+	public Response testCAE(String body, @Context HttpHeaders httpHeaders)
 			throws Exception {
 		System.out.println(body);
 		JSONObject payload = parseJson(body);
@@ -193,10 +198,11 @@ public class ServicesHandler {
 		String link = payload.getAsString("link");
 		System.out.println(body);
 
-		AgentSession session = connector.getSessionById(sessionId);
-		if (session == null) {
-			throw new BadRequestException("You have to be logged in to upload");
-		} else if (pastryNode == null) {
+		// AgentSession session = connector.getSessionById(sessionId);
+		// if (session == null) {
+		// 	throw new BadRequestException("You have to be logged in to upload");
+		// } else 
+		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
 					Status.INTERNAL_SERVER_ERROR);
@@ -209,6 +215,7 @@ public class ServicesHandler {
 			System.out.println("CCHHEECKK NOOOOW");
 			System.out.println("CCHHEECKK NOOOOW");
 			System.out.println("CCHHEECKK NOOOOW");
+			Agent agent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
 			PackageUploader.uploadServicePackageTest(pastryNode, name, version, session.getAgent(), body);
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
@@ -221,6 +228,32 @@ public class ServicesHandler {
 		} catch (ServicePackageException e) {
 			e.printStackTrace();
 			throw new BadRequestException("Service package upload failed", e);
+		}
+	}
+
+	private Credentials extractBasicAuthCredentials(String basicAuthHeader) {
+		if (basicAuthHeader == null) {
+			return null;
+		}
+		try {
+			String encodedCredentials = basicAuthHeader.substring("BASIC ".length());
+			String decodedCredentials = new String(Base64.getDecoder().decode(encodedCredentials), StandardCharsets.UTF_8);
+			int separatorPos = decodedCredentials.indexOf(':');
+
+			String identifier = decodedCredentials.substring(0, separatorPos);
+			String password = decodedCredentials.substring(separatorPos + 1);
+			return new Credentials(identifier, password);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
+	private class Credentials {
+		String identifier;
+		String password;
+		Credentials(String identifier, String password) {
+			this.identifier = identifier;
+			this.password = password;
 		}
 	}
 
