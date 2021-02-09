@@ -28,6 +28,8 @@ import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.web3j.crypto.Credentials;
