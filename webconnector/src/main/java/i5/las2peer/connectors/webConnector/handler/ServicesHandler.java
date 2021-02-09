@@ -68,6 +68,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import rice.pastry.NodeHandle;
+import i5.las2peer.api.security.Agent;
 
 @Path(ServicesHandler.RESOURCE_PATH)
 public class ServicesHandler {
