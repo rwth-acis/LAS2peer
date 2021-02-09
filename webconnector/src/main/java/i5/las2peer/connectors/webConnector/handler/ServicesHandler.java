@@ -218,7 +218,7 @@ public class ServicesHandler {
 			System.out.println("CCHHEECKK NOOOOW");
 			System.out.println("CCHHEECKK NOOOOW");
 			System.out.println("CCHHEECKK NOOOOW");
-			Agent agent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
+			AgentImpl agent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
 			PackageUploader.uploadServicePackageTest(pastryNode, name, version, agent, body);
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
