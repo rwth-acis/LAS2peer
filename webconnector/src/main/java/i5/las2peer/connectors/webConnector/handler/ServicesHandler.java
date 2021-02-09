@@ -231,32 +231,6 @@ public class ServicesHandler {
 		}
 	}
 
-	private Credentials extractBasicAuthCredentials(String basicAuthHeader) {
-		if (basicAuthHeader == null) {
-			return null;
-		}
-		try {
-			String encodedCredentials = basicAuthHeader.substring("BASIC ".length());
-			String decodedCredentials = new String(Base64.getDecoder().decode(encodedCredentials), StandardCharsets.UTF_8);
-			int separatorPos = decodedCredentials.indexOf(':');
-
-			String identifier = decodedCredentials.substring(0, separatorPos);
-			String password = decodedCredentials.substring(separatorPos + 1);
-			return new Credentials(identifier, password);
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
-	}
-
-	private class Credentials {
-		String identifier;
-		String password;
-		Credentials(String identifier, String password) {
-			this.identifier = identifier;
-			this.password = password;
-		}
-	}
-
 	@POST
 	@Path("/undeployTest")
 	@Produces(MediaType.APPLICATION_JSON)
