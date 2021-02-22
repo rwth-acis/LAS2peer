@@ -6,3 +6,4 @@
 /junitvmwatcher*.properties
 /junit*.properties
 /etc/
+/build

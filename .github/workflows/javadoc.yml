@@ -1,0 +1,30 @@
+# This workflow runs the deployJavadoc gradle task and then deploys the javadoc files to GitHub pages.
+
+name: Deploy Javadoc
+
+# Triggers the workflow on push to master
+on: 
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy-javadoc:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 14
+      uses: actions/setup-java@v1
+      with:
+        java-version: 14
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew deployJavadoc
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@4.0.0
+      with:
+        branch: gh-pages # deploy javadoc on gh-pages branch
+        folder: javadoc # folder that should be deployed

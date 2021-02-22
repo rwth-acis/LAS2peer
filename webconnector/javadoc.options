@@ -1,0 +1,4 @@
+--add-exports java.base/sun.security.provider=ALL-UNNAMED
+--add-exports java.base/sun.security.tools.keytool=ALL-UNNAMED
+--add-exports java.base/sun.security.util=ALL-UNNAMED
+--add-exports java.base/sun.security.x509=ALL-UNNAMED

@@ -13,7 +13,7 @@
     "test:integration": "polymer build # test that psk builds without error with the CLI"
   },
   "dependencies": {
-    "@cwmr/iron-star-rating": "github:chadweimer/iron-star-rating",
+    "@cwmr/iron-star-rating": "^3.1.4",
     "@polymer/app-layout": "^3.0.2",
     "@polymer/app-route": "^3.0.2",
     "@polymer/iron-ajax": "^3.0.1",

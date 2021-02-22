@@ -224,7 +224,7 @@ class NodeFrontend extends PolymerElement {
               oidcsilentsigninurl$="[[_loadUrl]]"
               loginoidctoken$="[[_oidcUser.access_token]]"
               loginoidcprovider="https://api.learning-layers.eu/o/oauth2"
-              subtitle="v{REPLACED_BY_ANT}"
+              subtitle="v@LAS2PEER_VERSION@"
             ></las2peer-frontend-statusbar>
 
           <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">

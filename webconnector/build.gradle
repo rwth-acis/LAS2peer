@@ -1,0 +1,236 @@
+plugins {
+    id 'java-library'
+    id 'application'
+    // maven plugin is used to create .pom files and for publishing
+    id 'maven-publish'
+    id 'eclipse'
+}
+
+def las2peerRevision = "${project.property('las2peer.revision')}"
+def las2peerBuildNumber = "${project.property('las2peer.build.number')}"
+def las2peerRelease = System.env.LAS2PEER_RELEASE != null
+def las2peerVersion = las2peerRelease ? "$las2peerRevision.$las2peerBuildNumber" : "$las2peerRevision-SNAPSHOT"
+
+group = 'i5'
+archivesBaseName = 'las2peer-web-connector'
+version = las2peerVersion
+sourceCompatibility = "${project.property('java.version')}"
+targetCompatibility = "${project.property('java.version')}"
+
+repositories {
+    // Use JCenter for resolving dependencies.
+    jcenter()
+
+    // DBIS Archiva
+    maven {
+        url "${project.property('dbis.archiva.url')}"
+    }
+}
+
+compileJava {
+    options.compilerArgs += ["-XDignore.symbol.file",
+    "--add-exports", "java.base/sun.security.provider=ALL-UNNAMED",
+    "--add-exports", "java.base/sun.security.tools.keytool=ALL-UNNAMED",
+    "--add-exports", "java.base/sun.security.util=ALL-UNNAMED",
+    "--add-exports", "java.base/sun.security.x509=ALL-UNNAMED"]
+    options.fork = true
+    options.forkOptions.executable = "javac"
+}
+
+javadoc {
+    doFirst {
+        options.optionFiles << file("javadoc.options")
+    }
+    destinationDir = file("$projectDir/export/javadoc")
+}
+
+task junitdoc(type: Javadoc) {
+    classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+    source = sourceSets.test.java
+    destinationDir = file("$projectDir/export/junitdoc")
+}
+
+build.dependsOn "javadoc"
+build.dependsOn "junitdoc"
+
+dependencies {
+    // Use JUnit test framework.
+    testImplementation "junit:junit:${project.property('junit.version')}"
+
+    implementation project(":restmapper")
+
+    implementation "com.nimbusds:oauth2-oidc-sdk:4.17"
+    implementation "org.glassfish.jersey.containers:jersey-container-jdk-http:${project.property('jersey.version')}"
+    implementation "net.minidev:json-smart:2.3"
+    implementation "org.webjars:swagger-ui:3.6.1"
+    implementation "javax.xml.bind:jaxb-api:2.3.1"
+    implementation "org.glassfish.jersey.inject:jersey-hk2:${project.property('jersey.version')}"
+}
+
+// put all .jar files into export/jars folder
+tasks.withType(Jar) {
+    destinationDir = file("$projectDir/export/jars")
+}
+
+compileTestJava {
+    dependsOn "copyTest"
+}
+
+sourceSets {
+    main {
+        resources {
+            // add webapp (node frontend)
+            srcDirs = ["resources"]
+        }
+    }
+}
+
+// Replace las2peer version placeholder in node frontend statusbar title
+import org.apache.tools.ant.filters.ReplaceTokens 
+processResources {
+    from (sourceSets.main.resources) {
+        include "webapp/src/node-frontend.js"
+        filter(ReplaceTokens, tokens: [LAS2PEER_VERSION : "$las2peerVersion".toString()])
+    }
+}
+
+// Copies files like .xml files into build directory
+task copyTest(type: Copy) {
+    from "src/test/java"
+    exclude "**/*.java"
+    exclude "*.java"
+    into "$buildDir/classes/java/test"
+}
+
+jar {
+    dependsOn "buildFrontend"
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Version": las2peerVersion,
+                   "Class-Path": configurations.runtimeClasspath.files.collect { it.getName() }.join(" "))
+    }
+}
+
+task copyToLib(type: Copy) {
+    from configurations.runtimeClasspath
+    into "$projectDir/lib"
+}
+
+build.dependsOn copyToLib
+
+// building frontend is not yet working
+task buildFrontend {
+    description = "Installs dependencies from package.json"
+    
+    dependsOn "npmInstall"
+    dependsOn "npmBuild"
+    dependsOn "fixWebapp"
+}
+
+OperatingSystem os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem;
+
+task npmInstall(type: Exec) {
+    workingDir = file("${project.projectDir}/frontend")
+
+    if(os.isWindows()) {
+        executable = "npm.cmd"
+    } else {
+        executable "npm"
+    }
+    args "install"
+}
+
+task npmBuild(type: Exec) {
+    dependsOn "npmInstall"
+
+    workingDir = file("${project.projectDir}/frontend")
+
+    if(os.isWindows()) {
+        executable = "npm.cmd"
+    } else {
+        executable "npm"
+    }
+    args "run", "build"
+}
+
+task fixWebapp(type: Exec) {
+    dependsOn "npmBuild"
+
+    if(os.isWindows()) {
+        commandLine = ["cmd", "/C", "${project.projectDir}\\fix_symlink.bat", "${project.projectDir}\\frontend\\build\\es6-bundled", "${project.projectDir}\\resources\\webapp"]
+    } else {
+        executable = "/bin/bash"
+        args "${project.projectDir}/fix_symlink.sh"
+    }
+}
+
+clean.doLast {
+    file("export").deleteDir()
+    file("lib").deleteDir()
+}
+
+// In .pom file, use "runtime" scope for dependencies declared with api configuration (instead of "compile" scope).
+publishing.publications.all {
+    pom.withXml {
+        asNode().dependencies."*".findAll() {
+            it.scope.text() == "compile" && project.configurations.api.allDependencies.find { dep -> dep.name == it.artifactId.text() }
+        }.each { it.scope*.value = "runtime"}
+    }
+}
+
+publishing {
+    publications {
+        webconnector(MavenPublication) {
+            from components.java
+            pom {
+                artifactId "las2peer-web-connector"
+                packaging "jar"
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            if (las2peerRelease) url = "${project.property('dbis.archiva.url')}"
+            else url = "${project.property('dbis.archiva.url.snapshots')}"
+
+            credentials {
+                username = System.env.ARCHIVA_USERNAME
+                password = System.env.ARCHIVA_PASSWORD
+            }
+        }
+    }
+}
+
+// disable module metadata publication
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+}
+
+// configuration for eclipse (this allows to import las2peer as a gradle project in eclipse without any problems)
+eclipse {
+    classpath {
+      file {
+            whenMerged {
+                def jre = entries.find { it.path.contains "org.eclipse.jdt.launching.JRE_CONTAINER" }
+                jre.entryAttributes["add-exports"] = "java.base/sun.security.provider=ALL-UNNAMED:java.base/sun.security.tools.keytool=ALL-UNNAMED:java.base/sun.security.util=ALL-UNNAMED:java.base/sun.security.x509=ALL-UNNAMED"
+                jre.entryAttributes["module"] = "true"
+
+                // change output directory for test, main, resources and default
+                def test = entries.find { it.path == "src/test/java" }
+                test.output = "output/test"
+
+                def main = entries.find { it.path == "src/main/java" }
+                main.output = "output/main"
+
+                def resources = entries.find { it.path == "resources" }
+                resources.output = "output/main"
+
+                def defaultEntry = entries.find { it.kind == "output" && it.path == "bin/default" }
+                defaultEntry.path = "output/default"
+            }
+        }
+    }
+}
