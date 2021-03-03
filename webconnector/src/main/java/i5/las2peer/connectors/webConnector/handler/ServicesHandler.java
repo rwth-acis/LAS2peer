@@ -301,14 +301,14 @@ public class ServicesHandler {
 		// }
 
 		// try {
-			ethereumNode.stopService(ServiceNameVersion.fromString(name + "@" + version));
+			PackageUploader.undeployTest(pastryNode, name, version);
+			// ethereumNode.stopService(ServiceNameVersion.fromString(name + "@" + version));
 			return Response.ok().build();
 
 			// System.out.println("UNDEPLOY NOOOOW");
 			// System.out.println("UNDEPLOY NOOOOW");
 			// System.out.println("UNDEPLOY NOOOOW");
 			// System.out.println("UNDEPLOY NOOOOW");
-			// PackageUploader.undeployTest(pastryNode, name, version, session.getAgent());
 			// JSONObject json = new JSONObject();
 			// json.put("code", Status.OK.getStatusCode());
 			// json.put("text", Status.OK.getStatusCode() + " - Service package upload successful");

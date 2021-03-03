@@ -317,7 +317,7 @@ public class EthereumNode extends PastryNodeImpl {
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 
-	public void undeployTest(String serviceName, String serviceVersion, EthereumAgent author)
+	public void undeployTest(String serviceName, String serviceVersion)
 			throws AgentException, SerializationException, EthereumException {
 		logger.info("Undeploying service release '" + serviceName + "', v" + serviceVersion + " ...");
 		int[] version = Util.parseVersion(serviceVersion);

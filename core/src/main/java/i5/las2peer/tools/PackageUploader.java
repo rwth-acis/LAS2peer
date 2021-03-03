@@ -229,7 +229,7 @@ public class PackageUploader {
 		node.registerServiceInBlockchain(serviceName, serviceVersion, (EthereumAgent) devAgent, supplementHash);
 	}
 
-	public static void undeployTest(PastryNodeImpl node, String serviceName, String serviceVersion, AgentImpl devAgent)
+	public static void undeployTest(PastryNodeImpl node, String serviceName, String serviceVersion)
 			throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException,
 			EthereumException {
 		if (serviceName == null) {
@@ -244,7 +244,7 @@ public class PackageUploader {
 		System.out.println(serviceName);
 		System.out.println(serviceVersion);
 		if (node instanceof EthereumNode) {
-			unregisterServiceTest((EthereumNode) node, serviceName, serviceVersion, devAgent);
+			unregisterServiceTest((EthereumNode) node, serviceName, serviceVersion);
 		}
 		// storeServiceFiles(node, jarFiles);
 		// LibraryIdentifier libId = storeServiceMetadata(node, serviceName,
@@ -254,13 +254,9 @@ public class PackageUploader {
 		// node.storeEnvelope(versionEnv, devAgent);
 	}
 
-	private static void unregisterServiceTest(EthereumNode node, String serviceName, String serviceVersion,
-			AgentImpl devAgent)
+	private static void unregisterServiceTest(EthereumNode node, String serviceName, String serviceVersion)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
-		if (!(devAgent instanceof EthereumAgent)) {
-			throw new AgentException("Cannot use non-Ethereum agent to upload services on this Ethereum-enabled node!");
-		}
-		node.undeployTest(serviceName, serviceVersion, (EthereumAgent) devAgent);
+		node.undeployTest(serviceName, serviceVersion);
 	}
 
 	private static void storeServiceFiles(PastryNodeImpl node, Map<String, byte[]> jarFiles) throws EnvelopeException {
