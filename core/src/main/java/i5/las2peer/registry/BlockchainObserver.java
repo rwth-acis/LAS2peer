@@ -536,6 +536,45 @@ class BlockchainObserver {
 					}
 				}, e -> logger.severe("Error observing service deployment event: " + e.toString()));
 
+				contracts.serviceRegistry.clusterServiceDeploymentEventFlowable(DefaultBlockParameterName.EARLIEST,
+				DefaultBlockParameterName.LATEST)
+				.observeOn(Schedulers.io())
+				.subscribeOn(Schedulers.io())
+				.subscribe(deployment -> {
+					if (!txHasAlreadyBeenHandled(deployment.log.getTransactionHash())) {
+						String serviceName = lookupServiceName(deployment.nameHash);
+						ServiceDeploymentData deploymentData = new ServiceDeploymentData(
+								serviceName, "",
+								deployment.versionMajor, deployment.versionMinor, deployment.versionPatch,
+								"", deployment.timestamp
+							);
+						addOrUpdateDeployment(deploymentData);
+
+						// save announcement log:
+							// for each block number
+								// for each service (mobsos success model is currently not using service version anyway)
+									// save nodeID who is hosting / has deployed this service
+						// used for eth faucet calculations, where we count the number of announcements since block X
+						serviceAnnouncementsPerBlockTree__lock.writeLock().lock();
+						try
+						{
+							serviceAnnouncementsPerBlockTree
+								.computeIfAbsent(deployment.log.getBlockNumber(), k -> new HashMap<>())
+								.computeIfAbsent(serviceName+"."+"", k -> new ArrayList<>())
+								.add("");
+
+							logger.info("[ChainObserver] observed service announcement ("+serviceName+"."+""+"): \n" + 
+								"block #: " + deployment.log.getBlockNumber() + "\n" + 
+								"node  #:" + ""
+							);
+						}
+						finally
+						{
+							serviceAnnouncementsPerBlockTree__lock.writeLock().unlock();
+						}
+					}
+				}, e -> logger.severe("Error observing service deployment event: " + e.toString()));
+
 		// *end* of service deployment announcements
 		// FIXME: this should work almost always, but it would be far safer to actually add a timestamp
 		// to the end event too, so that if (for whatever reason) the events are very out of order, we
@@ -554,6 +593,22 @@ class BlockchainObserver {
 						ServiceDeploymentData deploymentThatEnded = new ServiceDeploymentData(serviceName,
 								stopped.className, stopped.versionMajor, stopped.versionMinor, stopped.versionPatch,
 								stopped.nodeId, stopped.timestamp, true);
+						addOrUpdateDeployment(deploymentThatEnded);
+					}
+				}, e -> logger.severe("Error observing service deployment end event: " + e.toString()));
+
+				contracts.serviceRegistry.clusterServiceDeploymentEndEventFlowable(DefaultBlockParameterName.EARLIEST,
+				DefaultBlockParameterName.LATEST)
+				.observeOn(Schedulers.io())
+				.subscribeOn(Schedulers.io())
+				.subscribe(stopped -> {
+					if (!txHasAlreadyBeenHandled(stopped.log.getTransactionHash())) {
+						String serviceName = lookupServiceName(stopped.nameHash);
+
+						// for comparison only; remember: this event signifies the END of a deployment, not actually a deployment
+						ServiceDeploymentData deploymentThatEnded = new ServiceDeploymentData(serviceName,
+								"", stopped.versionMajor, stopped.versionMinor, stopped.versionPatch,
+								"", stopped.timestamp, true);
 						addOrUpdateDeployment(deploymentThatEnded);
 					}
 				}, e -> logger.severe("Error observing service deployment end event: " + e.toString()));

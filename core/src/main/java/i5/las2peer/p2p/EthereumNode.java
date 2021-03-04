@@ -317,6 +317,17 @@ public class EthereumNode extends PastryNodeImpl {
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 
+	public void announceClusterDeployServiceInBlockchainTEST(String serviceName, String serviceVersion,
+			byte[] supplementHash) throws AgentException, SerializationException, EthereumException {
+		int[] version = Util.parseVersion(serviceVersion);
+		boolean serviceAlreadyRegistered = getRegistryClient().getServiceNames().contains(serviceName);
+		if (serviceAlreadyRegistered) {
+			registryClient.announceClusterDeployment(serviceName, version[0], version[1], version[2], supplementHash);
+		} else {
+
+		}
+	}
+
 	public void undeployTest(String serviceName, String serviceVersion)
 			throws AgentException, SerializationException, EthereumException {
 		logger.info("Undeploying service release '" + serviceName + "', v" + serviceVersion + " ...");

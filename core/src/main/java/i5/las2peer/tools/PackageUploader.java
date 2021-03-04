@@ -192,6 +192,32 @@ public class PackageUploader {
 		node.storeEnvelope(versionEnv, devAgent);
 	}
 
+	public static void deployServiceTest(PastryNodeImpl node, String serviceName, String serviceVersion,
+			String supplement) throws SerializationException, CryptoException, EnvelopeException,
+			ServicePackageException, AgentException, EthereumException {
+		if (serviceName == null) {
+			throw new ServicePackageException("No service name given");
+		} else if (serviceVersion == null) {
+			throw new ServicePackageException("No service version given");
+		}
+		System.out.println("TTRRYYYYYY TO DEPLOYY");
+		System.out.println(serviceName);
+		System.out.println(serviceVersion);
+		System.out.println(supplement);
+		System.out.println(serviceName);
+		System.out.println(serviceVersion);
+		System.out.println(supplement);
+		if (node instanceof EthereumNode) {
+			announceClusterService((EthereumNode) node, serviceName, serviceVersion, supplement);
+		}
+		// storeServiceFiles(node, jarFiles);
+		// LibraryIdentifier libId = storeServiceMetadata(node, serviceName,
+		// serviceVersion, depHashes, devAgent);
+		// EnvelopeVersion versionEnv = fetchOrCreateVersionsEnvelope(node, serviceName,
+		// devAgent, libId);
+		// node.storeEnvelope(versionEnv, devAgent);
+	}
+
 	public static void uploadServicePackageTest(PastryNodeImpl node, String serviceName, String serviceVersion,
 			AgentImpl devAgent, String supplement) throws SerializationException, CryptoException, EnvelopeException,
 			ServicePackageException, AgentException, EthereumException {
@@ -218,6 +244,7 @@ public class PackageUploader {
 		// devAgent, libId);
 		// node.storeEnvelope(versionEnv, devAgent);
 	}
+
 	private static void registerService(EthereumNode node, String serviceName, String serviceVersion,
 			AgentImpl devAgent, String supplement)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
@@ -226,6 +253,13 @@ public class PackageUploader {
 		}
 		byte[] supplementHash = storeSupplement(node, supplement);
 		node.registerServiceInBlockchain(serviceName, serviceVersion, (EthereumAgent) devAgent, supplementHash);
+	}
+
+	private static void announceClusterService(EthereumNode node, String serviceName, String serviceVersion, String supplement)
+			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
+
+		byte[] supplementHash = storeSupplement(node, supplement);
+		node.announceClusterDeployServiceInBlockchainTEST(serviceName, serviceVersion, supplementHash);
 	}
 
 	public static void undeployTest(PastryNodeImpl node, String serviceName, String serviceVersion)
