@@ -208,8 +208,11 @@ public class PackageUploader {
 		System.out.println(serviceVersion);
 		System.out.println(supplement);
 		if (node instanceof EthereumNode) {
+			System.out.println("ann in eth node");
 			announceClusterService((EthereumNode) node, serviceName, serviceVersion, supplement);
 		}
+		System.out.println("noooo eth node");
+
 		// storeServiceFiles(node, jarFiles);
 		// LibraryIdentifier libId = storeServiceMetadata(node, serviceName,
 		// serviceVersion, depHashes, devAgent);

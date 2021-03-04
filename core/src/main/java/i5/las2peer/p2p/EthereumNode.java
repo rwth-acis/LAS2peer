@@ -322,9 +322,10 @@ public class EthereumNode extends PastryNodeImpl {
 		int[] version = Util.parseVersion(serviceVersion);
 		boolean serviceAlreadyRegistered = getRegistryClient().getServiceNames().contains(serviceName);
 		if (serviceAlreadyRegistered) {
+			System.out.println("try to announce cl deplo");
 			registryClient.announceClusterDeployment(serviceName, version[0], version[1], version[2], supplementHash);
 		} else {
-
+			System.out.println("already exisitng cl deploy");
 		}
 	}
 
