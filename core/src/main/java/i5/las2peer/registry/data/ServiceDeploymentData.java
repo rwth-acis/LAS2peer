@@ -45,13 +45,12 @@ public class ServiceDeploymentData {
 	}
 
 	public ServiceDeploymentData(String serviceName, BigInteger versionMajor, BigInteger versionMinor,
-			BigInteger versionPatch, BigInteger timestamp, byte[] supplementHash, boolean ended) {
+			BigInteger versionPatch, BigInteger timestamp, boolean ended) {
 		this.serviceName = serviceName;
 		this.versionMajor = versionMajor;
 		this.versionMinor = versionMinor;
 		this.versionPatch = versionPatch;
 		this.timestamp = timestamp;
-		this.supplementHash = supplementHash;
 		this.ended = ended;
 	}
 

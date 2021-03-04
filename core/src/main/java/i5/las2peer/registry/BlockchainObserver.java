@@ -562,7 +562,7 @@ class BlockchainObserver {
 						// not actually a deployment
 						ServiceDeploymentData deploymentThatEnded = new ServiceDeploymentData(serviceName,
 								stopped.versionMajor, stopped.versionMinor, stopped.versionPatch, stopped.timestamp,
-								stopped.hash, true);
+								true);
 						addOrUpdateDeployment(deploymentThatEnded);
 					}
 				}, e -> logger.severe("Error observing cluster service deployment end event: " + e.toString()));
