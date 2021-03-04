@@ -218,7 +218,6 @@ public class PackageUploader {
 		// devAgent, libId);
 		// node.storeEnvelope(versionEnv, devAgent);
 	}
-
 	private static void registerService(EthereumNode node, String serviceName, String serviceVersion,
 			AgentImpl devAgent, String supplement)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {

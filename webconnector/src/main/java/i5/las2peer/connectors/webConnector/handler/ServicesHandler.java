@@ -235,51 +235,6 @@ public class ServicesHandler {
 	}
 
 	@POST
-	@Path("/stopDeployedServiceTEST")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response stopDeployedServiceTEST(String body, @Context HttpHeaders httpHeaders)
-			throws Exception {
-		System.out.println(body);
-		JSONObject payload = parseJson(body);
-		String name = payload.getAsString("name");
-		String version = payload.getAsString("version");
-		String link = payload.getAsString("link");
-		System.out.println(body);
-
-		// AgentSession session = connector.getSessionById(sessionId);
-		// if (session == null) {
-		// 	throw new BadRequestException("You have to be logged in to upload");
-		// } else 
-		if (pastryNode == null) {
-			throw new ServerErrorException(
-					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
-					Status.INTERNAL_SERVER_ERROR);
-		}
-
-		try {
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			AgentImpl agent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
-			PackageUploader.uploadServicePackageTest(pastryNode, name, version, agent, body);
-			JSONObject json = new JSONObject();
-			json.put("code", Status.OK.getStatusCode());
-			json.put("text", Status.OK.getStatusCode() + " - Service package upload successful");
-			json.put("msg", "Service package upload successful");
-			return Response.ok(json.toJSONString(), MediaType.APPLICATION_JSON).build();
-		} catch (EnvelopeAlreadyExistsException e) {
-			throw new BadRequestException("Version is already known in the network. To update increase version number",
-					e);
-		} catch (ServicePackageException e) {
-			e.printStackTrace();
-			throw new BadRequestException("Service package upload failed", e);
-		}
-	}
-
-	@POST
 	@Path("/undeployTest")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response undeployTest(String body)
