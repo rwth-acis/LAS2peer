@@ -317,6 +317,14 @@ public class EthereumNode extends PastryNodeImpl {
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 
+	public void onneidegenDreck(String serviceName, String serviceVersion,
+			byte[] supplementHash) throws AgentException, SerializationException, EthereumException {
+		String nodeId = getPastryNode().getId().toStringFull();
+		logger.info("announcing this fuck service release '" + serviceName + "', v" + serviceVersion + " ...");
+		int[] version = Util.parseVersion(serviceVersion);
+		registryClient.announceDeployment(serviceName, "", version[0], version[1], version[2], nodeId);
+	}
+
 	public void announceClusterDeployServiceInBlockchainTEST(String serviceName, String serviceVersion,
 			byte[] supplementHash) throws AgentException, SerializationException, EthereumException {
 		int[] version = Util.parseVersion(serviceVersion);
