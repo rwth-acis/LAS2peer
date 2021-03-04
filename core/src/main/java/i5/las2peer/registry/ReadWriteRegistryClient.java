@@ -379,7 +379,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		try {
 			contracts.serviceRegistry
 					.announceClusterDeployment(servicePackageName, BigInteger.valueOf(versionMajor),
-							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), supplementHash)
+							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch))
 					.sendAsync().get();
 		} catch (Exception e) {
 			throw new EthereumException(
