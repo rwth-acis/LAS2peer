@@ -316,17 +316,35 @@ public class PackageUploader {
 		if (node instanceof EthereumNode) {
 			unregisterServiceTest((EthereumNode) node, serviceName, serviceVersion);
 		}
-		// storeServiceFiles(node, jarFiles);
-		// LibraryIdentifier libId = storeServiceMetadata(node, serviceName,
-		// serviceVersion, depHashes, devAgent);
-		// EnvelopeVersion versionEnv = fetchOrCreateVersionsEnvelope(node, serviceName,
-		// devAgent, libId);
-		// node.storeEnvelope(versionEnv, devAgent);
+	}
+
+	public static void undeployClusterTest(PastryNodeImpl node, String serviceName, String serviceVersion)
+			throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException,
+			EthereumException {
+		if (serviceName == null) {
+			throw new ServicePackageException("No service name given");
+		} else if (serviceVersion == null) {
+			throw new ServicePackageException("No service version given");
+		}
+		System.out.println("TTRRYYYYYY");
+
+		System.out.println(serviceName);
+		System.out.println(serviceVersion);
+		System.out.println(serviceName);
+		System.out.println(serviceVersion);
+		if (node instanceof EthereumNode) {
+			System.out.println("undeployingg");
+			undeployClusterServiceTest((EthereumNode) node, serviceName, serviceVersion);
+		}
 	}
 
 	private static void unregisterServiceTest(EthereumNode node, String serviceName, String serviceVersion)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
 		node.undeployTest(serviceName, serviceVersion);
+	}
+	private static void undeployClusterServiceTest(EthereumNode node, String serviceName, String serviceVersion)
+			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
+		node.undeployClusterTest(serviceName, serviceVersion);
 	}
 
 	private static void storeServiceFiles(PastryNodeImpl node, Map<String, byte[]> jarFiles) throws EnvelopeException {

@@ -384,7 +384,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			System.out.println(String.valueOf(versionPatch));
 			contracts.serviceRegistry
 					.announceClusterDeployment(servicePackageName, BigInteger.valueOf(versionMajor),
-							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch))
+							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), supplementHash)
 					.sendAsync().get();
 		} catch (Exception e) {
 			throw new EthereumException(
@@ -416,6 +416,19 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		} catch (Exception e) {
 			throw new EthereumException("Failed to submit service deployment *end* announcement (" + "DEBUG: "
 					+ serviceClassName + ", " + e.getMessage() + ")", e);
+		}
+	}
+
+	public void announceClusterDeploymentEnd(String servicePackageName, int versionMajor,
+			int versionMinor, int versionPatch) throws EthereumException {
+		try {
+			contracts.serviceRegistry
+					.announceClusterDeploymentEnd(servicePackageName, BigInteger.valueOf(versionMajor),
+							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch))
+					.sendAsync().get();
+		} catch (Exception e) {
+			throw new EthereumException("Failed to submit cluster service deployment *end* announcement (" + "DEBUG: "
+					 + ", " + e.getMessage() + ")", e);
 		}
 	}
 

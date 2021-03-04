@@ -346,6 +346,13 @@ public class EthereumNode extends PastryNodeImpl {
 		registryClient.announceDeploymentEnd(serviceName, "", version[0], version[1], version[2], nodeId);
 	}
 
+	public void undeployClusterTest(String serviceName, String serviceVersion)
+			throws AgentException, SerializationException, EthereumException {
+		logger.info("Undeploying cluster service release '" + serviceName + "', v" + serviceVersion + " ...");
+		int[] version = Util.parseVersion(serviceVersion);
+		registryClient.announceClusterDeploymentEnd(serviceName, version[0], version[1], version[2]);
+	}
+
 	private boolean isServiceOwner(String authorName, String serviceName) throws EthereumException {
 		try {
 			String serviceOwnerName = getRegistryClient().lookupServiceAuthor(serviceName);

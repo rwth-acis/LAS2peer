@@ -1,4 +1,5 @@
 package i5.las2peer.connectors.webConnector.handler;
+
 import i5.las2peer.connectors.webConnector.util.AuthenticationManager;
 
 import java.io.InputStream;
@@ -192,8 +193,7 @@ public class ServicesHandler {
 	@POST
 	@Path("/testCAE")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response testCAE(String body, @Context HttpHeaders httpHeaders)
-			throws Exception {
+	public Response testCAE(String body, @Context HttpHeaders httpHeaders) throws Exception {
 		System.out.println(body);
 		JSONObject payload = parseJson(body);
 		String name = payload.getAsString("name");
@@ -203,8 +203,8 @@ public class ServicesHandler {
 
 		// AgentSession session = connector.getSessionById(sessionId);
 		// if (session == null) {
-		// 	throw new BadRequestException("You have to be logged in to upload");
-		// } else 
+		// throw new BadRequestException("You have to be logged in to upload");
+		// } else
 		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
@@ -237,8 +237,7 @@ public class ServicesHandler {
 	@POST
 	@Path("/deployServiceTEST")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deployServiceTEST(String body)
-			throws Exception {
+	public Response deployServiceTEST(String body) throws Exception {
 		System.out.println(body);
 		JSONObject payload = parseJson(body);
 		String name = payload.getAsString("name");
@@ -248,8 +247,8 @@ public class ServicesHandler {
 
 		// AgentSession session = connector.getSessionById(sessionId);
 		// if (session == null) {
-		// 	throw new BadRequestException("You have to be logged in to upload");
-		// } else 
+		// throw new BadRequestException("You have to be logged in to upload");
+		// } else
 		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
@@ -280,10 +279,9 @@ public class ServicesHandler {
 	}
 
 	@POST
-	@Path("/fuckthisTEST")
+	@Path("/undeployClusterTESt")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response fuckthisTEST(String body)
-			throws Exception {
+	public Response undeployClusterTESt(String body) throws Exception {
 		System.out.println(body);
 		JSONObject payload = parseJson(body);
 		String name = payload.getAsString("name");
@@ -293,8 +291,8 @@ public class ServicesHandler {
 
 		// AgentSession session = connector.getSessionById(sessionId);
 		// if (session == null) {
-		// 	throw new BadRequestException("You have to be logged in to upload");
-		// } else 
+		// throw new BadRequestException("You have to be logged in to upload");
+		// } else
 		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
@@ -302,14 +300,9 @@ public class ServicesHandler {
 		}
 
 		try {
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			PackageUploader.onneidegenshit(pastryNode, name, version, body);
-			
+			System.out.println("undeploy now");
+			PackageUploader.undeployClusterTest(pastryNode, name, version);
+
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
 			json.put("text", Status.OK.getStatusCode() + " - Service package upload successful");
@@ -327,16 +320,15 @@ public class ServicesHandler {
 	@POST
 	@Path("/undeployTest")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response undeployTest(String body)
-			throws Exception {
+	public Response undeployTest(String body) throws Exception {
 		System.out.println(body);
 		JSONObject payload = parseJson(body);
 		String name = payload.getAsString("name");
 		String version = payload.getAsString("version");
-			PackageUploader.undeployTest(pastryNode, name, version);
-			return Response.ok().build();
+		PackageUploader.undeployTest(pastryNode, name, version);
+		return Response.ok().build();
 	}
-	
+
 	@POST
 	@Path("/start")
 	public Response handleStartService(@QueryParam("serviceName") String serviceName,
