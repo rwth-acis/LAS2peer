@@ -264,6 +264,7 @@ public class ServicesHandler {
 			System.out.println("CCHHEECKK NOOOOW");
 			System.out.println("CCHHEECKK NOOOOW");
 			PackageUploader.deployServiceTest(pastryNode, name, version, body);
+			
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
 			json.put("text", Status.OK.getStatusCode() + " - Service package upload successful");
