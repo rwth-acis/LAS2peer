@@ -314,11 +314,18 @@ public class EthereumNode extends PastryNodeImpl {
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 
-	public void announceClusterServiceDeployment(String serviceName, String serviceVersion, byte[] supplementHash)
+	/**
+	 * Announces deployment of Cluster Service on blockchain.
+	 *
+	 * Only possible if release of service exists, else no sense do deploy a release of service which does not exist
+	 * 
+	 * Boolean used to avoid case, when freshly released service is registered
+	 */
+	public void announceClusterServiceDeployment(String serviceName, String serviceVersion, byte[] supplementHash, Boolean firstDeployment)
 			throws AgentException, SerializationException, EthereumException {
 		int[] version = Util.parseVersion(serviceVersion);
 		boolean serviceAlreadyRegistered = getRegistryClient().getServiceNames().contains(serviceName);
-		if (serviceAlreadyRegistered) {
+		if (serviceAlreadyRegistered || firstDeployment) {
 			logger.info("Announcing deployment of service '" + serviceName + "', v" + serviceVersion
 					+ " ... as this service is released");
 			registryClient.announceClusterDeployment(serviceName, version[0], version[1], version[2], supplementHash);
