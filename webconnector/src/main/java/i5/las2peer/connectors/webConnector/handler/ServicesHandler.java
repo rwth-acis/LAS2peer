@@ -185,7 +185,7 @@ public class ServicesHandler {
 	}
 
 	@POST
-	@Path("/testCAE")
+	@Path("/registerAndDeployClusterService")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response testCAE(String body, @Context HttpHeaders httpHeaders) throws Exception {
 		JSONObject payload = parseJson(body);
