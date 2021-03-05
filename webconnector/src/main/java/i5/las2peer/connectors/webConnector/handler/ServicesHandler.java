@@ -530,11 +530,27 @@ public class ServicesHandler {
 			JSONArray deploymentList = new JSONArray();
 			registry.getDeployments(serviceName).forEach(deployment -> {
 				JSONObject entry = new JSONObject();
-				entry.put("packageName", deployment.getServicePackageName());
-				entry.put("className", deployment.getServiceClassName());
-				entry.put("version", deployment.getVersion());
-				entry.put("time", deployment.getTime());
-				entry.put("nodeId", deployment.getNodeId());
+				if (deployment.getServiceClassName() != null) {
+					entry.put("packageName", deployment.getServicePackageName());
+					entry.put("className", deployment.getServiceClassName());
+					entry.put("version", deployment.getVersion());
+					entry.put("time", deployment.getTime());
+					entry.put("nodeId", deployment.getNodeId());
+				} else {
+					byte[] rawSupplement = new byte[0];
+					try {
+						rawSupplement = ethereumNode.fetchHashedContent(deployment.getSupplementHash());
+					} catch (EnvelopeException e) {
+						e.printStackTrace();
+					}
+					JSONObject supplement = parseJson(new String(rawSupplement, StandardCharsets.UTF_8));
+					System.out.println(supplement.toString());
+					entry.put("packageName", deployment.getServicePackageName());
+					entry.put("version", deployment.getVersion());
+					entry.put("time", deployment.getTime());
+					entry.put("supplement", supplement);
+				}
+
 				deploymentList.add(entry);
 			});
 			jsonObject.put(serviceName, deploymentList);

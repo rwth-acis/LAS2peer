@@ -70,6 +70,10 @@ public class ServiceDeploymentData {
 		return nodeId;
 	}
 
+	public byte[] getSupplementHash() {
+		return supplementHash;
+	}
+
 	public String getTime() {
 		if (timestamp == null) {
 			return null;
