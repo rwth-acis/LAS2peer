@@ -253,7 +253,7 @@ public class PackageUploader {
 	private static void announceUndeploymentOfClusterService(EthereumNode node, String serviceName,
 			String serviceVersion)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
-		node.undeployClusterTest(serviceName, serviceVersion);
+		node.announceUndeploymentOfClusterService(serviceName, serviceVersion);
 	}
 
 	private static void storeServiceFiles(PastryNodeImpl node, Map<String, byte[]> jarFiles) throws EnvelopeException {

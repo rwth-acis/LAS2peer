@@ -336,18 +336,13 @@ public class EthereumNode extends PastryNodeImpl {
 		}
 	}
 
-	public void undeployTest(String serviceName, String serviceVersion)
+	/**
+	 * Announces undeployment of Cluster Service on blockchain.
+	 */
+	public void announceUndeploymentOfClusterService(String serviceName, String serviceVersion)
 			throws AgentException, SerializationException, EthereumException {
-		logger.info("Undeploying service release '" + serviceName + "', v" + serviceVersion + " ...");
-		int[] version = Util.parseVersion(serviceVersion);
-		String nodeId = getPastryNode().getId().toStringFull();
-
-		registryClient.announceDeploymentEnd(serviceName, "", version[0], version[1], version[2], nodeId);
-	}
-
-	public void undeployClusterTest(String serviceName, String serviceVersion)
-			throws AgentException, SerializationException, EthereumException {
-		logger.info("Undeploying cluster service release '" + serviceName + "', v" + serviceVersion + " ...");
+		logger.info("Announcing undeployment of cluster service release '" + serviceName + "', v" + serviceVersion
+				+ " ...");
 		int[] version = Util.parseVersion(serviceVersion);
 		registryClient.announceClusterDeploymentEnd(serviceName, version[0], version[1], version[2]);
 	}
