@@ -102,6 +102,7 @@ public class ServiceDeploymentData {
 	// a newer timestamp comes in
 	@Override
 	public boolean equals(Object o) {
+		System.out.println("Doing the equal custom");
 		if (this == o)
 			return true;
 		if (o == null || getClass() != o.getClass())

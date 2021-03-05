@@ -625,14 +625,16 @@ class BlockchainObserver {
 
 		Map<ServiceDeploymentData, ServiceDeploymentData> existingDeployments = deployments
 				.get(deployment.getServicePackageName());
-
 		if (existingDeployments.containsKey(deployment)) {
+			System.out.println("Deployment contained, maybe replacing");
 			// other entry -- older or newer (or identical) -- already exists
 			if (existingDeployments.get(deployment).getTimestamp().compareTo(deployment.getTimestamp()) < 0) {
 				// existing entry is older => update
+				System.out.println("Deployment contained,  replacing now");
 				existingDeployments.replace(deployment, deployment);
 			}
 		} else {
+			System.out.println("Deployment not contained,  not replacing but adding");
 			existingDeployments.put(deployment, deployment);
 		}
 	}
