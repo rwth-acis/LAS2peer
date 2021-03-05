@@ -197,7 +197,7 @@ public class ServicesHandler {
 		}
 		try {
 			AgentImpl agent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
-			PackageUploader.uploadServicePackageTest(pastryNode, payload.getAsString("name"),
+			PackageUploader.registerAndAnnounceDeploymentOfClusterService(pastryNode, payload.getAsString("name"),
 					payload.getAsString("version"), agent, body);
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());

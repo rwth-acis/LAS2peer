@@ -212,16 +212,9 @@ public class PackageUploader {
 			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement);
 		}
 		System.out.println("noooo eth node");
-
-		// storeServiceFiles(node, jarFiles);
-		// LibraryIdentifier libId = storeServiceMetadata(node, serviceName,
-		// serviceVersion, depHashes, devAgent);
-		// EnvelopeVersion versionEnv = fetchOrCreateVersionsEnvelope(node, serviceName,
-		// devAgent, libId);
-		// node.storeEnvelope(versionEnv, devAgent);
 	}
 
-	public static void uploadServicePackageTest(PastryNodeImpl node, String serviceName, String serviceVersion,
+	public static void registerAndAnnounceDeploymentOfClusterService(PastryNodeImpl node, String serviceName, String serviceVersion,
 			AgentImpl devAgent, String supplement) throws SerializationException, CryptoException, EnvelopeException,
 			ServicePackageException, AgentException, EthereumException {
 		if (serviceName == null) {
