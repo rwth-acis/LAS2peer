@@ -214,9 +214,9 @@ public class PackageUploader {
 		System.out.println("noooo eth node");
 	}
 
-	public static void registerAndAnnounceDeploymentOfClusterService(PastryNodeImpl node, String serviceName, String serviceVersion,
-			AgentImpl devAgent, String supplement) throws SerializationException, CryptoException, EnvelopeException,
-			ServicePackageException, AgentException, EthereumException {
+	public static void registerAndAnnounceDeploymentOfClusterService(PastryNodeImpl node, String serviceName,
+			String serviceVersion, AgentImpl devAgent, String supplement) throws SerializationException,
+			CryptoException, EnvelopeException, ServicePackageException, AgentException, EthereumException {
 		if (serviceName == null) {
 			throw new ServicePackageException("No service name given");
 		} else if (serviceVersion == null) {
