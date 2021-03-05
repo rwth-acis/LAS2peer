@@ -192,16 +192,19 @@ public class PackageUploader {
 		node.storeEnvelope(versionEnv, devAgent);
 	}
 
-	public static void announceClusterServiceDeployment(PastryNodeImpl node, String serviceName, String serviceVersion,
-			String supplement) throws SerializationException, CryptoException, EnvelopeException,
-			ServicePackageException, AgentException, EthereumException {
+	public static void announceClusterServiceDeployment(PastryNodeImpl node, String serviceName,
+			String clusterServiceName, String serviceVersion, String supplement) throws SerializationException,
+			CryptoException, EnvelopeException, ServicePackageException, AgentException, EthereumException {
 		if (serviceName == null) {
 			throw new ServicePackageException("No service name given");
+		} else if (clusterServiceName == null) {
+			throw new ServicePackageException("No cluster service name  given");
 		} else if (serviceVersion == null) {
 			throw new ServicePackageException("No service version given");
 		}
 		if (node instanceof EthereumNode) {
-			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement, false);
+			announceClusterServiceDeployment((EthereumNode) node, serviceName, clusterServiceName, serviceVersion,
+					supplement, false);
 		}
 	}
 
@@ -215,7 +218,8 @@ public class PackageUploader {
 		}
 		if (node instanceof EthereumNode) {
 			registerService((EthereumNode) node, serviceName, serviceVersion, devAgent, supplement);
-			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement, true);
+			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceName, serviceVersion, supplement,
+					true);
 		}
 	}
 
@@ -229,31 +233,34 @@ public class PackageUploader {
 		node.registerServiceInBlockchain(serviceName, serviceVersion, (EthereumAgent) devAgent, supplementHash);
 	}
 
-	private static void announceClusterServiceDeployment(EthereumNode node, String serviceName, String serviceVersion,
-			String supplement, Boolean firstDeployment)
+	private static void announceClusterServiceDeployment(EthereumNode node, String serviceName,
+			String clusterServiceName, String serviceVersion, String supplement, Boolean firstDeployment)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
 
 		byte[] supplementHash = storeSupplement(node, supplement);
-		node.announceClusterServiceDeployment(serviceName, serviceVersion, supplementHash, firstDeployment);
+		node.announceClusterServiceDeployment(serviceName, clusterServiceName, serviceVersion, supplementHash,
+				firstDeployment);
 	}
 
 	public static void announceUndeploymentOfClusterService(PastryNodeImpl node, String serviceName,
-			String serviceVersion) throws SerializationException, CryptoException, EnvelopeException,
-			ServicePackageException, AgentException, EthereumException {
+			String clusterServiceName, String serviceVersion) throws SerializationException, CryptoException,
+			EnvelopeException, ServicePackageException, AgentException, EthereumException {
 		if (serviceName == null) {
 			throw new ServicePackageException("No service name given");
+		} else if (clusterServiceName == null) {
+			throw new ServicePackageException("No cluster service name  given");
 		} else if (serviceVersion == null) {
 			throw new ServicePackageException("No service version given");
 		}
 		if (node instanceof EthereumNode) {
-			announceUndeploymentOfClusterService((EthereumNode) node, serviceName, serviceVersion);
+			announceUndeploymentOfClusterService((EthereumNode) node, serviceName, clusterServiceName, serviceVersion);
 		}
 	}
 
 	private static void announceUndeploymentOfClusterService(EthereumNode node, String serviceName,
-			String serviceVersion)
+			String clusterServiceName, String serviceVersion)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
-		node.announceUndeploymentOfClusterService(serviceName, serviceVersion);
+		node.announceUndeploymentOfClusterService(serviceName, clusterServiceName, serviceVersion);
 	}
 
 	private static void storeServiceFiles(PastryNodeImpl node, Map<String, byte[]> jarFiles) throws EnvelopeException {

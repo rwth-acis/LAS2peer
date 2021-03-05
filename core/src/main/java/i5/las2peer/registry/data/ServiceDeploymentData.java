@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public class ServiceDeploymentData {
 	private String serviceName;
+	private String clusterServiceName;
 	private String serviceClass;
 	private BigInteger versionMajor;
 	private BigInteger versionMinor;
@@ -34,9 +35,10 @@ public class ServiceDeploymentData {
 		this.ended = ended;
 	}
 
-	public ServiceDeploymentData(String serviceName, BigInteger versionMajor, BigInteger versionMinor,
-			BigInteger versionPatch, BigInteger timestamp, byte[] supplementHash) {
+	public ServiceDeploymentData(String serviceName, String clusterServiceName, BigInteger versionMajor,
+			BigInteger versionMinor, BigInteger versionPatch, BigInteger timestamp, byte[] supplementHash) {
 		this.serviceName = serviceName;
+		this.clusterServiceName = clusterServiceName;
 		this.versionMajor = versionMajor;
 		this.versionMinor = versionMinor;
 		this.versionPatch = versionPatch;
@@ -44,9 +46,10 @@ public class ServiceDeploymentData {
 		this.supplementHash = supplementHash;
 	}
 
-	public ServiceDeploymentData(String serviceName, BigInteger versionMajor, BigInteger versionMinor,
-			BigInteger versionPatch, BigInteger timestamp, boolean ended) {
+	public ServiceDeploymentData(String serviceName, String clusterServiceName, BigInteger versionMajor,
+			BigInteger versionMinor, BigInteger versionPatch, BigInteger timestamp, boolean ended) {
 		this.serviceName = serviceName;
+		this.clusterServiceName = clusterServiceName;
 		this.versionMajor = versionMajor;
 		this.versionMinor = versionMinor;
 		this.versionPatch = versionPatch;
@@ -110,7 +113,8 @@ public class ServiceDeploymentData {
 		ServiceDeploymentData that = (ServiceDeploymentData) o;
 		return Objects.equals(serviceName, that.serviceName) && Objects.equals(serviceClass, that.serviceClass)
 				&& Objects.equals(versionMajor, that.versionMajor) && Objects.equals(versionMinor, that.versionMinor)
-				&& Objects.equals(versionPatch, that.versionPatch) && Objects.equals(nodeId, that.nodeId);
+				&& Objects.equals(versionPatch, that.versionPatch) && Objects.equals(nodeId, that.nodeId)
+				&& Objects.equals(clusterServiceName, that.clusterServiceName);
 	}
 
 	@Override

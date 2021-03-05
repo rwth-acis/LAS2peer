@@ -386,12 +386,12 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	 * @param supplementHash hash to fetch stored data in DTH about deployment info
 	 *                       data on cluster
 	 */
-	public void announceClusterDeployment(String releaseName, int versionMajor, int versionMinor, int versionPatch,
-			byte[] supplementHash) throws EthereumException {
+	public void announceClusterDeployment(String releaseName, String clusterServiceName, int versionMajor,
+			int versionMinor, int versionPatch, byte[] supplementHash) throws EthereumException {
 		try {
 			System.out.println("SENDING cluster deployment announcement TRANSACTION OH YEAHHH");
 			contracts.serviceRegistry
-					.announceClusterDeployment(releaseName, BigInteger.valueOf(versionMajor),
+					.announceClusterDeployment(releaseName, clusterServiceName, BigInteger.valueOf(versionMajor),
 							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), supplementHash)
 					.sendAsync().get();
 		} catch (Exception e) {
@@ -436,11 +436,13 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	 * @param versionMinor minor version, as used in semantic versioning
 	 * @param versionPatch patch version, as used in semantic versioning
 	 */
-	public void announceClusterDeploymentEnd(String releaseName, int versionMajor, int versionMinor, int versionPatch)
-			throws EthereumException {
+	public void announceClusterDeploymentEnd(String releaseName, String clusterServiceName, int versionMajor,
+			int versionMinor, int versionPatch) throws EthereumException {
 		try {
-			contracts.serviceRegistry.announceClusterDeploymentEnd(releaseName, BigInteger.valueOf(versionMajor),
-					BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch)).sendAsync().get();
+			contracts.serviceRegistry
+					.announceClusterDeploymentEnd(releaseName, clusterServiceName, BigInteger.valueOf(versionMajor),
+							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch))
+					.sendAsync().get();
 		} catch (Exception e) {
 			throw new EthereumException("Failed to submit cluster service deployment *end* announcement (" + "DEBUG: "
 					+ ", " + e.getMessage() + ")", e);

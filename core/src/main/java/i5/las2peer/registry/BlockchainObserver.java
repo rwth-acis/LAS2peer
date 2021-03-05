@@ -502,8 +502,8 @@ class BlockchainObserver {
 					if (!txHasAlreadyBeenHandled(deployment.log.getTransactionHash())) {
 						String serviceName = lookupServiceName(deployment.nameHash);
 						ServiceDeploymentData deploymentData = new ServiceDeploymentData(serviceName,
-								deployment.versionMajor, deployment.versionMinor, deployment.versionPatch,
-								deployment.timestamp, deployment.hash);
+								deployment.clusterServiceName, deployment.versionMajor, deployment.versionMinor,
+								deployment.versionPatch, deployment.timestamp, deployment.hash);
 						addOrUpdateDeployment(deploymentData);
 
 						// save announcement log:
@@ -561,8 +561,8 @@ class BlockchainObserver {
 						// for comparison only; remember: this event signifies the END of a deployment,
 						// not actually a deployment
 						ServiceDeploymentData deploymentThatEnded = new ServiceDeploymentData(serviceName,
-								stopped.versionMajor, stopped.versionMinor, stopped.versionPatch, stopped.timestamp,
-								true);
+								stopped.clusterServiceName, stopped.versionMajor, stopped.versionMinor,
+								stopped.versionPatch, stopped.timestamp, true);
 						addOrUpdateDeployment(deploymentThatEnded);
 					}
 				}, e -> logger.severe("Error observing cluster service deployment end event: " + e.toString()));
@@ -622,7 +622,6 @@ class BlockchainObserver {
 	 */
 	private void addOrUpdateDeployment(ServiceDeploymentData deployment) {
 		deployments.computeIfAbsent(deployment.getServicePackageName(), k -> new HashMap<>());
-
 		Map<ServiceDeploymentData, ServiceDeploymentData> existingDeployments = deployments
 				.get(deployment.getServicePackageName());
 		if (existingDeployments.containsKey(deployment)) {

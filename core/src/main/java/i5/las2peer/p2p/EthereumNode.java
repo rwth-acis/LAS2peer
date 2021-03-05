@@ -322,14 +322,14 @@ public class EthereumNode extends PastryNodeImpl {
 	 * 
 	 * Boolean used to avoid case, when freshly released service is registered
 	 */
-	public void announceClusterServiceDeployment(String serviceName, String serviceVersion, byte[] supplementHash,
+	public void announceClusterServiceDeployment(String serviceName, String clusterServiceName, String serviceVersion, byte[] supplementHash,
 			Boolean firstDeployment) throws AgentException, SerializationException, EthereumException {
 		int[] version = Util.parseVersion(serviceVersion);
 		boolean serviceAlreadyRegistered = getRegistryClient().getServiceNames().contains(serviceName);
 		if (serviceAlreadyRegistered || firstDeployment) {
 			logger.info("Announcing deployment of service '" + serviceName + "', v" + serviceVersion
 					+ " ... as this service is released");
-			registryClient.announceClusterDeployment(serviceName, version[0], version[1], version[2], supplementHash);
+			registryClient.announceClusterDeployment(serviceName, clusterServiceName, version[0], version[1], version[2], supplementHash);
 		} else {
 			logger.info("Error announcing deployment of service as service release specified  '" + serviceName + "', v"
 					+ serviceVersion + "does not exist ...");
@@ -339,12 +339,12 @@ public class EthereumNode extends PastryNodeImpl {
 	/**
 	 * Announces undeployment of Cluster Service on blockchain.
 	 */
-	public void announceUndeploymentOfClusterService(String serviceName, String serviceVersion)
+	public void announceUndeploymentOfClusterService(String serviceName, String clusterServiceName, String serviceVersion)
 			throws AgentException, SerializationException, EthereumException {
 		logger.info("Announcing undeployment of cluster service release '" + serviceName + "', v" + serviceVersion
 				+ " ...");
 		int[] version = Util.parseVersion(serviceVersion);
-		registryClient.announceClusterDeploymentEnd(serviceName, version[0], version[1], version[2]);
+		registryClient.announceClusterDeploymentEnd(serviceName, clusterServiceName, version[0], version[1], version[2]);
 	}
 
 	private boolean isServiceOwner(String authorName, String serviceName) throws EthereumException {

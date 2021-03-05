@@ -228,7 +228,7 @@ public class ServicesHandler {
 		}
 		try {
 			PackageUploader.announceClusterServiceDeployment(pastryNode, payload.getAsString("name"),
-					payload.getAsString("version"), body);
+					payload.getAsString("clusterName"), payload.getAsString("version"), body);
 
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
@@ -261,7 +261,7 @@ public class ServicesHandler {
 
 		try {
 			PackageUploader.announceUndeploymentOfClusterService(pastryNode, payload.getAsString("name"),
-					payload.getAsString("version"));
+					payload.getAsString("clusterName"), payload.getAsString("version"));
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
 			json.put("text", Status.OK.getStatusCode() + " - Service package upload successful");
