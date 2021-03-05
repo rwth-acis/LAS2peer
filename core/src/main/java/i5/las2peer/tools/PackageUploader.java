@@ -209,7 +209,7 @@ public class PackageUploader {
 		System.out.println(supplement);
 		if (node instanceof EthereumNode) {
 			System.out.println("ann in eth node");
-			announceClusterService((EthereumNode) node, serviceName, serviceVersion, supplement);
+			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement);
 		}
 		System.out.println("noooo eth node");
 
@@ -231,34 +231,8 @@ public class PackageUploader {
 		}
 		if (node instanceof EthereumNode) {
 			registerService((EthereumNode) node, serviceName, serviceVersion, devAgent, supplement);
+			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement);
 		}
-	}
-
-	public static void onneidegenshit(PastryNodeImpl node, String serviceName, String serviceVersion, String supplement)
-			throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException,
-			EthereumException {
-		if (serviceName == null) {
-			throw new ServicePackageException("No service name given");
-		} else if (serviceVersion == null) {
-			throw new ServicePackageException("No service version given");
-		}
-		System.out.println("TTRRYYYYYY");
-
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		System.out.println(supplement);
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		System.out.println(supplement);
-		if (node instanceof EthereumNode) {
-			fecketerem((EthereumNode) node, serviceName, serviceVersion, supplement);
-		}
-		// storeServiceFiles(node, jarFiles);
-		// LibraryIdentifier libId = storeServiceMetadata(node, serviceName,
-		// serviceVersion, depHashes, devAgent);
-		// EnvelopeVersion versionEnv = fetchOrCreateVersionsEnvelope(node, serviceName,
-		// devAgent, libId);
-		// node.storeEnvelope(versionEnv, devAgent);
 	}
 
 	private static void registerService(EthereumNode node, String serviceName, String serviceVersion,
@@ -271,18 +245,12 @@ public class PackageUploader {
 		node.registerServiceInBlockchain(serviceName, serviceVersion, (EthereumAgent) devAgent, supplementHash);
 	}
 
-	private static void fecketerem(EthereumNode node, String serviceName, String serviceVersion, String supplement)
-			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
-		byte[] supplementHash = storeSupplement(node, supplement);
-		node.onneidegenDreck(serviceName, serviceVersion, supplementHash);
-	}
-
-	private static void announceClusterService(EthereumNode node, String serviceName, String serviceVersion,
+	private static void announceClusterServiceDeployment(EthereumNode node, String serviceName, String serviceVersion,
 			String supplement)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
 
 		byte[] supplementHash = storeSupplement(node, supplement);
-		node.announceClusterDeployServiceInBlockchainTEST(serviceName, serviceVersion, supplementHash);
+		node.announceClusterServiceDeployment(serviceName, serviceVersion, supplementHash);
 	}
 
 	public static void undeployTest(PastryNodeImpl node, String serviceName, String serviceVersion)
@@ -328,6 +296,7 @@ public class PackageUploader {
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
 		node.undeployTest(serviceName, serviceVersion);
 	}
+
 	private static void undeployClusterServiceTest(EthereumNode node, String serviceName, String serviceVersion)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
 		node.undeployClusterTest(serviceName, serviceVersion);

@@ -314,23 +314,17 @@ public class EthereumNode extends PastryNodeImpl {
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 
-	public void onneidegenDreck(String serviceName, String serviceVersion,
-			byte[] supplementHash) throws AgentException, SerializationException, EthereumException {
-		String nodeId = getPastryNode().getId().toStringFull();
-		logger.info("announcing this fuck service release '" + serviceName + "', v" + serviceVersion + " ...");
-		int[] version = Util.parseVersion(serviceVersion);
-		registryClient.announceDeployment(serviceName, "", version[0], version[1], version[2], nodeId);
-	}
-
-	public void announceClusterDeployServiceInBlockchainTEST(String serviceName, String serviceVersion,
-			byte[] supplementHash) throws AgentException, SerializationException, EthereumException {
+	public void announceClusterServiceDeployment(String serviceName, String serviceVersion, byte[] supplementHash)
+			throws AgentException, SerializationException, EthereumException {
 		int[] version = Util.parseVersion(serviceVersion);
 		boolean serviceAlreadyRegistered = getRegistryClient().getServiceNames().contains(serviceName);
 		if (serviceAlreadyRegistered) {
-			System.out.println("try to announce cl deplo");
+			logger.info("Announcing deployment of service '" + serviceName + "', v" + serviceVersion
+					+ " ... as this service is released");
 			registryClient.announceClusterDeployment(serviceName, version[0], version[1], version[2], supplementHash);
 		} else {
-			System.out.println("already exisitng cl deploy");
+			logger.info("Error announcing deployment of service as service release specified  '" + serviceName + "', v"
+					+ serviceVersion + "does not exist ...");
 		}
 	}
 
