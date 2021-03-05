@@ -209,7 +209,7 @@ public class PackageUploader {
 		System.out.println(supplement);
 		if (node instanceof EthereumNode) {
 			System.out.println("ann in eth node");
-			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement);
+			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement, false);
 		}
 		System.out.println("noooo eth node");
 	}
@@ -224,7 +224,7 @@ public class PackageUploader {
 		}
 		if (node instanceof EthereumNode) {
 			registerService((EthereumNode) node, serviceName, serviceVersion, devAgent, supplement);
-			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement);
+			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement, true);
 		}
 	}
 
@@ -239,11 +239,11 @@ public class PackageUploader {
 	}
 
 	private static void announceClusterServiceDeployment(EthereumNode node, String serviceName, String serviceVersion,
-			String supplement)
+			String supplement, Boolean firstDeployment)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
 
 		byte[] supplementHash = storeSupplement(node, supplement);
-		node.announceClusterServiceDeployment(serviceName, serviceVersion, supplementHash);
+		node.announceClusterServiceDeployment(serviceName, serviceVersion, supplementHash, firstDeployment);
 	}
 
 	public static void undeployTest(PastryNodeImpl node, String serviceName, String serviceVersion)
