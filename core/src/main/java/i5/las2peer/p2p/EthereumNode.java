@@ -310,10 +310,7 @@ public class EthereumNode extends PastryNodeImpl {
 		} else {
 			registerServiceName(serviceName, author);
 		}
-		String nodeId = getPastryNode().getId().toStringFull();
 		logger.info("Registering service release '" + serviceName + "', v" + serviceVersion + " ...");
-		int[] version = Util.parseVersion(serviceVersion);
-		registryClient.announceDeployment(serviceName, "", version[0], version[1], version[2], nodeId);
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 

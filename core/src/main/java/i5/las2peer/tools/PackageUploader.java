@@ -229,23 +229,9 @@ public class PackageUploader {
 		} else if (serviceVersion == null) {
 			throw new ServicePackageException("No service version given");
 		}
-		System.out.println("TTRRYYYYYY");
-
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		System.out.println(supplement);
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		System.out.println(supplement);
 		if (node instanceof EthereumNode) {
 			registerService((EthereumNode) node, serviceName, serviceVersion, devAgent, supplement);
 		}
-		// storeServiceFiles(node, jarFiles);
-		// LibraryIdentifier libId = storeServiceMetadata(node, serviceName,
-		// serviceVersion, depHashes, devAgent);
-		// EnvelopeVersion versionEnv = fetchOrCreateVersionsEnvelope(node, serviceName,
-		// devAgent, libId);
-		// node.storeEnvelope(versionEnv, devAgent);
 	}
 
 	public static void onneidegenshit(PastryNodeImpl node, String serviceName, String serviceVersion, String supplement)

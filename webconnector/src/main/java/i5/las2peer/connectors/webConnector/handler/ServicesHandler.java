@@ -169,12 +169,6 @@ public class ServicesHandler {
 		JarInputStream jarStream = new JarInputStream(jarfile);
 
 		try {
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
 			PackageUploader.uploadServicePackage(pastryNode, jarStream, session.getAgent(), supplement);
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
@@ -194,36 +188,21 @@ public class ServicesHandler {
 	@Path("/testCAE")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response testCAE(String body, @Context HttpHeaders httpHeaders) throws Exception {
-		System.out.println(body);
 		JSONObject payload = parseJson(body);
-		String name = payload.getAsString("name");
-		String version = payload.getAsString("version");
-		String link = payload.getAsString("link");
 		System.out.println(body);
-
-		// AgentSession session = connector.getSessionById(sessionId);
-		// if (session == null) {
-		// throw new BadRequestException("You have to be logged in to upload");
-		// } else
 		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
 					Status.INTERNAL_SERVER_ERROR);
 		}
-
 		try {
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
 			AgentImpl agent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
-			PackageUploader.uploadServicePackageTest(pastryNode, name, version, agent, body);
+			PackageUploader.uploadServicePackageTest(pastryNode, payload.getAsString("name"),
+					payload.getAsString("version"), agent, body);
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
-			json.put("text", Status.OK.getStatusCode() + " - Service package upload successful");
-			json.put("msg", "Service package upload successful");
+			json.put("text", Status.OK.getStatusCode() + " - Registering deployment successful");
+			json.put("msg", "Registering deployment successful");
 			return Response.ok(json.toJSONString(), MediaType.APPLICATION_JSON).build();
 		} catch (EnvelopeAlreadyExistsException e) {
 			throw new BadRequestException("Version is already known in the network. To update increase version number",
@@ -231,6 +210,8 @@ public class ServicesHandler {
 		} catch (ServicePackageException e) {
 			e.printStackTrace();
 			throw new BadRequestException("Service package upload failed", e);
+		} catch (Exception e) {
+			throw new BadRequestException("Login required to deploy", e);
 		}
 	}
 
@@ -244,24 +225,12 @@ public class ServicesHandler {
 		String version = payload.getAsString("version");
 		String link = payload.getAsString("link");
 		System.out.println(body);
-
-		// AgentSession session = connector.getSessionById(sessionId);
-		// if (session == null) {
-		// throw new BadRequestException("You have to be logged in to upload");
-		// } else
 		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
 					Status.INTERNAL_SERVER_ERROR);
 		}
-
 		try {
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
-			System.out.println("CCHHEECKK NOOOOW");
 			PackageUploader.deployServiceTest(pastryNode, name, version, body);
 
 			JSONObject json = new JSONObject();
@@ -529,13 +498,14 @@ public class ServicesHandler {
 		registry.getServiceNames().forEach(serviceName -> {
 			JSONArray deploymentList = new JSONArray();
 			registry.getDeployments(serviceName).forEach(deployment -> {
-				JSONObject entry = new JSONObject();
 				if (deployment.getServiceClassName() != null) {
+					JSONObject entry = new JSONObject();
 					entry.put("packageName", deployment.getServicePackageName());
 					entry.put("className", deployment.getServiceClassName());
 					entry.put("version", deployment.getVersion());
 					entry.put("time", deployment.getTime());
 					entry.put("nodeId", deployment.getNodeId());
+					deploymentList.add(entry);
 				} else {
 					byte[] rawSupplement = new byte[0];
 					try {
@@ -545,13 +515,10 @@ public class ServicesHandler {
 					}
 					JSONObject supplement = parseJson(new String(rawSupplement, StandardCharsets.UTF_8));
 					System.out.println(supplement.toString());
-					entry.put("packageName", deployment.getServicePackageName());
-					entry.put("version", deployment.getVersion());
-					entry.put("time", deployment.getTime());
-					entry.put("supplement", supplement);
+					supplement.put("time", deployment.getTime());
+					deploymentList.add(supplement);
 				}
 
-				deploymentList.add(entry);
 			});
 			jsonObject.put(serviceName, deploymentList);
 		});
