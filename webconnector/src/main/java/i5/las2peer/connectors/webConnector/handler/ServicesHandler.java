@@ -227,8 +227,8 @@ public class ServicesHandler {
 					Status.INTERNAL_SERVER_ERROR);
 		}
 		try {
-			PackageUploader.announceClusterServiceDeployment(pastryNode, payload.getAsString("name"), payload.getAsString("version"),
-					body);
+			PackageUploader.announceClusterServiceDeployment(pastryNode, payload.getAsString("name"),
+					payload.getAsString("version"), body);
 
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
@@ -397,15 +397,29 @@ public class ServicesHandler {
 
 				JSONArray deploymentsJson = new JSONArray();
 				registry.getDeployments(name, release.getVersion()).forEach(deployment -> {
-					String deploymentNodeId = deployment.getNodeId();
-					NodeInformation hostedOn = queryNodeInfoWithCache(deploymentNodeId);
-
-					deploymentsJson.add(new JSONObject().appendField("className", deployment.getServiceClassName())
-							.appendField("nodeId", deploymentNodeId)
-							.appendField("nodeInfo", L2P_JSONUtil.nodeInformationToJSON(hostedOn))
-							.appendField("hosterReputation",
-									ethereumNode.getAgentReputation(hostedOn.getAdminName(), hostedOn.getAdminEmail()))
-							.appendField("announcementEpochSeconds", deployment.getTimestamp().getEpochSecond()));
+					if (deployment.getNodeId() != null) {
+						String deploymentNodeId = deployment.getNodeId();
+						NodeInformation hostedOn = queryNodeInfoWithCache(deploymentNodeId);
+						deploymentsJson.add(new JSONObject().appendField("className", deployment.getServiceClassName())
+								.appendField("nodeId", deploymentNodeId)
+								.appendField("nodeInfo", L2P_JSONUtil.nodeInformationToJSON(hostedOn))
+								.appendField("hosterReputation",
+										ethereumNode.getAgentReputation(hostedOn.getAdminName(),
+												hostedOn.getAdminEmail()))
+								.appendField("announcementEpochSeconds", deployment.getTimestamp().getEpochSecond()));
+					} else {
+						byte[] rawSupplementDeployment = new byte[0];
+						try {
+							rawSupplementDeployment = ethereumNode.fetchHashedContent(deployment.getSupplementHash());
+						} catch (EnvelopeException e) {
+							e.printStackTrace();
+						}
+						JSONObject supplementDeployment = parseJson(
+								new String(rawSupplementDeployment, StandardCharsets.UTF_8));
+						System.out.println(supplementDeployment.toString());
+						supplementDeployment.put("time", deployment.getTime());
+						deploymentsJson.add(supplementDeployment);
+					}
 				});
 
 				releasesByVersion.put(release.getVersion(),
