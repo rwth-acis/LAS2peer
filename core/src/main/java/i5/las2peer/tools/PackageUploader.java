@@ -192,7 +192,7 @@ public class PackageUploader {
 		node.storeEnvelope(versionEnv, devAgent);
 	}
 
-	public static void deployServiceTest(PastryNodeImpl node, String serviceName, String serviceVersion,
+	public static void announceClusterServiceDeployment(PastryNodeImpl node, String serviceName, String serviceVersion,
 			String supplement) throws SerializationException, CryptoException, EnvelopeException,
 			ServicePackageException, AgentException, EthereumException {
 		if (serviceName == null) {
@@ -200,18 +200,9 @@ public class PackageUploader {
 		} else if (serviceVersion == null) {
 			throw new ServicePackageException("No service version given");
 		}
-		System.out.println("TTRRYYYYYY TO DEPLOYY");
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		System.out.println(supplement);
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		System.out.println(supplement);
 		if (node instanceof EthereumNode) {
-			System.out.println("ann in eth node");
 			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceVersion, supplement, false);
 		}
-		System.out.println("noooo eth node");
 	}
 
 	public static void registerAndAnnounceDeploymentOfClusterService(PastryNodeImpl node, String serviceName,
@@ -246,51 +237,21 @@ public class PackageUploader {
 		node.announceClusterServiceDeployment(serviceName, serviceVersion, supplementHash, firstDeployment);
 	}
 
-	public static void undeployTest(PastryNodeImpl node, String serviceName, String serviceVersion)
-			throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException,
-			EthereumException {
+	public static void announceUndeploymentOfClusterService(PastryNodeImpl node, String serviceName,
+			String serviceVersion) throws SerializationException, CryptoException, EnvelopeException,
+			ServicePackageException, AgentException, EthereumException {
 		if (serviceName == null) {
 			throw new ServicePackageException("No service name given");
 		} else if (serviceVersion == null) {
 			throw new ServicePackageException("No service version given");
 		}
-		System.out.println("TTRRYYYYYY");
-
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
 		if (node instanceof EthereumNode) {
-			unregisterServiceTest((EthereumNode) node, serviceName, serviceVersion);
+			announceUndeploymentOfClusterService((EthereumNode) node, serviceName, serviceVersion);
 		}
 	}
 
-	public static void undeployClusterTest(PastryNodeImpl node, String serviceName, String serviceVersion)
-			throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException,
-			EthereumException {
-		if (serviceName == null) {
-			throw new ServicePackageException("No service name given");
-		} else if (serviceVersion == null) {
-			throw new ServicePackageException("No service version given");
-		}
-		System.out.println("TTRRYYYYYY");
-
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		System.out.println(serviceName);
-		System.out.println(serviceVersion);
-		if (node instanceof EthereumNode) {
-			System.out.println("undeployingg");
-			undeployClusterServiceTest((EthereumNode) node, serviceName, serviceVersion);
-		}
-	}
-
-	private static void unregisterServiceTest(EthereumNode node, String serviceName, String serviceVersion)
-			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
-		node.undeployTest(serviceName, serviceVersion);
-	}
-
-	private static void undeployClusterServiceTest(EthereumNode node, String serviceName, String serviceVersion)
+	private static void announceUndeploymentOfClusterService(EthereumNode node, String serviceName,
+			String serviceVersion)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
 		node.undeployClusterTest(serviceName, serviceVersion);
 	}
