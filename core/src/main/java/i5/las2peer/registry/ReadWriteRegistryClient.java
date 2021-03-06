@@ -284,8 +284,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	 * The registration call is delegated, see description of
 	 * {@link #registerUser(EthereumAgent)} for details.
 	 *
-	 * @param groupName group name of arbitrary length
-	 * @param agent     Ethereum agent of the service author
+	 * @param agent Ethereum agent of the service author
 	 */
 	public void registerGroup(GroupEthereumAgent agent)
 			throws EthereumException, AgentLockedException, SerializationException {
@@ -491,6 +490,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 					+ ", " + e.getMessage() + ")", e);
 		}
 	}
+
 	public String sendEtherManaged(String senderAddress, String recipientAddress, BigInteger value)
 			throws EthereumException {
 		BigInteger nonce = this.getNonce(senderAddress);
