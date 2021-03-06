@@ -1,0 +1,149 @@
+plugins {
+    id 'java-library'
+    id 'application'
+    // maven plugin is used to create .pom files and for publishing
+    id 'maven-publish'
+    id 'eclipse'
+}
+
+def las2peerRevision = "${project.property('las2peer.revision')}"
+def las2peerBuildNumber = "${project.property('las2peer.build.number')}"
+def las2peerRelease = System.env.LAS2PEER_RELEASE != null
+def las2peerVersion = las2peerRelease ? "$las2peerRevision.$las2peerBuildNumber" : "$las2peerRevision-SNAPSHOT"
+
+group = 'i5'
+archivesBaseName = 'las2peer-rest-mapper'
+version = las2peerVersion
+sourceCompatibility = "${project.property('java.version')}"
+targetCompatibility = "${project.property('java.version')}"
+
+repositories {
+    // Use JCenter for resolving dependencies.
+    jcenter()
+
+    // DBIS Archiva
+    maven {
+        url "${project.property('dbis.archiva.url')}"
+    }
+}
+
+compileJava {
+    options.compilerArgs += ["-XDignore.symbol.file"]
+    options.fork = true
+    options.forkOptions.executable = "javac"
+}
+
+javadoc {
+    destinationDir = file("$projectDir/export/javadoc")
+}
+
+task junitdoc(type: Javadoc) {
+    classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+    source = sourceSets.test.java
+    destinationDir = file("$projectDir/export/junitdoc")
+}
+
+build.dependsOn "javadoc"
+build.dependsOn "junitdoc"
+
+dependencies {
+    // Use JUnit test framework.
+    testImplementation "junit:junit:${project.property('junit.version')}"
+    
+    api project(":core")
+
+    api "io.swagger:swagger-jersey2-jaxrs:1.5.17"
+    api "org.glassfish.jersey.core:jersey-server:${project.property('jersey.version')}"
+    api "org.glassfish.jersey.core:jersey-common:${project.property('jersey.version')}"
+    api "org.glassfish.jersey.media:jersey-media-json-jackson:${project.property('jersey.version')}"
+    api "javax.ws.rs:javax.ws.rs-api:2.0.1"
+    api "org.glassfish.jersey.media:jersey-media-multipart:${project.property('jersey.version')}"
+    api "javax.xml.bind:jaxb-api:2.3.1"
+    api "org.glassfish.jaxb:jaxb-runtime:2.3.1"
+    api "org.glassfish.jersey.inject:jersey-hk2:${project.property('jersey.version')}"
+}
+
+// put all .jar files into export/jars folder
+tasks.withType(Jar) {
+    destinationDir = file("$projectDir/export/jars")
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Version": las2peerVersion,
+                   "Class-Path": configurations.runtimeClasspath.files.collect { it.getName() }.join(" "))
+    }
+}
+
+task copyToLib(type: Copy) {
+    from configurations.runtimeClasspath
+    into "$projectDir/lib"
+}
+
+build.dependsOn copyToLib
+
+clean.doLast {
+    file("export").deleteDir()
+    file("lib").deleteDir()
+}
+
+// In .pom file, use "runtime" scope for dependencies declared with api configuration (instead of "compile" scope).
+// Also las2peer (core) should be a runtime dependency.
+publishing.publications.all {
+    pom.withXml {
+        asNode().dependencies."*".findAll() {
+            it.scope.text() == "compile" && project.configurations.api.allDependencies.find { dep -> dep.name == it.artifactId.text() }
+        }.each { it.scope*.value = "runtime"}
+        asNode().dependencies."*".findAll() {
+            it.artifactId.text() == "las2peer"
+        }.each { it.scope*.value = "runtime"}
+    }
+}
+
+publishing {
+    publications {
+        restmapper(MavenPublication) {
+            from components.java
+            pom {
+                artifactId "las2peer-rest-mapper"
+                packaging "jar"
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            if (las2peerRelease) url = "${project.property('dbis.archiva.url')}"
+            else url = "${project.property('dbis.archiva.url.snapshots')}"
+
+            credentials {
+                username = System.env.ARCHIVA_USERNAME
+                password = System.env.ARCHIVA_PASSWORD
+            }
+        }
+    }
+}
+
+// disable module metadata publication
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+}
+
+// configuration for eclipse (this allows to import las2peer as a gradle project in eclipse without any problems)
+eclipse {
+    classpath {
+      file {
+            whenMerged {
+                // change output directory for main, test and default
+                def main = entries.find { it.path == "src/main/java" }
+                main.output = "output/main"
+
+                def test = entries.find { it.path == "src/test/java" }
+                test.output = "output/test"
+
+                def defaultEntry = entries.find { it.kind == "output" && it.path == "bin/default" }
+                defaultEntry.path = "output/default"
+            }
+        }
+    }
+}

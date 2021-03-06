@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public class ServiceDeploymentData {
 	private String serviceName;
+	private String clusterServiceName;
 	private String serviceClass;
 	private BigInteger versionMajor;
 	private BigInteger versionMinor;
@@ -15,20 +16,43 @@ public class ServiceDeploymentData {
 	private String nodeId;
 	private BigInteger timestamp;
 	private boolean ended;
+	private byte[] supplementHash;
 
-	public ServiceDeploymentData(String serviceName, String serviceClass, BigInteger versionMajor, BigInteger versionMinor, BigInteger versionPatch,
-			String nodeId, BigInteger timestamp) {
+	public ServiceDeploymentData(String serviceName, String serviceClass, BigInteger versionMajor,
+			BigInteger versionMinor, BigInteger versionPatch, String nodeId, BigInteger timestamp) {
 		this(serviceName, serviceClass, versionMajor, versionMinor, versionPatch, nodeId, timestamp, false);
 	}
 
-	public ServiceDeploymentData(String serviceName, String serviceClass, BigInteger versionMajor, BigInteger versionMinor, BigInteger versionPatch,
-			String nodeId, BigInteger timestamp, boolean ended) {
+	public ServiceDeploymentData(String serviceName, String serviceClass, BigInteger versionMajor,
+			BigInteger versionMinor, BigInteger versionPatch, String nodeId, BigInteger timestamp, boolean ended) {
 		this.serviceName = serviceName;
 		this.serviceClass = serviceClass;
 		this.versionMajor = versionMajor;
 		this.versionMinor = versionMinor;
 		this.versionPatch = versionPatch;
 		this.nodeId = nodeId;
+		this.timestamp = timestamp;
+		this.ended = ended;
+	}
+
+	public ServiceDeploymentData(String serviceName, String clusterServiceName, BigInteger versionMajor,
+			BigInteger versionMinor, BigInteger versionPatch, BigInteger timestamp, byte[] supplementHash) {
+		this.serviceName = serviceName;
+		this.clusterServiceName = clusterServiceName;
+		this.versionMajor = versionMajor;
+		this.versionMinor = versionMinor;
+		this.versionPatch = versionPatch;
+		this.timestamp = timestamp;
+		this.supplementHash = supplementHash;
+	}
+
+	public ServiceDeploymentData(String serviceName, String clusterServiceName, BigInteger versionMajor,
+			BigInteger versionMinor, BigInteger versionPatch, BigInteger timestamp, boolean ended) {
+		this.serviceName = serviceName;
+		this.clusterServiceName = clusterServiceName;
+		this.versionMajor = versionMajor;
+		this.versionMinor = versionMinor;
+		this.versionPatch = versionPatch;
 		this.timestamp = timestamp;
 		this.ended = ended;
 	}
@@ -49,6 +73,10 @@ public class ServiceDeploymentData {
 		return nodeId;
 	}
 
+	public byte[] getSupplementHash() {
+		return supplementHash;
+	}
+
 	public String getTime() {
 		if (timestamp == null) {
 			return null;
@@ -66,8 +94,8 @@ public class ServiceDeploymentData {
 
 	@Override
 	public String toString() {
-		return "ServiceDeploymentData(package: " + this.getServicePackageName()
-				+ ", class: " + this.getServiceClassName() + ", version: " + this.getVersion() + ", time: " + getTime()
+		return "ServiceDeploymentData(package: " + this.getServicePackageName() + ", class: "
+				+ this.getServiceClassName() + ", version: " + this.getVersion() + ", time: " + getTime()
 				+ ", node ID: " + getNodeId() + ")";
 	}
 
@@ -77,15 +105,16 @@ public class ServiceDeploymentData {
 	// a newer timestamp comes in
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		System.out.println("Doing the equal custom");
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		ServiceDeploymentData that = (ServiceDeploymentData) o;
-		return Objects.equals(serviceName, that.serviceName) &&
-				Objects.equals(serviceClass, that.serviceClass) &&
-				Objects.equals(versionMajor, that.versionMajor) &&
-				Objects.equals(versionMinor, that.versionMinor) &&
-				Objects.equals(versionPatch, that.versionPatch) &&
-				Objects.equals(nodeId, that.nodeId);
+		return Objects.equals(serviceName, that.serviceName) && Objects.equals(serviceClass, that.serviceClass)
+				&& Objects.equals(versionMajor, that.versionMajor) && Objects.equals(versionMinor, that.versionMinor)
+				&& Objects.equals(versionPatch, that.versionPatch) && Objects.equals(nodeId, that.nodeId)
+				&& Objects.equals(clusterServiceName, that.clusterServiceName);
 	}
 
 	@Override

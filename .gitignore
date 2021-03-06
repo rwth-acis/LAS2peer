@@ -18,3 +18,7 @@ ivy.jar
 *.secret
 archiva_credentials.xml
 /javadoc/
+.gradle
+.classpath
+.project
+.settings

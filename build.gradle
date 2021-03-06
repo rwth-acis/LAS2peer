@@ -1,0 +1,42 @@
+// build all and publish locally
+task buildOnly {
+    dependsOn ":core:publishCorePublicationToMavenLocal"
+    dependsOn ":restmapper:publishRestmapperPublicationToMavenLocal"
+    dependsOn ":webconnector:publishWebconnectorPublicationToMavenLocal"
+    dependsOn ":bundle:publishBundlePublicationToMavenLocal"
+}
+
+// build all (without bundle) and publish locally
+task buildOnlyNoBundle {
+    dependsOn ":core:publishCorePublicationToMavenLocal"
+    dependsOn ":restmapper:publishRestmapperPublicationToMavenLocal"
+    dependsOn ":webconnector:publishWebconnectorPublicationToMavenLocal"
+}
+
+// copy javadoc of all components into one single folder
+task deployJavadoc {
+    dependsOn ":core:javadoc"
+    dependsOn ":restmapper:javadoc"
+    dependsOn ":webconnector:javadoc"
+    dependsOn "copyCoreDocs"
+    dependsOn "copyRestmapperDocs"
+    dependsOn "copyWebconnectorDocs"
+}
+
+task copyCoreDocs(type: Copy) {
+    dependsOn ":core:javadoc"
+    from "core/export/javadoc/"
+    into "javadoc/core"
+}
+
+task copyRestmapperDocs(type: Copy) {
+    dependsOn ":restmapper:javadoc"
+    from "restmapper/export/javadoc/"
+    into "javadoc/restmapper"
+}
+
+task copyWebconnectorDocs(type: Copy) {
+    dependsOn ":webconnector:javadoc"
+    from "webconnector/export/javadoc/"
+    into "javadoc/webconnector"
+}

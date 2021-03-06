@@ -5,3 +5,4 @@
 /lib/
 /junitvmwatcher*.properties
 /junit*.properties
+/build

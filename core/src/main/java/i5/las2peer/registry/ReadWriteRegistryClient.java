@@ -419,6 +419,32 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	}
 
 	/**
+	 * Announce the deployment of a specific version of a cluster service with the
+	 * supplementHash to fetch stored data in DTH.
+	 * 
+	 * @param releaseName    name of release of cluster service
+	 * 
+	 * @param versionMajor   major version, as used in semantic versioning
+	 * @param versionMinor   minor version, as used in semantic versioning
+	 * @param versionPatch   patch version, as used in semantic versioning
+	 * @param supplementHash hash to fetch stored data in DTH about deployment info
+	 *                       data on cluster
+	 */
+	public void announceClusterDeployment(String releaseName, String clusterServiceName, int versionMajor,
+			int versionMinor, int versionPatch, byte[] supplementHash) throws EthereumException {
+		try {
+			System.out.println("SENDING cluster deployment announcement TRANSACTION OH YEAHHH");
+			contracts.serviceRegistry
+					.announceClusterDeployment(releaseName, clusterServiceName, BigInteger.valueOf(versionMajor),
+							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), supplementHash)
+					.sendAsync().get();
+		} catch (Exception e) {
+			throw new EthereumException(
+					"Failed to submit service deployment announcement (" + "DEBUG: " + ", " + e.getMessage() + ")", e);
+		}
+	}
+
+	/**
 	 * Announce that a service deployment is stopping or no longer accessible.
 	 * 
 	 * @param servicePackageName name of service (package). E.g.
@@ -429,9 +455,9 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	 * @param versionMinor       minor version, as used in semantic versioning
 	 * @param versionPatch       patch version, as used in semantic versioning
 	 * @param nodeId             identifier of the node running the deployment
+<<<<<<< HEAD
 	 */
 	// TODO: is there a more elegant way? referencing the tx is possible of course
-	// but not really preferable
 	public void announceDeploymentEnd(String servicePackageName, String serviceClassName, int versionMajor,
 			int versionMinor, int versionPatch, String nodeId) throws EthereumException {
 		try {
@@ -445,6 +471,27 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		}
 	}
 
+	/**
+	 * Announce that a service deployment is stopping or no longer accessible.
+	 * 
+	 * @param releaseName  name of release of cluster service
+	 * 
+	 * @param versionMajor major version, as used in semantic versioning
+	 * @param versionMinor minor version, as used in semantic versioning
+	 * @param versionPatch patch version, as used in semantic versioning
+	 */
+	public void announceClusterDeploymentEnd(String releaseName, String clusterServiceName, int versionMajor,
+			int versionMinor, int versionPatch) throws EthereumException {
+		try {
+			contracts.serviceRegistry
+					.announceClusterDeploymentEnd(releaseName, clusterServiceName, BigInteger.valueOf(versionMajor),
+							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch))
+					.sendAsync().get();
+		} catch (Exception e) {
+			throw new EthereumException("Failed to submit cluster service deployment *end* announcement (" + "DEBUG: "
+					+ ", " + e.getMessage() + ")", e);
+		}
+	}
 	public String sendEtherManaged(String senderAddress, String recipientAddress, BigInteger value)
 			throws EthereumException {
 		BigInteger nonce = this.getNonce(senderAddress);
