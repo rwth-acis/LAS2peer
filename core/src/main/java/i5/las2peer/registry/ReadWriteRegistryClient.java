@@ -455,7 +455,6 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	 * @param versionMinor       minor version, as used in semantic versioning
 	 * @param versionPatch       patch version, as used in semantic versioning
 	 * @param nodeId             identifier of the node running the deployment
-<<<<<<< HEAD
 	 */
 	// TODO: is there a more elegant way? referencing the tx is possible of course
 	public void announceDeploymentEnd(String servicePackageName, String serviceClassName, int versionMajor,
