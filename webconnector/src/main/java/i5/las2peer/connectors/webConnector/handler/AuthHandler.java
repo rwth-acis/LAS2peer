@@ -90,7 +90,7 @@ public class AuthHandler {
 			// check if email is already taken
 			try {
 				node.getAgentIdForEmail(email);
-				throw new BadRequestException("Username already taken");
+				throw new BadRequestException("Email already taken");
 			} catch (AgentNotFoundException e) {
 				// expected
 			}
