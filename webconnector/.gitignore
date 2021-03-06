@@ -6,8 +6,4 @@
 /junitvmwatcher*.properties
 /junit*.properties
 /frontend/node_modules/
-<<<<<<< HEAD
-/resources/webapp
-=======
 /build
->>>>>>> ba-erdzan
