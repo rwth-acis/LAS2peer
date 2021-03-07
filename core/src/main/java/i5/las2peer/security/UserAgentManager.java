@@ -155,12 +155,16 @@ public class UserAgentManager {
 		if (prefixedIdentifier.startsWith(PREFIX_AGENT_ID)) {
 			return prefixedIdentifier.substring(PREFIX_AGENT_ID.length()); // maybe validate?
 		} else if (prefixedIdentifier.startsWith(PREFIX_OIDC_SUB)) {
+			System.out.println("sub");
 			return getAgentIdByOIDCSub(prefixedIdentifier.substring(PREFIX_OIDC_SUB.length()));
 		} else if (prefixedIdentifier.startsWith(PREFIX_USER_MAIL)) {
+			System.out.println("mail");
 			return getAgentIdByEmail(prefixedIdentifier.substring(PREFIX_USER_MAIL.length()));
 		} else if (prefixedIdentifier.startsWith(PREFIX_USER_NAME)) {
+			System.out.println("name");
 			return getAgentIdByLogin(prefixedIdentifier.substring(PREFIX_USER_NAME.length()));
 		} else {
+			System.out.println("illegal");
 			throw new IllegalArgumentException("Prefixed identifier must have valid prefix");
 		}
 	}
@@ -216,6 +220,7 @@ public class UserAgentManager {
 	 */
 	public String getAgentIdByOIDCSub(String sub) throws AgentNotFoundException, AgentOperationFailedException {
 		try {
+			System.out.println("fetch env");
 			EnvelopeVersion env = node.fetchEnvelope(PREFIX_OIDC_SUB + sub.toLowerCase());
 			return (String) env.getContent();
 		} catch (EnvelopeNotFoundException e) {
