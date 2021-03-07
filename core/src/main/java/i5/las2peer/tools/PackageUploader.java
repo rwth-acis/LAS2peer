@@ -208,9 +208,9 @@ public class PackageUploader {
 		}
 	}
 
-	public static void registerAndAnnounceDeploymentOfClusterService(PastryNodeImpl node, String serviceName,
-			String serviceVersion, AgentImpl devAgent, String supplement) throws SerializationException,
-			CryptoException, EnvelopeException, ServicePackageException, AgentException, EthereumException {
+	public static void registerClusterService(PastryNodeImpl node, String serviceName, String serviceVersion,
+			AgentImpl devAgent, String supplement) throws SerializationException, CryptoException, EnvelopeException,
+			ServicePackageException, AgentException, EthereumException {
 		if (serviceName == null) {
 			throw new ServicePackageException("No service name given");
 		} else if (serviceVersion == null) {
@@ -218,8 +218,6 @@ public class PackageUploader {
 		}
 		if (node instanceof EthereumNode) {
 			registerService((EthereumNode) node, serviceName, serviceVersion, devAgent, supplement);
-			announceClusterServiceDeployment((EthereumNode) node, serviceName, serviceName, serviceVersion, supplement,
-					true);
 		}
 	}
 
