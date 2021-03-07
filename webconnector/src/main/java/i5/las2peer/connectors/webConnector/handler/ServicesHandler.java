@@ -191,8 +191,9 @@ public class ServicesHandler {
 		JSONObject payload = parseJson(body);
 		System.out.println(body);
 		if (pastryNode == null) {
-			throw new ServerErrorException("Registering cluster service only available for "
-					+ PastryNodeImpl.class.getCanonicalName() + " Nodes", Status.INTERNAL_SERVER_ERROR);
+			throw new ServerErrorException(
+					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
+					Status.INTERNAL_SERVER_ERROR);
 		}
 		try {
 			AgentImpl agent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
@@ -208,7 +209,7 @@ public class ServicesHandler {
 					e);
 		} catch (ServicePackageException e) {
 			e.printStackTrace();
-			throw new BadRequestException("registering cluster service failed", e);
+			throw new BadRequestException("Service package upload failed", e);
 		} catch (Exception e) {
 			throw new BadRequestException("Login required to deploy", e);
 		}
@@ -222,8 +223,8 @@ public class ServicesHandler {
 		System.out.println(body);
 		if (pastryNode == null) {
 			throw new ServerErrorException(
-					"Announce deployment only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
-					Status.INTERNAL_SERVER_ERROR);
+				"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
+				Status.INTERNAL_SERVER_ERROR);
 		}
 		try {
 			PackageUploader.announceClusterServiceDeployment(pastryNode, payload.getAsString("name"),
@@ -239,10 +240,10 @@ public class ServicesHandler {
 					e);
 		} catch (ServicePackageException e) {
 			e.printStackTrace();
-			throw new BadRequestException("Cluster service deployment announcement failed", e);
+			throw new BadRequestException("Service package upload failed", e);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new BadRequestException("Cluster service deployment announcement failed", e);
+			throw new BadRequestException("Cluster service announcement failed", e);
 		}
 	}
 
