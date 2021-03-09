@@ -85,8 +85,34 @@ class ServicesView extends PolymerElement {
         .service .nodeAdminRating {
           min-width: 120px;
         }
-        details {
-          cursor: pointer;
+        .release-deployments-paper {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          flex-flow: row;
+          align-items: center;
+          align-content: center;
+          padding: 2em;
+        }
+        .open-release-application {
+          align-items: center;
+          align-content: center;
+          color: rgb(240, 248, 255);
+          background: rgb(30, 144, 255);
+        }
+        .stop-release-application {
+          align-items: center;
+          align-content: center;
+          color: rgb(240, 248, 255);
+          background: red;
+        }
+        .deploy-instance {
+          align-items: center;
+          display: flex;
+          align-content: center;
+          color: rgb(240, 248, 255);
+          background: rgb(30, 144, 255);
+          max-height: 30px;
         }
       </style>
       <custom-style>
@@ -126,131 +152,218 @@ class ServicesView extends PolymerElement {
         <template id="serviceList" is="dom-repeat" items="[[_services]]" as="service" sort="_sort" filter="_filter">
           <template is="dom-repeat" items="[[_getLatestAsArray(service.releases)]]" as="release">
             <!-- we actually just want a single item here: the latest release. but I don't know how to do that without abusing repeat like this -->
+            <template is="dom-if" if="[[_clusterTypeAvailable(release)]]">
             <paper-card heading$="[[release.supplement.name]]" style="width: 100%;margin-bottom: 1em" class="service">
-              <div class="card-content" style="padding-top: 0px">
-                <div style="margin-bottom: 8px">
-                  <span class="package"><iron-icon icon="icons:archive" title="Part of package"></iron-icon>[[service.name]]</span>
-                </div>
-                <div>
-                  Author: <span class="author">[[service.authorName]]</span> 
-                  <template is="dom-if" if="[[service.authorReputation]]">
-                    <custom-star-rating value="[[service.authorReputation]]" readonly single></custom-star-rating>
-                  </template>
-                  <template is="dom-if" if="[[!service.authorReputation]]">
-                    <custom-star-rating disable-rating readonly single></custom-star-rating>
-                  </template>
-                </div>
-                <div>
-                  Latest version: <span class="version">[[release.version]]</span>
-                  published <span class="timestamp">[[_toHumanDate(release.publicationEpochSeconds)]]</span>
-                  <span class="history">
-                    <iron-icon icon="icons:info" title="Release history"></iron-icon>
-                    <paper-tooltip position="right" class="large">
-                      Release History<br/>
-                      <ul>
-                        <template is="dom-repeat" items="[[_toArray(service.releases)]]" as="version">
-                          <li>[[version.name]] at [[_toHumanDate(version.value.publicationEpochSeconds)]]</li>
-                        </template>
-                      </ul>
-                    </paper-tooltip>
-                  </span>
-                </div>
-                <p class="description">[[release.supplement.description]]</p>
-                <details>
-                  <summary>
-                    <div style="display: inline-block; vertical-align: top">
-                      Service consists of [[_count(release.supplement.class)]] microservice[[_pluralS(release.supplement.class)]]<br/>
-                      [[_countRunningLocally(release)]] running locally on this node, [[_countInstancesRunningRemoteOnly(release)]] running remotely in network
-                      <div hidden="[[!_fullyAvailableLocally(release)]]">
-                        Service available locally, authenticity verified
-                        <iron-icon icon="hardware:security" title="Running locally"></iron-icon>
-                      </div>
-                      <div hidden="[[_fullyAvailableLocally(release)]]">
-                        <div hidden="[[!_fullyAvailableAnywhere(release)]]">
-                          Service available remotely on other nodes
-                          <iron-icon icon="icons:cloud" title="Running on network nodes"></iron-icon>
-                        </div>
-                      </div>
-                      <div hidden="[[_fullyAvailableAnywhere(release)]]">
-                        Service not available
-                      </div>
-                      <!--
-                      [[_countRunningLocally(release)]] of [[_count(release.supplement.class)]] Service classes running on this node
-                      <iron-icon icon="hardware:security" title="Running locally"></iron-icon><br/>
-                      <span hidden$="[[_fullyAvailableLocally(release)]]">
-                      [[_countRunningRemoteOnly(release)]] of [[_countMissingLocally(release)]] running remotely in network
-                      <iron-icon icon="icons:cloud" title="Running on network nodes"></iron-icon>
-                      </span>
-                      -->
-                    </div>
-                  </summary>
-                  <ul style="list-style: none"><!-- TODO: this could/should actually be an HTML table, for once -->
-                      <li>
-                        <div style="display: inline-block; vertical-align: top; width: 17em; overflow: hidden">
-                          <strong>Microservice</strong>
-                        </div>
-                        <ul style="display: inline-block; list-style: none; padding-left: 0">
-                          <li style="margin-left: 0">
-                            <span class="nodeId"><iron-icon icon="hardware:device-hub" title="Running on Node"></iron-icon> <strong>Node ID</strong></span>
-                            <span class="nodeAdmin"><iron-icon icon="account-circle" title="Service Hoster"></iron-icon> <strong>Service Hoster</strong></span>
-                            <span class="nodeAdminRating"><iron-icon icon="face" title="Hoster Rating"></iron-icon> <strong>Hoster Rating</strong></span>
-                            <span class="time"><iron-icon icon="device:access-time" title="Last Announcement"></iron-icon> <strong>Last announced</strong></span>
-                          </li>
-                        </ul>
-                      </li>
-                    <template is="dom-repeat" items="[[_split(release.supplement.class)]]" as="class">
-                      <li>
-                        <div style="display: inline-block; vertical-align: top; width: 17em; overflow: hidden">
-                          [[class]]
-                          <iron-icon hidden$="[[!_hasLocalRunningInstance(release.instances, class)]]" icon="hardware:security" title="Running locally"></iron-icon>
-                          <iron-icon hidden$="[[!_hasOnlyRemoteRunningInstance(release.instances, class)]]" icon="icons:cloud" title="Running on network nodes"></iron-icon>
-                        </div>
-                        <ul style="display: inline-block; list-style: none; padding-left: 0">
-                          <span hidden$="[[_hasRunningInstance(release.instances, class)]]">not running</span>
-                          <template is="dom-repeat" items="[[_filterInstances(release.instances, class)]]" as="instance">
-                            <li style="margin-left: 0">
-                              <span class="nodeId">[[instance.nodeId]]</span>
-                              <template is="dom-if" if="[[instance.nodeInfo.admin-name]]">
-                                <span class="nodeAdmin">
-                                  [[instance.nodeInfo.admin-name]]
-                                </span>
-                                <span class="nodeAdminRating">
-                                  <template is="dom-if" if="[[instance.hosterReputation]]">
-                                    <custom-star-rating value="[[instance.hosterReputation]]" readonly single></custom-star-rating>
-                                  </template>
-                                  <template is="dom-if" if="[[!instance.hosterReputation]]">
-                                    <custom-star-rating disable-rating readonly single></custom-star-rating>
-                                  </template>
-                                </span>
-
-                              </template>
-                              <span class="time">[[_toHumanDate(instance.announcementEpochSeconds)]]</span>
-                            </li>
+            <div class="card-content" style="padding-top: 0px">
+                  <div style="margin-bottom: 8px">
+                    <span class="package"><iron-icon icon="icons:cloud" title="Part of package"></iron-icon>[[service.name]]</span>
+                  </div>
+                  <div>
+                    Author: <span class="author">[[service.authorName]]</span> 
+                    <template is="dom-if" if="[[service.authorReputation]]">
+                      <custom-star-rating value="[[service.authorReputation]]" readonly single></custom-star-rating>
+                    </template>
+                    <template is="dom-if" if="[[!service.authorReputation]]">
+                      <custom-star-rating disable-rating readonly single></custom-star-rating>
+                    </template>
+                  </div>
+                  <div>
+                    Latest version: <span class="version">[[release.version]]</span>
+                    published <span class="timestamp">[[_toHumanDate(release.publicationEpochSeconds)]]</span>
+                    <!-- <span class="history">
+                      <iron-icon icon="icons:info" title="Release history"></iron-icon>
+                      <paper-tooltip position="right" class="large">
+                        Release History<br/>
+                        <ul>
+                          <template is="dom-repeat" items="[[_toArray(service.releases)]]" as="version">
+                            <li>[[version.name]] at [[_toHumanDate(version.value.publicationEpochSeconds)]]</li>
                           </template>
                         </ul>
-                      </li>
-                    </template>
-                  </ul>
-                  <span style="margin-right:1em"><iron-icon icon="hardware:security" title="Running locally"></iron-icon> Microservice running locally</span>
-                  <span><iron-icon icon="icons:cloud" title="Running on network nodes"></iron-icon> Microservice running remotely only</span>
-                </details>
-              </div>
-              <div class="card-actions">
-                  <paper-button on-click="_handleStartButton"
-                                data-args$="[[service.name]]#[[_classesNotRunningLocally(release)]]@[[release.version]]" disabled$=[[_working]]>Start on this Node</paper-button>
-                  <paper-button on-click="_handleStopButton"
-                                disabled$="[[!_countRunningLocally(release)]]"
-                                data-args$="[[service.name]]#[[release.supplement.class]]@[[release.version]]">Stop</paper-button>
-                  <paper-button hidden$="[[!release.supplement.vcsUrl]]"
-                                on-click="_handleVcsButton"
-                                data-args$="[[release.supplement.vcsUrl]]">View source code</paper-button>
-                  <paper-button hidden$="[[!release.supplement.frontendUrl]]"
-                                on-click="_handleFrontendButton"
-                                disabled$="[[!_fullyAvailableAnywhere(release)]]"
-                                data-args$="[[_frontendUrlIfServiceAvailable(release)]]">Open front-end</paper-button>
-                  <paper-spinner style="padding: 0.7em;float: right;" active="[[_working]]"></paper-spinner>
-              </div>
+                      </paper-tooltip>
+                    </span> -->
+                  </div>
+                  <p class="description">[[release.supplement.description]]</p>
+                  <details>
+                    <summary>
+                      <div style="display: inline-block; vertical-align: top">
+                        Service has [[_getNumberOfReleases(service)]] releases<br/>
+                      </div>
+                    </summary>
+                    <template is="dom-repeat" items="[[_toArray(service.releases)]]" as="version">
+                    <div
+                            style="display: flex; flex-direction: row;align-items: center;align-content: center; padding: 10px;"
+                          >
+                            <details style="flex-grow: 4; ">
+                              <summary class="summary">
+                                Deployments of release version: [[version.name]]
+                              </summary>
+                              <template is="dom-repeat" items="[[_getDeploymentsAsArray(service.releases, version.name)]]" as="instance">
+                              <div>
+                                    <paper-card
+                                      class="release-deployments-paper"
+                                    >
+                                      <div class="deployment-info">
+                                        [[instance.clusterName]] Time:
+                                        [[instance.time]]
+                                      </div>
+                                      <div>
+                                        <paper-button
+                                          class="open-release-application"
+
+                                          >Open app</paper-button
+                                        >
+                                        <paper-button
+                                          class="stop-release-application"
+
+                                          >Stop deployment</paper-button
+                                        >
+                                      </div>
+                                    </paper-card>
+                                  </div>
+                              </template>
+                            </details>
+                            <div style="padding-right: 55px;">
+                              <paper-button
+                                class="deploy-instance"
+                                >Deploy instance</paper-button
+                              >
+                            </div>
+                          </div>
+                          </template>
+
+
+
+                  </details>
+                </div>
             </paper-card>
+            </template>
+            <template is="dom-if" if="[[!_clusterTypeAvailable(release)]]">
+              <paper-card heading$="[[release.supplement.name]]" style="width: 100%;margin-bottom: 1em" class="service">
+                <div class="card-content" style="padding-top: 0px">
+                  <div style="margin-bottom: 8px">
+                    <span class="package"><iron-icon icon="icons:archive" title="Part of package"></iron-icon>[[service.name]]</span>
+                  </div>
+                  <div>
+                    Author: <span class="author">[[service.authorName]]</span> 
+                    <template is="dom-if" if="[[service.authorReputation]]">
+                      <custom-star-rating value="[[service.authorReputation]]" readonly single></custom-star-rating>
+                    </template>
+                    <template is="dom-if" if="[[!service.authorReputation]]">
+                      <custom-star-rating disable-rating readonly single></custom-star-rating>
+                    </template>
+                  </div>
+                  <div>
+                    Latest version: <span class="version">[[release.version]]</span>
+                    published <span class="timestamp">[[_toHumanDate(release.publicationEpochSeconds)]]</span>
+                    <span class="history">
+                      <iron-icon icon="icons:info" title="Release history"></iron-icon>
+                      <paper-tooltip position="right" class="large">
+                        Release History<br/>
+                        <ul>
+                          <template is="dom-repeat" items="[[_toArray(service.releases)]]" as="version">
+                            <li>[[version.name]] at [[_toHumanDate(version.value.publicationEpochSeconds)]]</li>
+                          </template>
+                        </ul>
+                      </paper-tooltip>
+                    </span>
+                  </div>
+                  <p class="description">[[release.supplement.description]]</p>
+                  <details>
+                    <summary>
+                      <div style="display: inline-block; vertical-align: top">
+                        Service consists of [[_count(release.supplement.class)]] microservice[[_pluralS(release.supplement.class)]]<br/>
+                        [[_countRunningLocally(release)]] running locally on this node, [[_countInstancesRunningRemoteOnly(release)]] running remotely in network
+                        <div hidden="[[!_fullyAvailableLocally(release)]]">
+                          Service available locally, authenticity verified
+                          <iron-icon icon="hardware:security" title="Running locally"></iron-icon>
+                        </div>
+                        <div hidden="[[_fullyAvailableLocally(release)]]">
+                          <div hidden="[[!_fullyAvailableAnywhere(release)]]">
+                            Service available remotely on other nodes
+                            <iron-icon icon="icons:cloud" title="Running on network nodes"></iron-icon>
+                          </div>
+                        </div>
+                        <div hidden="[[_fullyAvailableAnywhere(release)]]">
+                          Service not available
+                        </div>
+                        <!--
+                        [[_countRunningLocally(release)]] of [[_count(release.supplement.class)]] Service classes running on this node
+                        <iron-icon icon="hardware:security" title="Running locally"></iron-icon><br/>
+                        <span hidden$="[[_fullyAvailableLocally(release)]]">
+                        [[_countRunningRemoteOnly(release)]] of [[_countMissingLocally(release)]] running remotely in network
+                        <iron-icon icon="icons:cloud" title="Running on network nodes"></iron-icon>
+                        </span>
+                        -->
+                      </div>
+                    </summary>
+                    <ul style="list-style: none"><!-- TODO: this could/should actually be an HTML table, for once -->
+                        <li>
+                          <div style="display: inline-block; vertical-align: top; width: 17em; overflow: hidden">
+                            <strong>Microservice</strong>
+                          </div>
+                          <ul style="display: inline-block; list-style: none; padding-left: 0">
+                            <li style="margin-left: 0">
+                              <span class="nodeId"><iron-icon icon="hardware:device-hub" title="Running on Node"></iron-icon> <strong>Node ID</strong></span>
+                              <span class="nodeAdmin"><iron-icon icon="account-circle" title="Service Hoster"></iron-icon> <strong>Service Hoster</strong></span>
+                              <span class="nodeAdminRating"><iron-icon icon="face" title="Hoster Rating"></iron-icon> <strong>Hoster Rating</strong></span>
+                              <span class="time"><iron-icon icon="device:access-time" title="Last Announcement"></iron-icon> <strong>Last announced</strong></span>
+                            </li>
+                          </ul>
+                        </li>
+                      <template is="dom-repeat" items="[[_split(release.supplement.class)]]" as="class">
+                        <li>
+                          <div style="display: inline-block; vertical-align: top; width: 17em; overflow: hidden">
+                            [[class]]
+                            <iron-icon hidden$="[[!_hasLocalRunningInstance(release.instances, class)]]" icon="hardware:security" title="Running locally"></iron-icon>
+                            <iron-icon hidden$="[[!_hasOnlyRemoteRunningInstance(release.instances, class)]]" icon="icons:cloud" title="Running on network nodes"></iron-icon>
+                          </div>
+                          <ul style="display: inline-block; list-style: none; padding-left: 0">
+                            <span hidden$="[[_hasRunningInstance(release.instances, class)]]">not running</span>
+                            <template is="dom-repeat" items="[[_filterInstances(release.instances, class)]]" as="instance">
+                              <li style="margin-left: 0">
+                                <span class="nodeId">[[instance.nodeId]]</span>
+                                <template is="dom-if" if="[[instance.nodeInfo.admin-name]]">
+                                  <span class="nodeAdmin">
+                                    [[instance.nodeInfo.admin-name]]
+                                  </span>
+                                  <span class="nodeAdminRating">
+                                    <template is="dom-if" if="[[instance.hosterReputation]]">
+                                      <custom-star-rating value="[[instance.hosterReputation]]" readonly single></custom-star-rating>
+                                    </template>
+                                    <template is="dom-if" if="[[!instance.hosterReputation]]">
+                                      <custom-star-rating disable-rating readonly single></custom-star-rating>
+                                    </template>
+                                  </span>
+
+                                </template>
+                                <span class="time">[[_toHumanDate(instance.announcementEpochSeconds)]]</span>
+                              </li>
+                            </template>
+                          </ul>
+                        </li>
+                      </template>
+                    </ul>
+                    <span style="margin-right:1em"><iron-icon icon="hardware:security" title="Running locally"></iron-icon> Microservice running locally</span>
+                    <span><iron-icon icon="icons:cloud" title="Running on network nodes"></iron-icon> Microservice running remotely only</span>
+                  </details>
+                </div>
+                <div class="card-actions">
+                    <paper-button on-click="_handleStartButton"
+                                  data-args$="[[service.name]]#[[_classesNotRunningLocally(release)]]@[[release.version]]" disabled$=[[_working]]>Start on this Node</paper-button>
+                    <paper-button on-click="_handleStopButton"
+                                  disabled$="[[!_countRunningLocally(release)]]"
+                                  data-args$="[[service.name]]#[[release.supplement.class]]@[[release.version]]">Stop</paper-button>
+                    <paper-button hidden$="[[!release.supplement.vcsUrl]]"
+                                  on-click="_handleVcsButton"
+                                  data-args$="[[release.supplement.vcsUrl]]">View source code</paper-button>
+                    <paper-button hidden$="[[!release.supplement.frontendUrl]]"
+                                  on-click="_handleFrontendButton"
+                                  disabled$="[[!_fullyAvailableAnywhere(release)]]"
+                                  data-args$="[[_frontendUrlIfServiceAvailable(release)]]">Open front-end</paper-button>
+                    <paper-spinner style="padding: 0.7em;float: right;" active="[[_working]]"></paper-spinner>
+                </div>
+              </paper-card>
+            </template>
           </template>
         </template>
       </div>
@@ -274,6 +387,7 @@ class ServicesView extends PolymerElement {
   }
 
   ready() {
+    this.apiEndpoint = "http://localhost:8012/las2peer"
     super.ready();
     window.serviceThis = this;
     window.setTimeout(function() { window.serviceThis.refresh(); }, 1);
@@ -442,6 +556,29 @@ class ServicesView extends PolymerElement {
     }
   }
 
+  _clusterTypeAvailable(release){
+    console.log(release)
+    if(!release){
+      return false;
+    }
+    else if(!release.supplement){
+      return false;
+    }
+    else if(release.supplement.type == "cae-application"){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
+  _getNumberOfReleases(service){
+    return Object.keys(service.releases).length
+  }
+
+  _getDeploymentsAsArray(releases, version){
+    return releases[version].instances
+  }
   _keyPressedUploadService(event) {
     if (event.which == 13 || event.keyCode == 13) {
       event.preventDefault();
