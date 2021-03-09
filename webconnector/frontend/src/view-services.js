@@ -8,19 +8,19 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
-import '@polymer/iron-ajax/iron-ajax.js';
-import '@polymer/iron-form/iron-form.js';
-import '@polymer/iron-icon/iron-icon.js';
-import '@polymer/iron-icons/iron-icons.js';
-import '@polymer/iron-icons/device-icons.js';
-import '@polymer/iron-icons/hardware-icons.js';
-import '@polymer/paper-card/paper-card.js';
-import '@polymer/paper-button/paper-button.js';
-import '@polymer/paper-input/paper-input.js';
-import '@polymer/paper-tooltip/paper-tooltip.js';
-import './custom-star-rating.js';
-import './shared-styles.js';
+import { PolymerElement, html } from "@polymer/polymer/polymer-element.js";
+import "@polymer/iron-ajax/iron-ajax.js";
+import "@polymer/iron-form/iron-form.js";
+import "@polymer/iron-icon/iron-icon.js";
+import "@polymer/iron-icons/iron-icons.js";
+import "@polymer/iron-icons/device-icons.js";
+import "@polymer/iron-icons/hardware-icons.js";
+import "@polymer/paper-card/paper-card.js";
+import "@polymer/paper-button/paper-button.js";
+import "@polymer/paper-input/paper-input.js";
+import "@polymer/paper-tooltip/paper-tooltip.js";
+import "./custom-star-rating.js";
+import "./shared-styles.js";
 
 class ServicesView extends PolymerElement {
   static get template() {
@@ -382,24 +382,26 @@ class ServicesView extends PolymerElement {
       _submittingUpload: { type: Boolean },
       _hasNoEther: { type: Boolean, value: false },
       _working: { type: Boolean, value: false },
-      _serviceString: { type: String, value: "@", notify: true }
+      _serviceString: { type: String, value: "@", notify: true },
     };
   }
 
   ready() {
-    this.apiEndpoint = "http://localhost:8012/las2peer"
+    this.apiEndpoint = "http://localhost:8012/las2peer";
     super.ready();
     window.serviceThis = this;
-    window.setTimeout(function() { window.serviceThis.refresh(); }, 1);
-    if ( window.rootThis._isEthNode ) 
-    {
-      window.setInterval(function() { window.serviceThis.refresh(); }, 5000);
+    window.setTimeout(function () {
+      window.serviceThis.refresh();
+    }, 1);
+    if (window.rootThis._isEthNode) {
+      window.setInterval(function () {
+        window.serviceThis.refresh();
+      }, 5000);
     }
   }
 
   refresh() {
-    if ( window.rootThis._isEthNode )
-      return;
+    if (window.rootThis._isEthNode) return;
     this.$.ajaxNodeId.generateRequest();
     this.$.ajaxServiceData.generateRequest();
     this.$.ajaxCommunityTags.generateRequest();
@@ -408,8 +410,8 @@ class ServicesView extends PolymerElement {
   _sort(service, otherService) {
     try {
       // alphabetically by packagename
-      return (service.name < otherService.name) ? -1 : 1;
-    } catch(err) {
+      return service.name < otherService.name ? -1 : 1;
+    } catch (err) {
       return -1; // whatever
     }
   }
@@ -419,8 +421,8 @@ class ServicesView extends PolymerElement {
       let query = this.$.filterField.value.trim();
       if (query.length < 1) return true;
       let serviceAsJson = JSON.stringify(service);
-      return serviceAsJson.match(new RegExp(query, 'i'));
-    } catch(err) {
+      return serviceAsJson.match(new RegExp(query, "i"));
+    } catch (err) {
       return true;
     }
   }
@@ -434,7 +436,7 @@ class ServicesView extends PolymerElement {
   }
 
   _toArray(obj) {
-    return Object.keys(obj).map(k => ({ name: k, value: obj[k] }));
+    return Object.keys(obj).map((k) => ({ name: k, value: obj[k] }));
   }
 
   _toBool(obj) {
@@ -442,15 +444,15 @@ class ServicesView extends PolymerElement {
   }
 
   _split(stringWithCommas) {
-    return (stringWithCommas || "").split(',');
+    return (stringWithCommas || "").split(",");
   }
 
   _count(stringWithCommas) {
-    return this._split(stringWithCommas).length
+    return this._split(stringWithCommas).length;
   }
 
   _pluralS(stringWithCommas) {
-    return (this._count(stringWithCommas) > 1) ? "s" : "";
+    return this._count(stringWithCommas) > 1 ? "s" : "";
   }
 
   _toHumanDate(epochSeconds) {
@@ -459,8 +461,21 @@ class ServicesView extends PolymerElement {
 
   _getLatestVersionNumber(obj) {
     // NOTE: sorting issue fixed
-    let latestVersion = Object.keys(obj).map( a => a.split('.').map( n => +n+1000000 ).join('.') ).sort()
-        .map( a => a.split('.').map( n => +n-1000000 ).join('.') ).reverse()[0];
+    let latestVersion = Object.keys(obj)
+      .map((a) =>
+        a
+          .split(".")
+          .map((n) => +n + 1000000)
+          .join(".")
+      )
+      .sort()
+      .map((a) =>
+        a
+          .split(".")
+          .map((n) => +n - 1000000)
+          .join(".")
+      )
+      .reverse()[0];
     return latestVersion;
   }
 
@@ -477,25 +492,34 @@ class ServicesView extends PolymerElement {
   }
 
   _filterInstances(instances, serviceClass) {
-    return instances.filter(i => i.className === serviceClass);
+    return instances.filter((i) => i.className === serviceClass);
   }
 
   _hasRunningInstance(instances, serviceClass) {
-    return this._filterInstances(instances, serviceClass).length > 0
+    return this._filterInstances(instances, serviceClass).length > 0;
   }
 
   _hasLocalRunningInstance(instances, serviceClass) {
-    return this._filterInstances(instances, serviceClass).filter(i => i.nodeId === (this._nodeId || {}).id).length > 0;
+    return (
+      this._filterInstances(instances, serviceClass).filter(
+        (i) => i.nodeId === (this._nodeId || {}).id
+      ).length > 0
+    );
   }
 
   _hasOnlyRemoteRunningInstance(instances, serviceClass) {
-    return this._hasRunningInstance(instances, serviceClass) && !this._hasLocalRunningInstance(instances, serviceClass);
+    return (
+      this._hasRunningInstance(instances, serviceClass) &&
+      !this._hasLocalRunningInstance(instances, serviceClass)
+    );
   }
 
   _classesNotRunningAnywhere(release) {
-    let classes = this._split((release.supplement || {}).class)
-    let missing = classes.filter(c => {
-      let instancesOfClass = (release.instances || []).filter(i => i.className === c);
+    let classes = this._split((release.supplement || {}).class);
+    let missing = classes.filter((c) => {
+      let instancesOfClass = (release.instances || []).filter(
+        (i) => i.className === c
+      );
       return instancesOfClass < 1;
     });
     return missing;
@@ -503,8 +527,10 @@ class ServicesView extends PolymerElement {
 
   _classesNotRunningLocally(release) {
     let classes = this._split((release.supplement || {}).class);
-    let missing = classes.filter(c => {
-      let localInstancesOfClass = (release.instances || []).filter(i => i.className === c && i.nodeId === (this._nodeId || {}).id);
+    let missing = classes.filter((c) => {
+      let localInstancesOfClass = (release.instances || []).filter(
+        (i) => i.className === c && i.nodeId === (this._nodeId || {}).id
+      );
       return localInstancesOfClass < 1;
     });
     return missing;
@@ -512,7 +538,7 @@ class ServicesView extends PolymerElement {
 
   // uh yeah, there's prettier ways to handle this
   _classesNotRunningLocallySeparatedByCommas(release) {
-    return this._classesNotRunningLocally(release).join(',');
+    return this._classesNotRunningLocally(release).join(",");
   }
 
   _countRunning(release) {
@@ -528,7 +554,10 @@ class ServicesView extends PolymerElement {
   }
 
   _countMissingLocally(release) {
-   return this._count((release.supplement || {}).class) - this._countRunningLocally(release);
+    return (
+      this._count((release.supplement || {}).class) -
+      this._countRunningLocally(release)
+    );
   }
 
   _countRunningRemoteOnly(release) {
@@ -537,7 +566,9 @@ class ServicesView extends PolymerElement {
 
   // this counts several instances of a service class (in contrast, most other methods here ignore duplicates)
   _countInstancesRunningRemoteOnly(release) {
-    return (release.instances || "").length - this._countRunningLocally(release);
+    return (
+      (release.instances || "").length - this._countRunningLocally(release)
+    );
   }
 
   _fullyAvailableAnywhere(release) {
@@ -556,28 +587,25 @@ class ServicesView extends PolymerElement {
     }
   }
 
-  _clusterTypeAvailable(release){
-    console.log(release)
-    if(!release){
+  _clusterTypeAvailable(release) {
+    console.log(release);
+    if (!release) {
       return false;
-    }
-    else if(!release.supplement){
+    } else if (!release.supplement) {
       return false;
-    }
-    else if(release.supplement.type == "cae-application"){
+    } else if (release.supplement.type == "cae-application") {
       return true;
-    }
-    else{
+    } else {
       return false;
     }
   }
 
-  _getNumberOfReleases(service){
-    return Object.keys(service.releases).length
+  _getNumberOfReleases(service) {
+    return Object.keys(service.releases).length;
   }
 
-  _getDeploymentsAsArray(releases, version){
-    return releases[version].instances
+  _getDeploymentsAsArray(releases, version) {
+    return releases[version].instances;
   }
   _keyPressedUploadService(event) {
     if (event.which == 13 || event.keyCode == 13) {
@@ -589,18 +617,20 @@ class ServicesView extends PolymerElement {
   }
 
   _handleStartButton(event) {
-    let arg = event.target.getAttribute('data-args');
-    let packageName = arg.split('#')[0];
-    let version = arg.split('@')[1];
-    let classes= arg.split('#')[1].split('@')[0].split(',');
+    let arg = event.target.getAttribute("data-args");
+    let packageName = arg.split("#")[0];
+    let version = arg.split("@")[1];
+    let classes = arg.split("#")[1].split("@")[0].split(",");
 
     for (let c of classes) {
-      this.startService(packageName + '.' + c, version);
+      this.startService(packageName + "." + c, version);
     }
   }
 
-  _handleStartButtonNoChain(event) { 
-    let serviceString = this.shadowRoot.querySelector('#serviceString').split("@");
+  _handleStartButtonNoChain(event) {
+    let serviceString = this.shadowRoot
+      .querySelector("#serviceString")
+      .split("@");
     let serviceName = serviceString[0];
     let serviceVersion = serviceString[1];
     this.startService(serviceName, serviceVersion);
@@ -608,38 +638,42 @@ class ServicesView extends PolymerElement {
 
   startService(fullClassName, version) {
     let req = this.$.ajaxStartService;
-    req.params = { 'serviceName': fullClassName, 'version': version };
-    console.log("Requesting start of '" + fullClassName + "'@'" + version + "' ...");
+    req.params = { serviceName: fullClassName, version: version };
+    console.log(
+      "Requesting start of '" + fullClassName + "'@'" + version + "' ..."
+    );
     req.generateRequest();
   }
 
   _handleStopButton(event) {
-    let arg = event.target.getAttribute('data-args');
-    let packageName = arg.split('#')[0];
-    let version = arg.split('@')[1];
-    let classes= arg.split('#')[1].split('@')[0].split(',');
+    let arg = event.target.getAttribute("data-args");
+    let packageName = arg.split("#")[0];
+    let version = arg.split("@")[1];
+    let classes = arg.split("#")[1].split("@")[0].split(",");
 
     for (let c of classes) {
-      this.stopService(packageName + '.' + c, version);
+      this.stopService(packageName + "." + c, version);
     }
   }
 
   stopService(fullClassName, version) {
     let req = this.$.ajaxStopService;
-    req.params = { 'serviceName': fullClassName, 'version': version };
-    console.log("Requesting stop of '" + fullClassName + "'@'" + version + "' ...");
+    req.params = { serviceName: fullClassName, version: version };
+    console.log(
+      "Requesting stop of '" + fullClassName + "'@'" + version + "' ..."
+    );
     req.generateRequest();
   }
 
   _handleVcsButton(event) {
-    if (event.target.getAttribute('data-args')) {
-      window.open(event.target.getAttribute('data-args'));
+    if (event.target.getAttribute("data-args")) {
+      window.open(event.target.getAttribute("data-args"));
     }
   }
 
   _handleFrontendButton(event) {
-    if (event.target.getAttribute('data-args')) {
-      window.open(event.target.getAttribute('data-args'));
+    if (event.target.getAttribute("data-args")) {
+      window.open(event.target.getAttribute("data-args"));
     }
   }
 
@@ -648,8 +682,8 @@ class ServicesView extends PolymerElement {
   }
 
   _handleError(object, title, message) {
-    window.rootThis._handleError(object, title, message)
+    window.rootThis._handleError(object, title, message);
   }
 }
 
-window.customElements.define('services-view', ServicesView);
+window.customElements.define("services-view", ServicesView);
