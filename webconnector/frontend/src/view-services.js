@@ -153,8 +153,8 @@ class ServicesView extends PolymerElement {
           <template is="dom-repeat" items="[[_getLatestAsArray(service.releases)]]" as="release">
             <!-- we actually just want a single item here: the latest release. but I don't know how to do that without abusing repeat like this -->
             <template is="dom-if" if="[[_clusterTypeAvailable(release)]]">
-            <paper-card heading$="[[release.supplement.name]]" style="width: 100%;margin-bottom: 1em" class="service">
-            <div class="card-content" style="padding-top: 0px">
+              <paper-card heading$="[[release.supplement.name]]" style="width: 100%;margin-bottom: 1em" class="service">
+                <div class="card-content" style="padding-top: 0px">
                   <div style="margin-bottom: 8px">
                     <span class="package"><iron-icon icon="icons:cloud" title="Part of package"></iron-icon>[[service.name]]</span>
                   </div>
@@ -170,17 +170,6 @@ class ServicesView extends PolymerElement {
                   <div>
                     Latest version: <span class="version">[[release.version]]</span>
                     published <span class="timestamp">[[_toHumanDate(release.publicationEpochSeconds)]]</span>
-                    <!-- <span class="history">
-                      <iron-icon icon="icons:info" title="Release history"></iron-icon>
-                      <paper-tooltip position="right" class="large">
-                        Release History<br/>
-                        <ul>
-                          <template is="dom-repeat" items="[[_toArray(service.releases)]]" as="version">
-                            <li>[[version.name]] at [[_toHumanDate(version.value.publicationEpochSeconds)]]</li>
-                          </template>
-                        </ul>
-                      </paper-tooltip>
-                    </span> -->
                   </div>
                   <p class="description">[[release.supplement.description]]</p>
                   <details>
@@ -190,52 +179,81 @@ class ServicesView extends PolymerElement {
                       </div>
                     </summary>
                     <template is="dom-repeat" items="[[_toArray(service.releases)]]" as="version">
-                    <div
-                            style="display: flex; flex-direction: row;align-items: center;align-content: center; padding: 10px;"
-                          >
-                            <details style="flex-grow: 4; ">
-                              <summary class="summary">
-                                Deployments of release version: [[version.name]]
-                              </summary>
-                              <template is="dom-repeat" items="[[_getDeploymentsAsArray(service.releases, version.name)]]" as="instance">
-                              <div>
-                                    <paper-card
-                                      class="release-deployments-paper"
-                                    >
-                                      <div class="deployment-info">
-                                        [[instance.clusterName]] Time:
-                                        [[instance.time]]
-                                      </div>
-                                      <div>
-                                        <paper-button
-                                          class="open-release-application"
-
-                                          >Open app</paper-button
-                                        >
-                                        <paper-button
-                                          class="stop-release-application"
-
-                                          >Stop deployment</paper-button
-                                        >
-                                      </div>
-                                    </paper-card>
-                                  </div>
-                              </template>
-                            </details>
-                            <div style="padding-right: 55px;">
-                              <paper-button
-                                class="deploy-instance"
-                                >Deploy instance</paper-button
-                              >
+                      <div style="display: flex; flex-direction: row;align-items: center;align-content: center; padding: 10px;">
+                        <details style="flex-grow: 4; ">
+                          <summary class="summary">
+                            Deployments of release version: [[version.name]]
+                          </summary>
+                          <template is="dom-repeat" items="[[_getDeploymentsAsArray(service.releases, version.name)]]" as="instance">
+                            <div>
+                              <paper-card class="release-deployments-paper">
+                                <div class="deployment-info">
+                                  [[instance.clusterName]] Time:
+                                  [[instance.time]]
+                                </div>
+                                <div>
+                                  <paper-button class="open-release-application">Open app</paper-button>
+                                  <paper-button class="stop-release-application">Stop deployment</paper-button>
+                                </div>
+                              </paper-card>
                             </div>
-                          </div>
                           </template>
-
-
-
+                        </details>
+                        <div style="padding-right: 55px;">
+                          <paper-button class="deploy-instance" data-args$='[[version]]' on-click="test">Deploy instance</paper-button>
+                        </div>
+                      </div>
+                    </template>
                   </details>
+                  <div id="[[service.name]]" style="display: none">
+                    <paper-card class="deploy-paper" style="width:100%; padding:40px">
+                        <div style="display:flex; flex-direction: column; flex-grow: 4;">
+                          <div style="display:flex; flex-direction: column;">
+                            <div style="display:flex; flex-direction: row;justify-content: space-between;align-items: center;align-content: center;">
+                              <div>Name</div>
+                                <paper-icon-button
+                                  icon="close"
+                                ></paper-icon-button>
+                            </div>
+                              <span class="textbox" style="display:flex; flex-direction: row;">
+                                <paper-input
+                                  type="text"
+                                  id="release-name-input"
+                                  value=[[selectedRelease.value.supplement.name]]
+                                  readonly
+                                ></paper-input>
+                                <paper-input
+                                  id="name-input"
+                                  type="text"
+                                ></paper-input>
+                              </span>
+                          </div>
+                          <div style="display:flex; flex-direction: column;">
+                              URL
+                              <span
+                                class="textbox"
+                                style="display:flex; flex-direction: row;"
+                              >
+                                <paper-input
+                                  id="url-input"
+                                  type="text"
+                                ></paper-input>
+                              </span>
+                            </div>
+                        </div>
+                        <paper-card>
+                          <paper-button
+                            id="deployment-button"
+                            class="paper-button-blue"
+                          >
+                            Deploy own Release
+                          </paper-button>
+                        </paper-card>
+                    </paper-card>
+                  </div>
+
                 </div>
-            </paper-card>
+              </paper-card>
             </template>
             <template is="dom-if" if="[[!_clusterTypeAvailable(release)]]">
               <paper-card heading$="[[release.supplement.name]]" style="width: 100%;margin-bottom: 1em" class="service">
@@ -372,6 +390,7 @@ class ServicesView extends PolymerElement {
 
   static get properties() {
     return {
+      selectedRelease: { type: Object },
       apiEndpoint: { type: String, notify: true },
       agentId: { type: String, notify: true },
       error: { type: Object, notify: true },
@@ -607,6 +626,21 @@ class ServicesView extends PolymerElement {
   _getDeploymentsAsArray(releases, version) {
     return releases[version].instances;
   }
+  _selectedRelease(){
+    if(this.selectedRelease){
+      console.log("true")
+      return true;
+    }
+    else{
+      console.log("false")
+
+      return false;
+    }
+  }
+  test(o){
+    var args = o.target.getAttribute('data-args');
+  }
+
   _keyPressedUploadService(event) {
     if (event.which == 13 || event.keyCode == 13) {
       event.preventDefault();
