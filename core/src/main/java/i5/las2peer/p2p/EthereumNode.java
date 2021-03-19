@@ -421,6 +421,25 @@ public class EthereumNode extends PastryNodeImpl {
 		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
 	}
 
+	public void registerServiceInBlockchain(String serviceName, String serviceVersion, GroupEthereumAgent author,
+			byte[] supplementHash) throws AgentException, SerializationException, EthereumException {
+		if (author.isLocked()) {
+			throw new AgentLockedException("Cannot register service because Ethereum-enabled agent is locked.");
+		}
+
+		boolean serviceAlreadyRegistered = getRegistryClient().getServiceNames().contains(serviceName);
+		if (serviceAlreadyRegistered) {
+			if (!isServiceOwner(author.getGroupName(), serviceName)) {
+				throw new AgentException("Service is already registered to someone else, cannot register!");
+			}
+		} else {
+			registerServiceName(serviceName, author);
+		}
+		logger.info("Registering service release '" + serviceName + "', v" + serviceVersion + " ...");
+		getRegistryClient().releaseService(serviceName, serviceVersion, author, supplementHash);
+	}
+	
+
 	/**
 	 * Announces deployment of Cluster Service on blockchain.
 	 *
@@ -477,6 +496,27 @@ public class EthereumNode extends PastryNodeImpl {
 			} else {
 				logger.info("User '" + authorName + "' not yet registered, registering now ...");
 				getRegistryClient().registerUser(author);
+			}
+		}
+
+		logger.fine("Service '" + name + "' not already known, registering ...");
+		getRegistryClient().registerService(name, author);
+	}
+
+	/** Register service name and if needed the author too */
+	private void registerServiceName(String name, GroupEthereumAgent author)
+			throws EthereumException, AgentLockedException, SerializationException {
+		String authorName = author.getGroupName();
+
+		// register author if needed
+		try {
+			getRegistryClient().getUser(authorName);
+		} catch (NotFoundException e) {
+			if (!getRegistryClient().usernameIsAvailable(authorName)) {
+				throw new EthereumException("User name not available but also not found, lord help us!");
+			} else {
+				logger.info("User '" + authorName + "' not yet registered, registering now ...");
+				getRegistryClient().registerGroup(author);;
 			}
 		}
 

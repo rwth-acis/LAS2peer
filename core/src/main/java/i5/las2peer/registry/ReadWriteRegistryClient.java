@@ -278,6 +278,26 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		}
 	}
 
+	public void registerService(String serviceName, GroupEthereumAgent agent)
+			throws EthereumException, AgentLockedException {
+		byte[] authorName = Util.padAndConvertString(agent.getGroupName(), 32);
+
+		final Function function = new Function(ServiceRegistry.FUNC_REGISTER,
+				Arrays.asList(new org.web3j.abi.datatypes.Utf8String(serviceName),
+						new org.web3j.abi.datatypes.generated.Bytes32(authorName)),
+				Collections.emptyList());
+
+		String consentee = agent.getEthereumAddress();
+		byte[] signature = SignatureUtils.signFunctionCall(function, agent.getEthereumCredentials());
+
+		try {
+			contracts.serviceRegistry.delegatedRegister(serviceName, authorName, consentee, signature).sendAsync()
+					.get();
+		} catch (Exception e) {
+			throw new EthereumException("Failed to register service", e);
+		}
+	}
+
 	/**
 	 * Register a group name to the given author.
 	 *
@@ -333,6 +353,12 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		releaseService(serviceName, version[0], version[1], version[2], author, supplementHash);
 	}
 
+	public void releaseService(String serviceName, String versionString, GroupEthereumAgent author, byte[] supplementHash)
+			throws EthereumException, AgentLockedException {
+		int[] version = Util.parseVersion(versionString);
+		releaseService(serviceName, version[0], version[1], version[2], author, supplementHash);
+	}
+
 	/** @see #releaseService(String, int, int, int, EthereumAgent, byte[]) */
 	public void releaseService(String serviceName, int versionMajor, int versionMinor, int versionPatch,
 			EthereumAgent author) throws EthereumException, AgentLockedException {
@@ -361,6 +387,46 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		}
 
 		byte[] authorName = Util.padAndConvertString(author.getLoginName(), 32);
+
+		// TODO: hash parameter is unused. instead, we check whether the library
+		// NetworkArtifact signature matches the
+		// author (pubkey registered in the blockchain), and consider that good enough
+		// (this leaves *some* room for undesired behavior: an author modifying his node
+		// code and replacing an already
+		// released version, but the potential for abuse seems pretty low)
+		// NOTE: actually, hash is now (ab)used for supplement (which happens to also be
+		// a hash)
+
+		final Function function = new Function(ServiceRegistry.FUNC_RELEASE,
+				Arrays.asList(new org.web3j.abi.datatypes.Utf8String(serviceName),
+						new org.web3j.abi.datatypes.generated.Bytes32(authorName),
+						new org.web3j.abi.datatypes.generated.Uint256(versionMajor),
+						new org.web3j.abi.datatypes.generated.Uint256(versionMinor),
+						new org.web3j.abi.datatypes.generated.Uint256(versionPatch),
+						new org.web3j.abi.datatypes.DynamicBytes(supplementHash)),
+				Collections.emptyList());
+
+		String consentee = author.getEthereumAddress();
+		byte[] signature = SignatureUtils.signFunctionCall(function, author.getEthereumCredentials());
+
+		try {
+			contracts.serviceRegistry.delegatedRelease(serviceName, authorName, BigInteger.valueOf(versionMajor),
+					BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), supplementHash, consentee,
+					signature).sendAsync().get();
+		} catch (Exception e) {
+			throw new EthereumException("Failed to submit service release", e);
+		}
+	}
+
+	public void releaseService(String serviceName, int versionMajor, int versionMinor, int versionPatch,
+			GroupEthereumAgent author, byte[] supplementHash) throws EthereumException, AgentLockedException {
+		if (observer.getReleaseByVersion(serviceName, versionMajor, versionMinor, versionPatch) != null) {
+			logger.warning("Tried to submit duplicate release (name / version already exist), ignoring!");
+			// TODO: handle in contracts, cause this is a race condition
+			return;
+		}
+
+		byte[] authorName = Util.padAndConvertString(author.getGroupName(), 32);
 
 		// TODO: hash parameter is unused. instead, we check whether the library
 		// NetworkArtifact signature matches the

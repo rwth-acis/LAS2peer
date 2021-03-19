@@ -33,6 +33,7 @@ import i5.las2peer.persistency.EnvelopeVersion;
 import i5.las2peer.registry.exceptions.EthereumException;
 import i5.las2peer.security.AgentImpl;
 import i5.las2peer.security.EthereumAgent;
+import i5.las2peer.security.GroupEthereumAgent;
 import i5.las2peer.security.PassphraseAgentImpl;
 import i5.las2peer.serialization.MalformedXMLException;
 import i5.las2peer.serialization.SerializationException;
@@ -230,7 +231,11 @@ public class PackageUploader {
 			throw new AgentException("Cannot use non-Ethereum agent to upload services on this Ethereum-enabled node!");
 		}
 		byte[] supplementHash = storeSupplement(node, supplement);
-		node.registerServiceInBlockchain(serviceName, serviceVersion, (EthereumAgent) devAgent, supplementHash);
+		if(devAgent instanceof EthereumAgent){
+			node.registerServiceInBlockchain(serviceName, serviceVersion, (EthereumAgent) devAgent, supplementHash);
+		} else if(devAgent instanceof GroupEthereumAgent){
+			node.registerServiceInBlockchain(serviceName, serviceVersion, (GroupEthereumAgent) devAgent, supplementHash);
+		}
 	}
 
 	private static void announceClusterServiceDeployment(EthereumNode node, String serviceName,

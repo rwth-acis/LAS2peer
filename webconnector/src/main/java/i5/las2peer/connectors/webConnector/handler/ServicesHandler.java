@@ -41,6 +41,7 @@ import i5.las2peer.api.persistency.EnvelopeAlreadyExistsException;
 import i5.las2peer.api.persistency.EnvelopeException;
 import i5.las2peer.api.persistency.EnvelopeNotFoundException;
 import i5.las2peer.api.security.AgentException;
+import i5.las2peer.api.security.AgentNotFoundException;
 import i5.las2peer.classLoaders.ClassManager;
 import i5.las2peer.classLoaders.libraries.SharedStorageRepository;
 import i5.las2peer.connectors.webConnector.WebConnector;
@@ -60,6 +61,7 @@ import i5.las2peer.registry.ReadOnlyRegistryClient;
 import i5.las2peer.registry.data.ServiceReleaseData;
 import i5.las2peer.security.AgentImpl;
 import i5.las2peer.security.EthereumAgent;
+import i5.las2peer.security.GroupAgentImpl;
 import i5.las2peer.tools.CryptoException;
 import i5.las2peer.tools.PackageUploader;
 import i5.las2peer.tools.PackageUploader.ServiceVersionList;
@@ -70,6 +72,7 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import rice.pastry.NodeHandle;
 import i5.las2peer.api.security.Agent;
+import i5.las2peer.api.security.AgentAccessDeniedException;
 
 @Path(ServicesHandler.RESOURCE_PATH)
 public class ServicesHandler {
@@ -189,6 +192,7 @@ public class ServicesHandler {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response testCAE(String body, @Context HttpHeaders httpHeaders) throws Exception {
 		JSONObject payload = parseJson(body);
+		String groupIdOrName = payload.getAsString("groupId");
 		System.out.println(body);
 		if (pastryNode == null) {
 			throw new ServerErrorException(
@@ -196,9 +200,29 @@ public class ServicesHandler {
 					Status.INTERNAL_SERVER_ERROR);
 		}
 		try {
-			AgentImpl agent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
+			AgentImpl agent;
+			System.out.println("Trying to get agent by group name in laod group call");
+			try {
+				agent = getGroupByName(groupIdOrName);
+			} catch (Exception e) {
+				System.out.println("Exception " + e + "occured");
+				System.out.println("Couldn't find agent based on group name, trying group id...");
+				try {
+					agent = node.getAgent(groupIdOrName);
+	
+				} catch (AgentNotFoundException f) {
+					return Response.status(Status.BAD_REQUEST).entity("Agent not found").build();
+				}
+			}
+			AgentImpl userAgent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
+			GroupAgentImpl groupAgent = (GroupAgentImpl) agent;
+			try {
+				groupAgent.unlock(userAgent);
+			} catch (AgentAccessDeniedException e) {
+				return Response.status(Status.BAD_REQUEST).entity("You must be a member of this group").build();
+			}
 			PackageUploader.registerAndAnnounceDeploymentOfClusterService(pastryNode, payload.getAsString("name"),
-					payload.getAsString("version"), agent, body);
+					payload.getAsString("version"), groupAgent, body);
 			JSONObject json = new JSONObject();
 			json.put("code", Status.OK.getStatusCode());
 			json.put("text", Status.OK.getStatusCode() + " - Registering deployment successful");
@@ -212,6 +236,16 @@ public class ServicesHandler {
 			throw new BadRequestException("Service package upload failed", e);
 		} catch (Exception e) {
 			throw new BadRequestException("Login required to deploy", e);
+		}
+	}
+
+	private AgentImpl getGroupByName(String groupName) throws Exception {
+		try {
+			String agentId = node.getAgentIdForGroupName(groupName);
+			System.out.println("Agent id is" + agentId);
+			return node.getAgent(agentId);
+		} catch (AgentNotFoundException e) {
+			throw new BadRequestException("Agent not found");
 		}
 	}
 
