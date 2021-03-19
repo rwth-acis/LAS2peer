@@ -225,7 +225,7 @@ public class PackageUploader {
 	private static void registerService(EthereumNode node, String serviceName, String serviceVersion,
 			AgentImpl devAgent, String supplement)
 			throws AgentException, EnvelopeException, CryptoException, SerializationException, EthereumException {
-		if (!(devAgent instanceof EthereumAgent)) {
+		if (!(devAgent instanceof EthereumAgent) || !(devAgent instanceof GroupEthereumAgent)) {
 			throw new AgentException("Cannot use non-Ethereum agent to upload services on this Ethereum-enabled node!");
 		}
 		byte[] supplementHash = storeSupplement(node, supplement);

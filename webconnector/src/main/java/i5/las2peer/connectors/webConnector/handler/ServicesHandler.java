@@ -221,6 +221,7 @@ public class ServicesHandler {
 			} catch (AgentAccessDeniedException e) {
 				return Response.status(Status.BAD_REQUEST).entity("You must be a member of this group").build();
 			}
+			System.out.println(groupAgent.getGroupName());
 			PackageUploader.registerClusterService(pastryNode, payload.getAsString("name"),
 					payload.getAsString("version"), groupAgent, body);
 			JSONObject json = new JSONObject();
