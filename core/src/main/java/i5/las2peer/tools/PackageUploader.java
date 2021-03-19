@@ -230,8 +230,12 @@ public class PackageUploader {
 		// }
 		byte[] supplementHash = storeSupplement(node, supplement);
 		if(devAgent instanceof EthereumAgent){
+			System.out.println("no  group");
+
 			node.registerServiceInBlockchain(serviceName, serviceVersion, (EthereumAgent) devAgent, supplementHash);
 		} else if(devAgent instanceof GroupEthereumAgent){
+			System.out.println("ok good group");
+
 			node.registerServiceInBlockchain(serviceName, serviceVersion, (GroupEthereumAgent) devAgent, supplementHash);
 		}
 		System.out.println("nnoooothing oh shit");
