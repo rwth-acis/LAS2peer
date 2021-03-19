@@ -188,7 +188,7 @@ public class ServicesHandler {
 	}
 
 	@POST
-	@Path("/registerAndDeployClusterService")
+	@Path("/registerClusterService")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response testCAE(String body, @Context HttpHeaders httpHeaders) throws Exception {
 		JSONObject payload = parseJson(body);
@@ -257,8 +257,8 @@ public class ServicesHandler {
 		System.out.println(body);
 		if (pastryNode == null) {
 			throw new ServerErrorException(
-					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
-					Status.INTERNAL_SERVER_ERROR);
+				"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
+				Status.INTERNAL_SERVER_ERROR);
 		}
 		try {
 			PackageUploader.announceClusterServiceDeployment(pastryNode, payload.getAsString("name"),
@@ -306,7 +306,7 @@ public class ServicesHandler {
 					e);
 		} catch (ServicePackageException e) {
 			e.printStackTrace();
-			throw new BadRequestException("Service package upload failed", e);
+			throw new BadRequestException("Cluster service  undeployment announcement failed", e);
 		}
 	}
 
