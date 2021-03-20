@@ -263,7 +263,7 @@ public class GroupAgentImpl extends AgentImpl implements GroupAgent {
 				keyList += "\t\t<keyentry forAgent=\"" + id + "\" encoding=\"base64\">"
 						+ Base64.getEncoder().encodeToString(htEncryptedKeyVersions.get(id)) + "</keyentry>\n";
 			}
-			StringBuffer result = new StringBuffer("<las2peer:agent type=\"group\">\n" + "\t<id>" + getIdentifier()
+			StringBuffer result = new StringBuffer("<las2peer:agent type=\"ethereumGroup\">\n" + "\t<id>" + getIdentifier()
 					+ "</id>\n" + "\t<publickey encoding=\"base64\">" + SerializeTools.serializeToBase64(getPublicKey())
 					+ "</publickey>\n" + "\t<privatekey encoding=\"base64\" encrypted=\""
 					+ CryptoTools.getSymmetricAlgorithm() + "\">" + getEncodedPrivate() + "</privatekey>\n"

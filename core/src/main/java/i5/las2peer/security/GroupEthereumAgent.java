@@ -146,8 +146,9 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 			result.replace("group", "ethereumGroup");
 			result.replace("\"</las2peer:agent>\\n\"", "\t<ethereumaddress>" + ethereumAddress + "</ethereumaddress>\n"
 					+ "\t<ethereummnemonic>" + ethereumMnemonic + "</ethereummnemonic>\n" + "</las2peer:agent>\n");
-			System.out.println(result);
-			return result;
+					System.out.println("print it hehheeeeeerrre");
+					System.out.println(result);
+					return result;
 
 	}
 
