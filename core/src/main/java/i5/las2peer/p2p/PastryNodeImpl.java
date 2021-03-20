@@ -511,6 +511,7 @@ public class PastryNodeImpl extends Node {
 			} else {
 				EnvelopeVersion agentEnvelope = pastStorage.fetchEnvelope(EnvelopeVersion.getAgentIdentifier(id),
 						AGENT_GET_TIMEOUT);
+						System.out.println((String) agentEnvelope.getContent());
 				agentFromNet = AgentImpl.createFromXml((String) agentEnvelope.getContent());
 			}
 			observerNotice(MonitoringEvent.AGENT_GET_SUCCESS, pastryNode, id, null, (String) null, "");

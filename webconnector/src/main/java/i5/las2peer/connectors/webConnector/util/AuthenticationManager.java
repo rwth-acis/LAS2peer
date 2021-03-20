@@ -131,7 +131,6 @@ public class AuthenticationManager {
 		System.out.println("seven");
 		AgentImpl agent = connector.getL2pNode().getAgent(agentId);
 		System.out.println("eight");
-		((PassphraseAgentImpl) agent).unlock(credentials.password);
 		System.out.println("nine");
 		if (agent instanceof PassphraseAgentImpl) {
 			((PassphraseAgentImpl) agent).unlock(credentials.password);

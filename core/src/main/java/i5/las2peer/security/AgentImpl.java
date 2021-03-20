@@ -366,6 +366,8 @@ public abstract class AgentImpl implements Agent, XmlAble, Cloneable, MessageRec
 				return BotAgent.createFromXml(rootElement);
 			case "ethereum":
 				return EthereumAgent.createFromXml(rootElement);
+			case "ethereumGroup":
+				return GroupEthereumAgent.createFromXml(rootElement);
 			default:
 				throw new MalformedXMLException("Unknown agent type: " + type);
 		}

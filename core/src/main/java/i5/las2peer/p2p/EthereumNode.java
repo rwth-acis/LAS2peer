@@ -25,7 +25,9 @@ import i5.las2peer.registry.exceptions.EthereumException;
 import i5.las2peer.registry.exceptions.NotFoundException;
 import i5.las2peer.security.AgentImpl;
 import i5.las2peer.security.EthereumAgent;
+import i5.las2peer.security.GroupAgentImpl;
 import i5.las2peer.security.GroupEthereumAgent;
+import i5.las2peer.security.UserAgentImpl;
 import i5.las2peer.serialization.SerializationException;
 import i5.las2peer.tools.CryptoException;
 
@@ -171,6 +173,20 @@ public class EthereumNode extends PastryNodeImpl {
 	@Override
 	public AgentImpl getAgent(String id) throws AgentException {
 		AgentImpl agent = super.getAgent(id);
+		System.out.println(" hheerrreerejrjenrjkenrjke");
+
+		if(agent instanceof GroupAgentImpl){
+			System.out.println(" 1group ag impl");
+		}
+		if(agent instanceof GroupEthereumAgent){
+			System.out.println(" 1group ag eth impl");
+		}
+		if(agent instanceof EthereumAgent){
+			System.out.println(" 1eth ag impl");
+		}
+		if(agent instanceof UserAgentImpl){
+			System.out.println("1user ag impl ag impl");
+		}
 		if (agent instanceof EthereumAgent) {
 			try {
 				if (!agentMatchesUserRegistryData((EthereumAgent) agent)) {
