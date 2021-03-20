@@ -250,7 +250,6 @@ public class ServicesHandler {
 			System.out.println("Agent id is " + agentId);
 			if (node instanceof EthereumNode) {
 				System.out.println(" ok is eth nnnnnnode");
-
 				EthereumNode ethNode = (EthereumNode) node;
 				AgentImpl agent = ethNode.getAgent(agentId);
 				if(agent instanceof GroupAgentImpl){
