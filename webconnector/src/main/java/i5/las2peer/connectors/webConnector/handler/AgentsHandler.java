@@ -394,7 +394,6 @@ public class AgentsHandler {
 		return Response.ok(json.toJSONString(), MediaType.APPLICATION_JSON).build();
 	}
 
-
 	@POST
 	@Path("/createGroupJSON")
 	public Response handleCreateGroupJSON(@CookieParam(WebConnector.COOKIE_SESSIONID_KEY) String sessionId, String body,
@@ -641,6 +640,123 @@ public class AgentsHandler {
 		 * entity("You can't remove yourself from a group").build(); }
 		 */
 		if (!groupAgent.isAdmin(session.getAgent())) {
+			return Response.status(Status.BAD_REQUEST).entity("You must be an admin of this group").build();
+		}
+		// remove all non members
+		for (String oldMemberId : groupAgent.getMemberList()) {
+			if (!memberIds.contains(oldMemberId)) {
+				groupAgent.removeMember(oldMemberId);
+				logger.info("Removed old member '" + oldMemberId + "' from group");
+			}
+		}
+		// store changed group
+		node.storeAgent(groupAgent);
+		JSONObject json = new JSONObject();
+		json.put("code", Status.OK.getStatusCode());
+		json.put("text", Status.OK.getStatusCode() + " - GroupAgent changed");
+		json.put("agentid", groupAgent.getIdentifier());
+		return Response.ok(json.toJSONString(), MediaType.APPLICATION_JSON).build();
+	}
+
+	@POST
+	@Path("/changeGroupJSON")
+	public Response handleChangeGroupJSON(@CookieParam(WebConnector.COOKIE_SESSIONID_KEY) String sessionId,
+			@Context HttpHeaders httpHeaders, String body)
+			throws AgentException, CryptoException, SerializationException, ParseException {
+		AgentSession session = connector.getSessionById(sessionId);
+		AgentImpl userAgent;
+		JSONObject jsonBody = (JSONObject) JSONValue.parse(body);
+		String members = jsonBody.getAsString("members");
+		String groupIdOrName = jsonBody.getAsString("agentid");
+		if (session == null) {
+			try {
+				userAgent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
+			} catch (Exception e) {
+				return Response.status(Status.FORBIDDEN).entity("You have to be logged in to create a group").build();
+			}
+
+		} else {
+			userAgent = session.getAgent();
+		}
+		if (members == null) {
+			return Response.status(Status.BAD_REQUEST).entity("No members to change provided").build();
+		}
+		System.out.println(members);
+		JSONArray changedMembers = (JSONArray) new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(members);
+		System.out.println(changedMembers);
+		if (changedMembers.isEmpty()) {
+			return Response.status(Status.BAD_REQUEST).entity("Changed members list must not be empty").build();
+		}
+		AgentImpl agent;
+		try {
+			// for some reason, when loading group using group name results in identifier
+			// being group name
+			agent = getGroupByName(groupIdOrName);
+		} catch (Exception e) {
+			System.out.println("Exception " + e + "occured");
+			System.out.println("Couldn't find agent based on group name, trying group id...");
+			try {
+				agent = node.getAgent(groupIdOrName);
+
+			} catch (AgentNotFoundException f) {
+				return Response.status(Status.BAD_REQUEST).entity("Agent not found").build();
+			}
+		}
+		if (!(agent instanceof GroupAgentImpl)) {
+			return Response.status(Status.BAD_REQUEST).entity("Agent is not a GroupAgent").build();
+		}
+		GroupAgentImpl groupAgent = (GroupAgentImpl) agent;
+		try {
+			groupAgent.unlock(userAgent);
+		} catch (AgentAccessDeniedException e) {
+			return Response.status(Status.BAD_REQUEST).entity("You must be a member of this group").build();
+		}
+		// add new members // how?, currently only possile to remove users on agent
+		// tools frontend
+		HashSet<String> memberIds = new HashSet<>();
+		for (Object obj : changedMembers) {
+			System.out.println(obj);
+			System.out.println(obj.toString());
+			try {
+				JSONObject json = (JSONObject) new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse((String) obj);
+				obj = json;
+			} catch (Exception e) {
+				System.out.println("Could not convert string to json lol");
+			}
+			if (obj instanceof JSONObject) {
+				JSONObject json = (JSONObject) obj;
+				String memberid = json.getAsString("agentid");
+				if (memberid == null || memberid.isEmpty()) {
+					logger.fine("Skipping invalid member id '" + memberid + "'");
+					continue;
+				}
+				try {
+					String idofmember = node.getAgentIdForLogin(memberid);
+					AgentImpl memberAgent = node.getAgent(idofmember);
+					groupAgent.addMember(memberAgent);
+					memberIds.add(idofmember.toLowerCase());
+				} catch (Exception e) {
+					System.out.println("Exception " + e + "occured");
+					System.out.println("Couldn't find agent based on name, trying id...");
+					try {
+						AgentImpl memberAgent = node.getAgent(memberid);
+						groupAgent.addMember(memberAgent);
+						memberIds.add(memberid.toLowerCase());
+					} catch (AgentNotFoundException f) {
+						logger.log(Level.WARNING, "Could not retrieve group member agent from network", f);
+						continue;
+					}
+				}
+			} else {
+				logger.info("Skipping invalid member object '" + obj.getClass().getCanonicalName() + "'");
+			}
+		}
+		/*
+		 * if (!memberIds.contains(session.getAgent().getIdentifier().toLowerCase())) {
+		 * return Response.status(Status.BAD_REQUEST).
+		 * entity("You can't remove yourself from a group").build(); }
+		 */
+		if (!groupAgent.isAdmin(userAgent)) {
 			return Response.status(Status.BAD_REQUEST).entity("You must be an admin of this group").build();
 		}
 		// remove all non members
