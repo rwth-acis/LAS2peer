@@ -209,12 +209,13 @@ public class ServicesHandler {
 				System.out.println("Couldn't find agent based on group name, trying group id...");
 				try {
 					agent = node.getAgent(groupIdOrName);
-	
+
 				} catch (AgentNotFoundException f) {
 					return Response.status(Status.BAD_REQUEST).entity("Agent not found").build();
 				}
 			}
-			AgentImpl userAgent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
+			AgentImpl userAgent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(),
+					"access-token");
 			GroupAgentImpl groupAgent = (GroupAgentImpl) agent;
 			try {
 				groupAgent.unlock(userAgent);
@@ -244,7 +245,13 @@ public class ServicesHandler {
 		try {
 			String agentId = node.getAgentIdForGroupName(groupName);
 			System.out.println("Agent id is" + agentId);
-			return node.getAgent(agentId);
+			if (node instanceof EthereumNode) {
+				EthereumNode ethNode = (EthereumNode) node;
+				return ethNode.getAgent(agentId);
+			} else {
+				System.out.println("oooh noo noo et noode");
+				return node.getAgent(agentId);
+			}
 		} catch (AgentNotFoundException e) {
 			throw new BadRequestException("Agent not found");
 		}
@@ -258,8 +265,8 @@ public class ServicesHandler {
 		System.out.println(body);
 		if (pastryNode == null) {
 			throw new ServerErrorException(
-				"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
-				Status.INTERNAL_SERVER_ERROR);
+					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
+					Status.INTERNAL_SERVER_ERROR);
 		}
 		try {
 			PackageUploader.announceClusterServiceDeployment(pastryNode, payload.getAsString("name"),

@@ -352,6 +352,10 @@ public class AgentsHandler {
 			groupAgent = GroupAgentImpl.createGroupAgent(memberAgents.toArray(new AgentImpl[memberAgents.size()]),
 					groupName);
 		}
+		if(groupAgent instanceof GroupEthereumAgent){
+			System.out.println("oooookk heeere iiiss ggroupeetthaagennt");
+
+		}
 		groupAgent.unlock(session.getAgent());
 		groupAgent.addAdmin(session.getAgent());
 		System.out.println(session.getAgent().getIdentifier());
