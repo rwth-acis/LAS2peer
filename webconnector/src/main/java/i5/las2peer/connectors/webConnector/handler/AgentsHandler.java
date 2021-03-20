@@ -43,6 +43,7 @@ import i5.las2peer.serialization.SerializationException;
 import i5.las2peer.tools.CryptoException;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
@@ -391,6 +392,92 @@ public class AgentsHandler {
 		json.put("agentid", groupAgent.getIdentifier());
 		json.put("groupName", groupName);
 		return Response.ok(json.toJSONString(), MediaType.APPLICATION_JSON).build();
+	}
+
+
+	@POST
+	@Path("/createGroupJSON")
+	public Response handleCreateGroupJSON(@CookieParam(WebConnector.COOKIE_SESSIONID_KEY) String sessionId, String body,
+			@Context HttpHeaders httpHeaders) throws Exception {
+		AgentSession session = connector.getSessionById(sessionId);
+		AgentImpl userAgent;
+		JSONObject json = (JSONObject) JSONValue.parse(body);
+		String members = json.getAsString("members");
+		String groupName = json.getAsString("name");
+		if (session == null) {
+			try {
+				userAgent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
+			} catch (Exception e) {
+				return Response.status(Status.FORBIDDEN).entity("You have to be logged in to create a group").build();
+			}
+
+		} else {
+			userAgent = session.getAgent();
+		}
+		if (members == null) {
+			return Response.status(Status.BAD_REQUEST).entity("No members provided").build();
+		}
+
+		if (groupName == null || groupName.equals("")) {
+			return Response.status(Status.BAD_REQUEST).entity("No group name provided").build();
+		}
+
+		JSONArray jsonMembers = (JSONArray) new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(members);
+		if (jsonMembers.isEmpty()) {
+			return Response.status(Status.BAD_REQUEST).entity("Members list empty").build();
+		}
+		ArrayList<AgentImpl> memberAgents = new ArrayList<>(jsonMembers.size());
+		for (Object objMember : jsonMembers) {
+			if (objMember instanceof JSONObject) {
+				JSONObject jsonMember = (JSONObject) objMember;
+				String agentId = jsonMember.getAsString("agentid");
+				try {
+					String idofmember = node.getAgentIdForLogin(agentId);
+					AgentImpl memberAgent = node.getAgent(idofmember);
+					memberAgents.add(memberAgent);
+				} catch (Exception e) {
+					System.out.println("Exception " + e + "occured");
+					System.out.println("Couldn't find agent based on name, trying id...");
+					try {
+						AgentImpl memberAgent = node.getAgent(agentId);
+						memberAgents.add(memberAgent);
+
+					} catch (AgentNotFoundException f) {
+						logger.log(Level.WARNING, "Could not retrieve group member agent from network", f);
+						continue;
+					}
+				}
+			}
+		}
+		try {
+			node.getAgentIdForGroupName(groupName);
+			return Response.status(Status.BAD_REQUEST).entity("Groupname already taken").build();
+		} catch (AgentNotFoundException e) {
+			// expected
+		}
+		GroupAgentImpl groupAgent;
+		if (node instanceof EthereumNode) {
+			EthereumNode ethNode = (EthereumNode) node;
+			groupAgent = GroupEthereumAgent.createGroupEthereumAgentWithClient(groupName, ethNode.getRegistryClient(),
+					memberAgents.toArray(new AgentImpl[memberAgents.size()]));
+		} else {
+			groupAgent = GroupAgentImpl.createGroupAgent(memberAgents.toArray(new AgentImpl[memberAgents.size()]),
+					groupName);
+		}
+		if (groupAgent instanceof GroupEthereumAgent) {
+			System.out.println("oooookk heeere iiiss ggroupeetthaagennt");
+
+		}
+		groupAgent.unlock(userAgent);
+		groupAgent.addAdmin(userAgent);
+		System.out.println(userAgent.getIdentifier());
+		node.storeAgent((GroupEthereumAgent) groupAgent);
+		JSONObject resjson = new JSONObject();
+		resjson.put("code", Status.OK.getStatusCode());
+		resjson.put("text", Status.OK.getStatusCode() + " - GroupAgent created");
+		resjson.put("agentid", groupAgent.getIdentifier());
+		resjson.put("groupName", groupName);
+		return Response.ok(resjson.toJSONString(), MediaType.APPLICATION_JSON).build();
 	}
 
 	@POST
