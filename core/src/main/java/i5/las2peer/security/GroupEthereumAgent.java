@@ -214,6 +214,7 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 	
 	public static GroupEthereumAgent createFromXml(Element root) throws MalformedXMLException {
 		try {
+			System.out.println("1");
 
 			// read id field from XML
 			Element elId = XmlTools.getSingularElement(root, "id");
@@ -223,6 +224,8 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 			if (!pubKey.getAttribute("encoding").equals("base64")) {
 				throw new MalformedXMLException("base64 encoding expected");
 			}
+			System.out.println("2");
+
 			PublicKey publicKey = (PublicKey) SerializeTools.deserializeBase64(pubKey.getTextContent());
 			if (!id.equalsIgnoreCase(CryptoTools.publicKeyToSHA512(publicKey))) {
 				throw new MalformedXMLException("id does not match with public key");
@@ -232,12 +235,15 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 			if (!privKey.getAttribute("encrypted").equals(CryptoTools.getSymmetricAlgorithm())) {
 				throw new MalformedXMLException(CryptoTools.getSymmetricAlgorithm() + " expected");
 			}
+			System.out.println("3");
+
 			byte[] encPrivate = Base64.getDecoder().decode(privKey.getTextContent());
 			// read member keys from XML
 			Element encryptedKeys = XmlTools.getSingularElement(root, "unlockKeys");
 			if (!encryptedKeys.getAttribute("method").equals(CryptoTools.getAsymmetricAlgorithm())) {
 				throw new MalformedXMLException("base64 encoding expected");
 			}
+			System.out.println("4");
 
 			HashMap<String, byte[]> htMemberKeys = new HashMap<>();
 			NodeList enGroups = encryptedKeys.getElementsByTagName("keyentry");
@@ -260,19 +266,32 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 				byte[] content = Base64.getDecoder().decode(elKey.getTextContent());
 				htMemberKeys.put(agentId, content);
 			}
+			System.out.println("5");
 
 			Element ethereumMnemonicElement = XmlTools.getSingularElement(root, "ethereummnemonic");
+			System.out.println("6");
+
 			String ethereumMnemonic = ethereumMnemonicElement.getTextContent();
+			System.out.println("7");
 
 			Element ethereumAddressElement = XmlTools.getSingularElement(root, "ethereumaddress");
+			System.out.println("8");
+
 			String ethereumAddress = ethereumAddressElement.getTextContent();
+			System.out.println("9");
+
 			GroupEthereumAgent result = new GroupEthereumAgent(publicKey, encPrivate, htMemberKeys, ethereumMnemonic,
 					ethereumAddress);
+					System.out.println("10");
+
 			// read group Name
 			Element groupName = XmlTools.getOptionalElement(root, "groupName");
+			System.out.println("11");
+
 			if (groupName != null) {
 				result.groupName = groupName.getTextContent();
 			}
+			System.out.println("12");
 
 			ArrayList<String> adminMembers = new ArrayList<String>();
 			Element admins = XmlTools.getSingularElement(root, "adminList");
@@ -289,10 +308,12 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 				adminMembers.add(elKey.getTextContent());
 			}
 			result.adminList = adminMembers;
+			System.out.println("13");
 
 			return result;
 
 		} catch (SerializationException | AgentOperationFailedException e) {
+			System.out.println(e.toString());
 			throw new MalformedXMLException("Deserialization problems", e);
 		}
 	}
