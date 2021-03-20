@@ -352,7 +352,7 @@ public class AgentsHandler {
 			groupAgent = GroupAgentImpl.createGroupAgent(memberAgents.toArray(new AgentImpl[memberAgents.size()]),
 					groupName);
 		}
-		if(groupAgent instanceof GroupEthereumAgent){
+		if (groupAgent instanceof GroupEthereumAgent) {
 			System.out.println("oooookk heeere iiiss ggroupeetthaagennt");
 
 		}
@@ -502,14 +502,22 @@ public class AgentsHandler {
 					logger.fine("Skipping invalid member id '" + memberid + "'");
 					continue;
 				}
-				memberIds.add(memberid.toLowerCase());
 				try {
-					AgentImpl memberAgent = node.getAgent(memberid);
+					String idofmember = node.getAgentIdForLogin(memberid);
+					AgentImpl memberAgent = node.getAgent(idofmember);
 					groupAgent.addMember(memberAgent);
-					logger.info("Added new member '" + memberid + "' to group");
-				} catch (AgentException e) {
-					logger.log(Level.WARNING, "Could not retrieve group member agent from network", e);
-					continue;
+					memberIds.add(idofmember.toLowerCase());
+				} catch (Exception e) {
+					System.out.println("Exception " + e + "occured");
+					System.out.println("Couldn't find agent based on name, trying id...");
+					try {
+						AgentImpl memberAgent = node.getAgent(memberid);
+						groupAgent.addMember(memberAgent);
+						memberIds.add(memberid.toLowerCase());
+					} catch (AgentNotFoundException f) {
+						logger.log(Level.WARNING, "Could not retrieve group member agent from network", f);
+						continue;
+					}
 				}
 			} else {
 				logger.info("Skipping invalid member object '" + obj.getClass().getCanonicalName() + "'");

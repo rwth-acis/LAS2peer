@@ -238,8 +238,6 @@ public class PackageUploader {
 
 			node.registerServiceInBlockchain(serviceName, serviceVersion, (GroupEthereumAgent) devAgent, supplementHash);
 		}
-		System.out.println("nnoooothing oh shit");
-		node.registerServiceInBlockchain(serviceName, serviceVersion, (GroupEthereumAgent) devAgent, supplementHash);
 	}
 
 	private static void announceClusterServiceDeployment(EthereumNode node, String serviceName,
