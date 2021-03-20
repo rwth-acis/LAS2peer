@@ -13,9 +13,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.ServerErrorException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -24,6 +26,7 @@ import i5.las2peer.api.security.AgentException;
 import i5.las2peer.api.security.AgentNotFoundException;
 import i5.las2peer.connectors.webConnector.WebConnector;
 import i5.las2peer.connectors.webConnector.util.AgentSession;
+import i5.las2peer.connectors.webConnector.util.AuthenticationManager;
 import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.p2p.EthereumNode;
 import i5.las2peer.p2p.Node;
@@ -53,11 +56,13 @@ public class AgentsHandler {
 	private final WebConnector connector;
 	private final Node node;
 	private final EthereumNode ethereumNode;
+	private AuthenticationManager authenticationManager;
 
 	public AgentsHandler(WebConnector connector) {
 		this.connector = connector;
 		this.node = connector.getL2pNode();
 		ethereumNode = (node instanceof EthereumNode) ? (EthereumNode) node : null;
+		authenticationManager = new AuthenticationManager(connector);
 	}
 
 	@POST
@@ -308,10 +313,19 @@ public class AgentsHandler {
 	@POST
 	@Path("/createGroup")
 	public Response handleCreateGroup(@CookieParam(WebConnector.COOKIE_SESSIONID_KEY) String sessionId,
-			@FormDataParam("members") String members, @FormDataParam("name") String groupName) throws Exception {
+			@FormDataParam("members") String members, @FormDataParam("name") String groupName,
+			@Context HttpHeaders httpHeaders) throws Exception {
 		AgentSession session = connector.getSessionById(sessionId);
+		AgentImpl userAgent;
 		if (session == null) {
-			return Response.status(Status.FORBIDDEN).entity("You have to be logged in to create a group").build();
+			try {
+				userAgent = authenticationManager.authenticateAgent(httpHeaders.getRequestHeaders(), "access-token");
+			} catch (Exception e) {
+				return Response.status(Status.FORBIDDEN).entity("You have to be logged in to create a group").build();
+			}
+
+		} else {
+			userAgent = session.getAgent();
 		}
 		if (members == null) {
 			return Response.status(Status.BAD_REQUEST).entity("No members provided").build();
@@ -367,9 +381,9 @@ public class AgentsHandler {
 			System.out.println("oooookk heeere iiiss ggroupeetthaagennt");
 
 		}
-		groupAgent.unlock(session.getAgent());
-		groupAgent.addAdmin(session.getAgent());
-		System.out.println(session.getAgent().getIdentifier());
+		groupAgent.unlock(userAgent);
+		groupAgent.addAdmin(userAgent);
+		System.out.println(userAgent.getIdentifier());
 		node.storeAgent((GroupEthereumAgent) groupAgent);
 		JSONObject json = new JSONObject();
 		json.put("code", Status.OK.getStatusCode());
