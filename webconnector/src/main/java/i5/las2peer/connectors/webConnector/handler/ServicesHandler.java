@@ -42,6 +42,7 @@ import i5.las2peer.api.persistency.EnvelopeException;
 import i5.las2peer.api.persistency.EnvelopeNotFoundException;
 import i5.las2peer.api.security.AgentException;
 import i5.las2peer.api.security.AgentNotFoundException;
+import i5.las2peer.api.security.UserAgent;
 import i5.las2peer.classLoaders.ClassManager;
 import i5.las2peer.classLoaders.libraries.SharedStorageRepository;
 import i5.las2peer.connectors.webConnector.WebConnector;
@@ -62,6 +63,8 @@ import i5.las2peer.registry.data.ServiceReleaseData;
 import i5.las2peer.security.AgentImpl;
 import i5.las2peer.security.EthereumAgent;
 import i5.las2peer.security.GroupAgentImpl;
+import i5.las2peer.security.GroupEthereumAgent;
+import i5.las2peer.security.UserAgentImpl;
 import i5.las2peer.tools.CryptoException;
 import i5.las2peer.tools.PackageUploader;
 import i5.las2peer.tools.PackageUploader.ServiceVersionList;
@@ -246,8 +249,23 @@ public class ServicesHandler {
 			String agentId = node.getAgentIdForGroupName(groupName);
 			System.out.println("Agent id is" + agentId);
 			if (node instanceof EthereumNode) {
+				System.out.println(" ok is eth nnnnnnode");
+
 				EthereumNode ethNode = (EthereumNode) node;
-				return ethNode.getAgent(agentId);
+				AgentImpl agent = ethNode.getAgent(agentId);
+				if(agent instanceof GroupAgentImpl){
+					System.out.println(" group ag impl");
+				}
+				if(agent instanceof GroupEthereumAgent){
+					System.out.println(" group ag eth impl");
+				}
+				if(agent instanceof EthereumAgent){
+					System.out.println(" eth ag impl");
+				}
+				if(agent instanceof UserAgentImpl){
+					System.out.println("user ag impl ag impl");
+				}
+				return agent;
 			} else {
 				System.out.println("oooh noo noo et noode");
 				return node.getAgent(agentId);
