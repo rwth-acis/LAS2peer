@@ -331,9 +331,20 @@ public class AgentsHandler {
 				JSONObject jsonMember = (JSONObject) objMember;
 				String agentId = jsonMember.getAsString("agentid");
 				try {
-					memberAgents.add(node.getAgent(agentId));
+					String idofmember = node.getAgentIdForLogin(agentId);
+					AgentImpl memberAgent = node.getAgent(idofmember);
+					memberAgents.add(memberAgent);
 				} catch (Exception e) {
-					throw new ServerErrorException("Could not get member " + agentId, Status.INTERNAL_SERVER_ERROR, e);
+					System.out.println("Exception " + e + "occured");
+					System.out.println("Couldn't find agent based on name, trying id...");
+					try {
+						AgentImpl memberAgent = node.getAgent(agentId);
+						memberAgents.add(memberAgent);
+
+					} catch (AgentNotFoundException f) {
+						logger.log(Level.WARNING, "Could not retrieve group member agent from network", f);
+						continue;
+					}
 				}
 			}
 		}
