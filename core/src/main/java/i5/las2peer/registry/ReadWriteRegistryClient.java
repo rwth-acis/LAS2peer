@@ -498,7 +498,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	public void announceClusterDeployment(String releaseName, String clusterServiceName, int versionMajor,
 			int versionMinor, int versionPatch, byte[] supplementHash) throws EthereumException {
 		try {
-			System.out.println("SENDING cluster deployment announcement TRANSACTION OH YEAHHH");
+			System.out.println("SENDING cluster deployment announcement TRANSACTION");
 			contracts.serviceRegistry
 					.announceClusterDeployment(releaseName, clusterServiceName, BigInteger.valueOf(versionMajor),
 							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), supplementHash)

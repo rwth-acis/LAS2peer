@@ -361,7 +361,6 @@ public class GroupAgentImpl extends AgentImpl implements GroupAgent {
 			ArrayList<String> adminMembers = new ArrayList<String>();
 			Element admins = XmlTools.getSingularElement(root, "adminList");
 			enGroups = admins.getElementsByTagName("admin");
-			System.out.println(enGroups);
 			for (int n = 0; n < enGroups.getLength(); n++) {
 				org.w3c.dom.Node node = enGroups.item(n);
 				short nodeType = node.getNodeType();

@@ -173,20 +173,6 @@ public class EthereumNode extends PastryNodeImpl {
 	@Override
 	public AgentImpl getAgent(String id) throws AgentException {
 		AgentImpl agent = super.getAgent(id);
-		System.out.println(" hheerrreerejrjenrjkenrjke");
-
-		if(agent instanceof GroupAgentImpl){
-			System.out.println(" 1group ag impl");
-		}
-		if(agent instanceof GroupEthereumAgent){
-			System.out.println(" 1group ag eth impl");
-		}
-		if(agent instanceof EthereumAgent){
-			System.out.println(" 1eth ag impl");
-		}
-		if(agent instanceof UserAgentImpl){
-			System.out.println("1user ag impl ag impl");
-		}
 		if (agent instanceof EthereumAgent) {
 			try {
 				if (!agentMatchesUserRegistryData((EthereumAgent) agent)) {

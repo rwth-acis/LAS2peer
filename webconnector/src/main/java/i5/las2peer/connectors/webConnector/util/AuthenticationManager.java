@@ -107,31 +107,19 @@ public class AuthenticationManager {
 		String prefixedIdentifier = credentials.identifier;
 		String agentId;
 		logger.info("attempting login with id: " + prefixedIdentifier);
-		System.out.println(credentials.identifier);
-		System.out.println(credentials.password);
 		try {
-			System.out.println("first");
 			agentId = connector.getL2pNode().getUserManager().getAgentId(prefixedIdentifier);
-			System.out.println("second");
 		} catch (IllegalArgumentException e) {
-			System.out.println("first exc");
 			// no valid prefix. we could just throw an error here, but for potential backwards compatibility,
 			// let's be forgiving and try to guess the type
 			if (CryptoTools.isAgentID(prefixedIdentifier)) {
-				System.out.println("third");
 				agentId = prefixedIdentifier;
-				System.out.println("fourth");
 			} else {
-				System.out.println("fifth");
 				agentId = connector.getL2pNode().getAgentIdForLogin(prefixedIdentifier);
-				System.out.println("sixt");
 			}
 		}
 		
-		System.out.println("seven");
 		AgentImpl agent = connector.getL2pNode().getAgent(agentId);
-		System.out.println("eight");
-		System.out.println("nine");
 		if (agent instanceof PassphraseAgentImpl) {
 			((PassphraseAgentImpl) agent).unlock(credentials.password);
 			logger.fine("passphrase accepted. Agent unlocked");
@@ -151,12 +139,9 @@ public class AuthenticationManager {
 		try {
 			logger.info("OIDC sub found. Authenticating...");
 			AgentImpl existingAgent = authenticateCredentials(credentials);
-			System.out.println("authenticated");
 			if (existingAgent instanceof UserAgentImpl) {
-				System.out.println("existingAgent");
 				return (UserAgentImpl) existingAgent;
 			} else {
-				System.out.println("noooot existingAgent");
 				logger.warning("OIDC credentials were valid but agent had unexpected type");
 				throw new AgentException("credentials were valid but agent had unexpected type");
 			}

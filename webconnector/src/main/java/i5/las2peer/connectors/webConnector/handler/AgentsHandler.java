@@ -378,14 +378,11 @@ public class AgentsHandler {
 			groupAgent = GroupAgentImpl.createGroupAgent(memberAgents.toArray(new AgentImpl[memberAgents.size()]),
 					groupName);
 		}
-		if (groupAgent instanceof GroupEthereumAgent) {
-			System.out.println("oooookk heeere iiiss ggroupeetthaagennt");
 
-		}
 		groupAgent.unlock(userAgent);
 		groupAgent.addAdmin(userAgent);
 		System.out.println(userAgent.getIdentifier());
-		node.storeAgent((GroupEthereumAgent) groupAgent);
+		node.storeAgent(groupAgent);
 		JSONObject json = new JSONObject();
 		json.put("code", Status.OK.getStatusCode());
 		json.put("text", Status.OK.getStatusCode() + " - GroupAgent created");
@@ -463,14 +460,10 @@ public class AgentsHandler {
 			groupAgent = GroupAgentImpl.createGroupAgent(memberAgents.toArray(new AgentImpl[memberAgents.size()]),
 					groupName);
 		}
-		if (groupAgent instanceof GroupEthereumAgent) {
-			System.out.println("oooookk heeere iiiss ggroupeetthaagennt");
-
-		}
 		groupAgent.unlock(userAgent);
 		groupAgent.addAdmin(userAgent);
 		System.out.println(userAgent.getIdentifier());
-		node.storeAgent((GroupEthereumAgent) groupAgent);
+		node.storeAgent(groupAgent);
 		JSONObject resjson = new JSONObject();
 		resjson.put("code", Status.OK.getStatusCode());
 		resjson.put("text", Status.OK.getStatusCode() + " - GroupAgent created");
@@ -513,8 +506,6 @@ public class AgentsHandler {
 		} catch (AgentAccessDeniedException e) {
 			return Response.status(Status.BAD_REQUEST).entity("You must be a member of this group").build();
 		}
-		System.out.println(groupAgent.getGroupName());
-		System.out.println(groupAgent.getIdentifier());
 		JSONObject json = new JSONObject();
 		json.put("code", Status.OK.getStatusCode());
 		json.put("text", Status.OK.getStatusCode() + " - GroupAgent loaded");
@@ -564,7 +555,6 @@ public class AgentsHandler {
 		if (members == null) {
 			return Response.status(Status.BAD_REQUEST).entity("No members to change provided").build();
 		}
-		System.out.println(members);
 		JSONArray changedMembers = (JSONArray) new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(members);
 		System.out.println(changedMembers);
 		if (changedMembers.isEmpty()) {
@@ -598,8 +588,6 @@ public class AgentsHandler {
 		// tools frontend
 		HashSet<String> memberIds = new HashSet<>();
 		for (Object obj : changedMembers) {
-			System.out.println(obj);
-			System.out.println(obj.toString());
 			try {
 				JSONObject json = (JSONObject) new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse((String) obj);
 				obj = json;
@@ -681,9 +669,7 @@ public class AgentsHandler {
 		if (members == null) {
 			return Response.status(Status.BAD_REQUEST).entity("No members to change provided").build();
 		}
-		System.out.println(members);
 		JSONArray changedMembers = (JSONArray) new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(members);
-		System.out.println(changedMembers);
 		if (changedMembers.isEmpty()) {
 			return Response.status(Status.BAD_REQUEST).entity("Changed members list must not be empty").build();
 		}
@@ -715,8 +701,6 @@ public class AgentsHandler {
 		// tools frontend
 		HashSet<String> memberIds = new HashSet<>();
 		for (Object obj : changedMembers) {
-			System.out.println(obj);
-			System.out.println(obj.toString());
 			try {
 				JSONObject json = (JSONObject) new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse((String) obj);
 				obj = json;

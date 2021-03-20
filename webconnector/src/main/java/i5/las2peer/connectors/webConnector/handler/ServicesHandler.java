@@ -196,7 +196,6 @@ public class ServicesHandler {
 	public Response testCAE(String body, @Context HttpHeaders httpHeaders) throws Exception {
 		JSONObject payload = parseJson(body);
 		String groupIdOrName = payload.getAsString("groupId");
-		System.out.println(body);
 		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
@@ -204,7 +203,7 @@ public class ServicesHandler {
 		}
 		try {
 			AgentImpl agent;
-			System.out.println("Trying to get agent by group name in laod group call");
+			System.out.println("Trying to get agent by group name");
 			try {
 				agent = getGroupByName(groupIdOrName);
 			} catch (Exception e) {
@@ -225,7 +224,6 @@ public class ServicesHandler {
 			} catch (AgentAccessDeniedException e) {
 				return Response.status(Status.BAD_REQUEST).entity("You must be a member of this group").build();
 			}
-			System.out.println(groupAgent.getGroupName());
 			PackageUploader.registerClusterService(pastryNode, payload.getAsString("name"),
 					payload.getAsString("version"), groupAgent, body);
 			JSONObject json = new JSONObject();
@@ -249,24 +247,10 @@ public class ServicesHandler {
 			String agentId = node.getAgentIdForGroupName(groupName);
 			System.out.println("Agent id is " + agentId);
 			if (node instanceof EthereumNode) {
-				System.out.println(" ok is eth nnnnnnode");
 				EthereumNode ethNode = (EthereumNode) node;
 				AgentImpl agent = ethNode.getAgent(agentId);
-				if(agent instanceof GroupAgentImpl){
-					System.out.println(" group ag impl");
-				}
-				if(agent instanceof GroupEthereumAgent){
-					System.out.println(" group ag eth impl");
-				}
-				if(agent instanceof EthereumAgent){
-					System.out.println(" eth ag impl");
-				}
-				if(agent instanceof UserAgentImpl){
-					System.out.println("user ag impl ag impl");
-				}
 				return agent;
 			} else {
-				System.out.println("oooh noo noo et noode");
 				return node.getAgent(agentId);
 			}
 		} catch (AgentNotFoundException e) {
@@ -279,7 +263,6 @@ public class ServicesHandler {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deployServiceTEST(String body) throws Exception {
 		JSONObject payload = parseJson(body);
-		System.out.println(body);
 		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
@@ -311,7 +294,6 @@ public class ServicesHandler {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response undeployClusterTESt(String body) throws Exception {
 		JSONObject payload = parseJson(body);
-		System.out.println(body);
 		if (pastryNode == null) {
 			throw new ServerErrorException(
 					"Service upload only available for " + PastryNodeImpl.class.getCanonicalName() + " Nodes",
@@ -475,7 +457,6 @@ public class ServicesHandler {
 						}
 						JSONObject supplementDeployment = parseJson(
 								new String(rawSupplementDeployment, StandardCharsets.UTF_8));
-						System.out.println(supplementDeployment.toString());
 						supplementDeployment.put("time", deployment.getTime());
 						deploymentsJson.add(supplementDeployment);
 					}
@@ -565,7 +546,6 @@ public class ServicesHandler {
 						e.printStackTrace();
 					}
 					JSONObject supplement = parseJson(new String(rawSupplement, StandardCharsets.UTF_8));
-					System.out.println(supplement.toString());
 					supplement.put("time", deployment.getTime());
 					deploymentList.add(supplement);
 				}

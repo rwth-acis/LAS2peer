@@ -73,7 +73,7 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 		this.ethereumAddress = CredentialUtils.fromMnemonic(ethereumMnemonic, groupName).getAddress();
 		logger.fine("creating ethereum agent [" + ethereumAddress + "]");
 	}
-// currently removed as I dont think i ll need this	
+	// currently removed as I dont think i ll need this
 
 	protected GroupEthereumAgent(PublicKey pubKey, byte[] encryptedPrivate, HashMap<String, byte[]> htEncryptedKeys,
 			String ethereumMnemonic, String ethereumAddress) throws AgentOperationFailedException {
@@ -102,7 +102,8 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 	}
 
 	@Override
-	public void unlock(Agent agent) throws AgentAccessDeniedException, AgentOperationFailedException, AgentLockedException {
+	public void unlock(Agent agent)
+			throws AgentAccessDeniedException, AgentOperationFailedException, AgentLockedException {
 		super.unlock(agent);
 
 		credentials = CredentialUtils.fromMnemonic(ethereumMnemonic, this.getGroupName());
@@ -135,44 +136,33 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 	public String toXmlString() {
 		String result = super.toXmlString();
 
-			String keyList = "";
-
-			/*
-			 * for (String id : this.getMemberList()) { keyList +=
-			 * "\t\t<keyentry forAgent=\"" + id + "\" encoding=\"base64\">" +
-			 * Base64.getEncoder().encodeToString(htEncryptedKeyVersions.get(id)) +
-			 * "</keyentry>\n"; }
-			 */
-			// result.replace("group", "ethereumGroup");
-			String newResult= result.replace("</las2peer:agent>", "\t<ethereumaddress>" + ethereumAddress + "</ethereumaddress>\n"
-			+ "\t<ethereummnemonic>" + ethereumMnemonic + "</ethereummnemonic>\n" + "</las2peer:agent>\n");
-			
-					System.out.println("print it hehheeeeeerrre");
-					System.out.println(result);
-					System.out.println("NNNNNNNEEEEEWWWWWW");
-					System.out.println(newResult);
-					return newResult;
+		String newResult = result.replace("</las2peer:agent>",
+				"\t<ethereumaddress>" + ethereumAddress + "</ethereumaddress>\n" + "\t<ethereummnemonic>"
+						+ ethereumMnemonic + "</ethereummnemonic>\n" + "</las2peer:agent>\n");
+		return newResult;
 
 	}
 
 	/**
 	 * Creates new agent with given passphrase and login name.
 	 * 
-	 * @param loginName  name matching [a-zA-Z].{3,31} (hopefully UTF-8 characters,
-	 *                   let's not get too crazy)
+	 * @param loginName name matching [a-zA-Z].{3,31} (hopefully UTF-8 characters,
+	 *                  let's not get too crazy)
 	 * @return new EthereumAgent instance
 	 * @throws CryptoException if there is an internal error during Ethereum key
 	 *                         creation
 	 */
-	public static GroupEthereumAgent createGroupEthereumAgentWithClient(String loginName, ReadWriteRegistryClient regClient,
-			Agent[] members) throws CryptoException, AgentOperationFailedException, SerializationException {
+	public static GroupEthereumAgent createGroupEthereumAgentWithClient(String loginName,
+			ReadWriteRegistryClient regClient, Agent[] members)
+			throws CryptoException, AgentOperationFailedException, SerializationException {
 		byte[] salt = CryptoTools.generateSalt();
 		KeyPair keyPair = CryptoTools.generateKeyPair();
 		return new GroupEthereumAgent(keyPair, CryptoTools.generateSymmetricKey(), salt, loginName, members,
 				CredentialUtils.createMnemonic());
 	}
 
-// Currently  not needed, as groups will always be created using frontend/user-widget	
+	// Currently not needed, as groups will always be created using
+	// frontend/user-widget
 	/*
 	 * // use this if you already want to use a mnemonic generated somewhere else //
 	 * note that this still uses the password to generate the key pair public static
@@ -211,11 +201,9 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 	public static GroupEthereumAgent createFromXml(String xml) throws MalformedXMLException {
 		return createFromXml(XmlTools.getRootElement(xml, "las2peer:agent"));
 	}
-	
+
 	public static GroupEthereumAgent createFromXml(Element root) throws MalformedXMLException {
 		try {
-			System.out.println("1");
-
 			// read id field from XML
 			Element elId = XmlTools.getSingularElement(root, "id");
 			String id = elId.getTextContent();
@@ -224,8 +212,6 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 			if (!pubKey.getAttribute("encoding").equals("base64")) {
 				throw new MalformedXMLException("base64 encoding expected");
 			}
-			System.out.println("2");
-
 			PublicKey publicKey = (PublicKey) SerializeTools.deserializeBase64(pubKey.getTextContent());
 			if (!id.equalsIgnoreCase(CryptoTools.publicKeyToSHA512(publicKey))) {
 				throw new MalformedXMLException("id does not match with public key");
@@ -235,16 +221,12 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 			if (!privKey.getAttribute("encrypted").equals(CryptoTools.getSymmetricAlgorithm())) {
 				throw new MalformedXMLException(CryptoTools.getSymmetricAlgorithm() + " expected");
 			}
-			System.out.println("3");
-
 			byte[] encPrivate = Base64.getDecoder().decode(privKey.getTextContent());
 			// read member keys from XML
 			Element encryptedKeys = XmlTools.getSingularElement(root, "unlockKeys");
 			if (!encryptedKeys.getAttribute("method").equals(CryptoTools.getAsymmetricAlgorithm())) {
 				throw new MalformedXMLException("base64 encoding expected");
 			}
-			System.out.println("4");
-
 			HashMap<String, byte[]> htMemberKeys = new HashMap<>();
 			NodeList enGroups = encryptedKeys.getElementsByTagName("keyentry");
 			for (int n = 0; n < enGroups.getLength(); n++) {
@@ -266,37 +248,20 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 				byte[] content = Base64.getDecoder().decode(elKey.getTextContent());
 				htMemberKeys.put(agentId, content);
 			}
-			System.out.println("5");
-
 			Element ethereumMnemonicElement = XmlTools.getSingularElement(root, "ethereummnemonic");
-			System.out.println("6");
-
 			String ethereumMnemonic = ethereumMnemonicElement.getTextContent();
-			System.out.println("7");
-
 			Element ethereumAddressElement = XmlTools.getSingularElement(root, "ethereumaddress");
-			System.out.println("8");
-
 			String ethereumAddress = ethereumAddressElement.getTextContent();
-			System.out.println("9");
-
 			GroupEthereumAgent result = new GroupEthereumAgent(publicKey, encPrivate, htMemberKeys, ethereumMnemonic,
 					ethereumAddress);
-					System.out.println("10");
-
 			// read group Name
 			Element groupName = XmlTools.getOptionalElement(root, "groupName");
-			System.out.println("11");
-
 			if (groupName != null) {
 				result.groupName = groupName.getTextContent();
 			}
-			System.out.println("12");
-
 			ArrayList<String> adminMembers = new ArrayList<String>();
 			Element admins = XmlTools.getSingularElement(root, "adminList");
 			enGroups = admins.getElementsByTagName("admin");
-			System.out.println(enGroups);
 			for (int n = 0; n < enGroups.getLength(); n++) {
 				org.w3c.dom.Node node = enGroups.item(n);
 				short nodeType = node.getNodeType();
@@ -308,7 +273,6 @@ public class GroupEthereumAgent extends GroupAgentImpl {
 				adminMembers.add(elKey.getTextContent());
 			}
 			result.adminList = adminMembers;
-			System.out.println("13");
 
 			return result;
 
