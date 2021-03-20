@@ -247,7 +247,7 @@ public class ServicesHandler {
 	private AgentImpl getGroupByName(String groupName) throws Exception {
 		try {
 			String agentId = node.getAgentIdForGroupName(groupName);
-			System.out.println("Agent id is" + agentId);
+			System.out.println("Agent id is " + agentId);
 			if (node instanceof EthereumNode) {
 				System.out.println(" ok is eth nnnnnnode");
 

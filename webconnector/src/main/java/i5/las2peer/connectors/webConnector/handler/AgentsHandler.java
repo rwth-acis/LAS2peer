@@ -359,7 +359,7 @@ public class AgentsHandler {
 		groupAgent.unlock(session.getAgent());
 		groupAgent.addAdmin(session.getAgent());
 		System.out.println(session.getAgent().getIdentifier());
-		node.storeAgent(groupAgent);
+		node.storeAgent((GroupEthereumAgent) groupAgent);
 		JSONObject json = new JSONObject();
 		json.put("code", Status.OK.getStatusCode());
 		json.put("text", Status.OK.getStatusCode() + " - GroupAgent created");
