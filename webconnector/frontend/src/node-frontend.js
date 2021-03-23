@@ -218,7 +218,7 @@ class NodeFrontend extends PolymerElement {
           </template>
             <las2peer-frontend-statusbar id="statusbar"
               base-url="[[hostUrl]]" service="las2peer Node Front-End"
-              oidcclientid="bdda7396-3f6d-4d83-ac21-65b4069d0eab"
+              oidcclientid="bb767191-32ed-44ed-b007-7fa0858133b6"
               oidcpopupsigninurl$="[[_loadUrl]]"
               oidcpopupsignouturl$="[[_loadUrl]]"
               oidcsilentsigninurl$="[[_loadUrl]]"
