@@ -174,6 +174,12 @@ public class EthereumNode extends PastryNodeImpl {
 				}
 			} catch (EthereumException e) {
 				throw new AgentException("Error while comparing stored agent to user registry. Aborting out of caution.");
+			} catch (NotFoundException e){
+				try {
+					this.storeAgent(agent);
+				} catch (AgentException storeAgentException) {
+					throw new AgentException("Error storing existing ethereumAgent from node storage in registry.");
+				}
 			}
 		}
 		return agent;
@@ -185,7 +191,7 @@ public class EthereumNode extends PastryNodeImpl {
 			try {
 				registerAgentInBlockchain((EthereumAgent) agent);
 				logger.info("[ETH] Stored agent " + agent.getIdentifier());
-			} catch (AgentException|EthereumException|SerializationException e) {
+			} catch (AgentException|EthereumException|SerializationException|NotFoundException e) {
 				logger.warning("Failed to register EthereumAgent; error: " + e);
 				throw new AgentException("Problem storing Ethereum agent", e);
 			}
@@ -197,7 +203,7 @@ public class EthereumNode extends PastryNodeImpl {
 	// the agent data in the shared storage in some parts of the code
 	// base. So "registerAgent" is definitely ambiguous.
 	private void registerAgentInBlockchain(EthereumAgent ethereumAgent)
-			throws AgentException, EthereumException, SerializationException {
+			throws AgentException, EthereumException, SerializationException, NotFoundException {
 		String name = ethereumAgent.getLoginName();
 
 		if (registryClient.usernameIsAvailable(name)) {
@@ -261,7 +267,7 @@ public class EthereumNode extends PastryNodeImpl {
 	}
 
 	/** compares agent login name and public key */
-	private boolean agentMatchesUserRegistryData(EthereumAgent agent) throws EthereumException {
+	private boolean agentMatchesUserRegistryData(EthereumAgent agent) throws EthereumException, NotFoundException {
 		try {
 			logger.fine("[ETH] matching agent ("+ agent.getLoginName() +") to registry");
 			
@@ -277,7 +283,8 @@ public class EthereumNode extends PastryNodeImpl {
 					&& userInBlockchain.getPublicKey().equals(agent.getPublicKey());
 		} catch (NotFoundException e) {
 			logger.warning("User not found in registry");
-			return false;
+			throw new NotFoundException("User not found in registry");
+			// return false;
 		} catch (SerializationException e) {
 			throw new EthereumException("Public key in user registry can't be deserialized.", e);
 		}
