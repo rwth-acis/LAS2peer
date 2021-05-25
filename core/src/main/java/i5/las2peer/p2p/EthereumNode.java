@@ -181,9 +181,13 @@ public class EthereumNode extends PastryNodeImpl {
 	public void storeAgent(AgentImpl agent) throws AgentException {
 		if (agent instanceof EthereumAgent) {
 			try {
+				System.out.println("1111111111111111111111111111111111111");
+
 				registerAgentInBlockchain((EthereumAgent) agent);
 				logger.info("[ETH] Stored agent " + agent.getIdentifier());
 			} catch (AgentException | EthereumException | SerializationException e) {
+				System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+
 				logger.warning("Failed to register EthereumAgent; error: " + e);
 				throw new AgentException("Problem storing Ethereum agent", e);
 			}
@@ -197,8 +201,11 @@ public class EthereumNode extends PastryNodeImpl {
 	private void registerAgentInBlockchain(EthereumAgent ethereumAgent)
 			throws AgentException, EthereumException, SerializationException {
 		String name = ethereumAgent.getLoginName();
+		System.out.println("namenamenamenamenamenamenamenamenamenamenamenamename");
+		System.out.println(name);
 
 		if (registryClient.usernameIsAvailable(name)) {
+			System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
 			registryClient.registerUser(ethereumAgent);
 		} else if (!registryClient.usernameIsValid(name)) {
 			// this should probably be checked during creation too
