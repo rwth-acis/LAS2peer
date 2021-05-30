@@ -119,11 +119,6 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			System.out.println(name.toString());
 			System.out.println(agentId.toString());
 			System.out.println(publicKey.toString());
-			System.out.println(agent.getLoginName());
-			System.out.println(agent.getIdentifier());
-			System.out.println(name);
-			System.out.println(agentId);
-			System.out.println(publicKey);
 			System.out.println(consentee);
 			contracts.userRegistry.delegatedRegister(name, agentId, publicKey, consentee, signature).sendAsync().get();
 		} catch (Exception e) {
