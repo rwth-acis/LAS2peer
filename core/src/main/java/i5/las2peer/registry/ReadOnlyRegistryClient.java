@@ -45,6 +45,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Facade providing simple read-only access to the registry smart contracts.
  *
@@ -203,6 +205,10 @@ public class ReadOnlyRegistryClient {
 	 */
 	public UserData getUser(String name) throws EthereumException, NotFoundException {
 		Tuple4<byte[], byte[], byte[], String> userAsTuple;
+		System.out.println(name);
+		System.out.println(Util.padAndConvertString(name, 32));
+		System.out.println(new String(Util.padAndConvertString(name, 32), StandardCharsets.UTF_8));
+
 		try {
 			userAsTuple = contracts.userRegistry.users(Util.padAndConvertString(name, 32)).sendAsync().get();
 		} catch (Exception e) {
@@ -211,18 +217,29 @@ public class ReadOnlyRegistryClient {
 		System.out.println(
 				"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		System.out.println(userAsTuple.getValue1());
+		System.out.println(new String(userAsTuple.getValue1(), StandardCharsets.UTF_8));
 		System.out.println(userAsTuple.getValue2());
+		System.out.println(new String(userAsTuple.getValue2(), StandardCharsets.UTF_8));
 		System.out.println(userAsTuple.getValue3());
+		System.out.println(new String(userAsTuple.getValue3(), StandardCharsets.UTF_8));
 		System.out.println(userAsTuple.getValue4());
-		System.out.println(userAsTuple.getValue1().length);
+		System.out.println(new String(userAsTuple.getValue3(), StandardCharsets.UTF_8).length());
 		System.out.println(new byte[userAsTuple.getValue1().length]);
+		System.out.println(new String(new byte[userAsTuple.getValue1().length], StandardCharsets.UTF_8).length());
 		System.out.println(userAsTuple);
+
 		byte[] returnedName = userAsTuple.getValue1();
+		System.out.println(new String(returnedName, StandardCharsets.UTF_8).length());
 		System.out.println(Arrays.equals(returnedName, new byte[returnedName.length]));
 		if (Arrays.equals(returnedName, new byte[returnedName.length])) {
+			System.out.println(
+					"--------------------------------iin iiiiifffffffffff ccaassseeeee------------------------");
+			System.out.println(new String(returnedName, StandardCharsets.UTF_8).length());
 			// name is 0s, meaning entry does not exist
 			throw new NotFoundException("User name apparently not registered.");
 		}
+		System.out.println(
+				"--------------------------------ppapaaaaaaaassstttt iffff cccaaaassseeee------------------------");
 
 		return new UserData(userAsTuple.getValue1(), userAsTuple.getValue2(), userAsTuple.getValue3(),
 				userAsTuple.getValue4());
