@@ -71,13 +71,15 @@ public class ReadOnlyRegistryClient {
 	// raw tx - sending directly, fast raw - nonce management
 	boolean updateNonceTxMan = false;
 	FastRawTransactionManager txMan;
+			
 
 	protected final L2pLogger logger = L2pLogger.getInstance(ReadWriteRegistryClient.class);
 
 	/**
 	 * Create client providing access to read-only registry functions.
 	 * 
-	 * @param registryConfiguration addresses of registry contracts and Ethereum client HTTP JSON RPC API endpoint
+	 * @param registryConfiguration addresses of registry contracts and Ethereum
+	 *                              client HTTP JSON RPC API endpoint
 	 */
 	public ReadOnlyRegistryClient(RegistryConfiguration registryConfiguration) {
 		this(registryConfiguration, null);
@@ -107,10 +109,12 @@ public class ReadOnlyRegistryClient {
 
 		this.credentials = credentials;
 
-		logger.info("created smart contract wrapper with credentials:" + credentialsAddress + "\n contract ID:"
-				+ this.contracts.transactionManager.hashCode());
+		logger.info("created smart contract wrapper with credentials:" + credentialsAddress + "\n contract ID:" + this.contracts.transactionManager.hashCode());
 
-		if (this.contracts.transactionManager instanceof FastRawTransactionManager) {
+		
+
+		if ( this.contracts.transactionManager instanceof FastRawTransactionManager ) 
+		{
 			this.updateNonceTxMan = true;
 			this.txMan = (FastRawTransactionManager) this.contracts.transactionManager;
 		}
@@ -138,7 +142,8 @@ public class ReadOnlyRegistryClient {
 	/**
 	 * Return version string of connected Ethereum client.
 	 * 
-	 * @deprecated there's no reason to reveal this implementation detail, so this may be removed
+	 * @deprecated there's no reason to reveal this implementation detail, so this
+	 *             may be removed
 	 */
 	// this is the only place where `web3j` is (directly) accessed
 	@Deprecated
@@ -162,24 +167,25 @@ public class ReadOnlyRegistryClient {
 	}
 
 	/**
-	 * Return true if user name is both valid and not already taken and thus can be registered.
+	 * Return true if user name is both valid and not already taken and thus can be
+	 * registered.
 	 * 
 	 * @param name user name consisting of 1 to 32 Unicode characters
 	 */
 	public boolean usernameIsAvailable(String name) throws EthereumException {
 		try {
-			System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 			return contracts.userRegistry.nameIsAvailable(Util.padAndConvertString(name, 32)).sendAsync().get();
 		} catch (Exception e) {
-			System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
 			throw new EthereumException(e);
 		}
 	}
 
 	/**
-	 * Return true if user name is both valid, as encoded in the registry smart contract code.
+	 * Return true if user name is both valid, as encoded in the registry smart
+	 * contract code.
 	 *
-	 * (Any non-empty String of up to 32 characters should work, but let's not press our luck.)
+	 * (Any non-empty String of up to 32 characters should work, but let's not press
+	 * our luck.)
 	 *
 	 * @param name user name consisting of 1 to 32 Unicode characters
 	 */
@@ -195,7 +201,8 @@ public class ReadOnlyRegistryClient {
 	 * Retrieve user data stored in registry for given name.
 	 * 
 	 * @param name user name consisting of 1 to 32 Unicode characters
-	 * @return user data object containing ID and owner address, or <code>null</code> if user name is not taken
+	 * @return user data object containing ID and owner address, or
+	 *         <code>null</code> if user name is not taken
 	 */
 	public UserData getUser(String name) throws EthereumException, NotFoundException {
 		Tuple4<byte[], byte[], byte[], String> userAsTuple;
@@ -249,17 +256,19 @@ public class ReadOnlyRegistryClient {
 			if (userProfileData != null
 					&& !userProfileData.getOwner().equals("0x0000000000000000000000000000000000000000")) {
 				if (userProfileData.getNoTransactionsRcvd().compareTo(BigInteger.ZERO) == 0) {
-					logger.fine("[User Reputation]: valid reputation profile [" + userProfileData.getUserName()
-							+ "], no incoming reputation yet.");
+					logger.fine("[User Reputation]: valid reputation profile [" + userProfileData.getUserName() + "], no incoming reputation yet." );
 					return 0f;
-				} else {
+				} 
+				else 
+				{
 					userRatingScore_Raw = userProfileData.getStarRating();
-					logger.fine("[User Reputation]: valid reputation profile [" + userProfileData.getUserName()
-							+ "], score: " + Float.toString(userRatingScore_Raw));
+					logger.fine("[User Reputation]: valid reputation profile [" + userProfileData.getUserName() + "], score: " + Float.toString(userRatingScore_Raw) );
 					return userRatingScore_Raw;
 				}
-			} else {
-				logger.fine("[User Reputation]: no valid reputation profile");
+			}
+			else
+			{
+				logger.fine("[User Reputation]: no valid reputation profile" );
 				return 0f;
 			}
 		} catch (EthereumException | NotFoundException e) {
@@ -313,13 +322,18 @@ public class ReadOnlyRegistryClient {
 		String serviceNamespace = service.substring(0, lastDotIndex);
 		logger.info("[service names] searching for: " + serviceNamespace);
 
-		for (Map.Entry<String, String> entry : observer.serviceNameToAuthor.entrySet()) {
-			if (entry.getKey().equals(serviceNamespace)) {
-				logger.info("[service names] found entry: " + entry.getKey() + " | " + entry.getValue());
+		for (Map.Entry<String, String> entry : observer.serviceNameToAuthor.entrySet()) 
+		{
+			if ( entry.getKey().equals(serviceNamespace) )
+			{
+				logger.info(
+					"[service names] found entry: " + entry.getKey() + " | " + entry.getValue()
+				);
 			}
 		}
 
-		if (!observer.serviceNameToAuthor.containsKey(serviceNamespace)) {
+		if (!observer.serviceNameToAuthor.containsKey(serviceNamespace))
+		{
 			logger.warning("[service author] not found: " + serviceNamespace);
 			return "";
 		}
@@ -388,7 +402,7 @@ public class ReadOnlyRegistryClient {
 	/***
 	 * Query no. of service announcements which occurred since provide block
 	 * 
-	 * @param largerThanBlockNo block number to start querying at
+	 * @param largerThanBlockNo   block number to start querying at
 	 * @param searchingForService service which is to be found
 	 */
 	public HashMap<String, Integer> getNoOfServiceAnnouncementSinceBlockOrderedByHostingNode(
@@ -427,23 +441,25 @@ public class ReadOnlyRegistryClient {
 	}
 
 	/**
-	 * Return the nonce (tx count) for the specified address. https://github.com/matthiaszimmermann/web3j_demo /
-	 * Web3jUtils
+	 * Return the nonce (tx count) for the specified address.
+	 * https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
 	 * 
 	 * @param address target address
 	 * @return nonce
 	 */
 	public BigInteger getNonce(String address) {
-		if (address.length() == 0) {
-			if (credentials != null) {
+		if ( address.length() == 0 )
+		{
+			if ( credentials != null )
+			{
 				address = credentials.getAddress();
 			}
 		}
 		BigInteger blockchainNonce = BigInteger.valueOf(-1);
 		EthGetTransactionCount ethGetTransactionCount;
 		try {
-			ethGetTransactionCount = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.PENDING)
-					.sendAsync().get();
+			ethGetTransactionCount = web3j
+					.ethGetTransactionCount(address, DefaultBlockParameterName.PENDING).sendAsync().get();
 
 			blockchainNonce = ethGetTransactionCount.getTransactionCount();
 		} catch (InterruptedException | ExecutionException e) {
@@ -456,67 +472,65 @@ public class ReadOnlyRegistryClient {
 		// transactions
 		// and the contract calls (e.g. registration, reputation) are done via managed
 		// transactions
-
+		
 		BigInteger retVal = BigInteger.ZERO;
 		BigInteger localNonce = StaticNonce.Manager().getStaticNonce(address);
 
 		switch (localNonce.compareTo(blockchainNonce)) {
-		default:
-		case 0: // they are in sync
-		case 1: // local nonce is ahead
-			logger.info(
-					"[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "), incrementing by 1.");
-			retVal = StaticNonce.Manager().incStaticNonce(address);
-			break;
-		case -1: // local nonce is behind
-			logger.info("[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "): override to "
-					+ blockchainNonce + "+1");
-			retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce.add(BigInteger.ONE));
-			break;
+			default:
+			case 0: // they are in sync
+			case 1: // local nonce is ahead
+				logger.info("[TX Nonce] (chain: "+blockchainNonce+" vs. local: "+localNonce+"), incrementing by 1.");
+				retVal = StaticNonce.Manager().incStaticNonce(address);
+				break;
+			case -1: // local nonce is behind
+				logger.info("[TX Nonce] (chain: "+blockchainNonce+" vs. local: "+localNonce+"): override to " + blockchainNonce + "+1");
+				retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce.add(BigInteger.ONE));
+				break;
 		}
 
-		// retVal = blockchainNonce;
+		//retVal = blockchainNonce;
 
 		return retVal;
 	}
 
+
+
 	/**
 	 * Overrides nonce of transactionManager with local nonce.
-	 * 
 	 * @param address
 	 */
 	protected synchronized void updateTxManNonce(String address) {
-		if (updateNonceTxMan) {
+		if ( updateNonceTxMan )
+		{
 			// local client has larger nonce than txman?
 			BigInteger txManNonce = txMan.getCurrentNonce();
 			BigInteger localNonce = this.getNonce(address);
-			BigInteger newNonce = localNonce.add(BigInteger.ONE);// StaticNonce.Manager().incStaticNonce(address);
+			BigInteger newNonce = localNonce.add(BigInteger.ONE);//StaticNonce.Manager().incStaticNonce(address);
 			switch (txManNonce.compareTo(localNonce)) {
-			case -1: // txMan nonce is behind local
-				logger.info("[FastRaw TX] (tx: " + txManNonce + "  < local: " + localNonce + "): setting txMan to "
-						+ newNonce);
-				txMan.setNonce(newNonce);
-				StaticNonce.Manager().incStaticNonce(address);
-				break;
-			case 1: // txMan nonce is ahead of local
-				logger.info("[FastRaw TX] (tx: " + txManNonce + "  > local: " + localNonce + "): setting local to "
-						+ txManNonce);
-				StaticNonce.Manager().putStaticNonceIfAbsent(address, txManNonce);
-				break;
-			case 0: // they are in sync - should be fine?
-			default:
-				logger.info("[FastRaw TX] (tx: " + txManNonce + " == local: " + localNonce + "): incrementing txMan to "
-						+ newNonce);
-				txMan.setNonce(newNonce);
-				StaticNonce.Manager().putStaticNonceIfAbsent(address, newNonce);
-				break;
+				case -1: // txMan nonce is behind local
+					logger.info("[FastRaw TX] (tx: "+txManNonce+"  < local: "+localNonce+"): setting txMan to " + newNonce);
+					txMan.setNonce(newNonce);
+					StaticNonce.Manager().incStaticNonce(address);
+					break;
+				case 1: // txMan nonce is ahead of local
+					logger.info("[FastRaw TX] (tx: "+txManNonce+"  > local: "+localNonce+"): setting local to " + txManNonce);
+					StaticNonce.Manager().putStaticNonceIfAbsent(address, txManNonce);
+					break;
+				case 0: // they are in sync - should be fine?
+				default:
+					logger.info("[FastRaw TX] (tx: "+txManNonce+" == local: "+localNonce+"): incrementing txMan to " + newNonce);
+					txMan.setNonce(newNonce);
+					StaticNonce.Manager().putStaticNonceIfAbsent(address, newNonce);
+					break;
 			}
 		}
 	}
 
 	/**
-	 * Queries the coin base = the first account in the chain By design, this is the account which the hosting node uses
-	 * for mining in the background https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
+	 * Queries the coin base = the first account in the chain By design, this is the
+	 * account which the hosting node uses for mining in the background
+	 * https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
 	 * 
 	 * @return coinbase address
 	 * @throws InterruptedException
@@ -527,9 +541,11 @@ public class ReadOnlyRegistryClient {
 	}
 
 	/**
-	 * Waits for the receipt for the transaction specified by the provided tx hash. Makes 30 attempts (waiting 1 sec.
-	 * between attempts) to get the receipt object. In the happy case the tx receipt object is returned. Otherwise, a
-	 * runtime exception is thrown. https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
+	 * Waits for the receipt for the transaction specified by the provided tx hash.
+	 * Makes 30 attempts (waiting 1 sec. between attempts) to get the receipt
+	 * object. In the happy case the tx receipt object is returned. Otherwise, a
+	 * runtime exception is thrown. https://github.com/matthiaszimmermann/web3j_demo
+	 * / Web3jUtils
 	 * 
 	 * @param transactionHash
 	 * @return
@@ -588,41 +604,43 @@ public class ReadOnlyRegistryClient {
 	/**
 	 * Returns the TransactionRecipt for the specified tx hash as an optional.
 	 * https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
-	 * 
 	 * @param transactionHash
 	 * @return transactionReceipt
-	 * @throws ExecutionException
+	 * @throws ExecutionException 
 	 * @throws InterruptedException
 	 */
-	private Optional<TransactionReceipt> getReceipt(String transactionHash)
-			throws InterruptedException, ExecutionException {
-		EthGetTransactionReceipt receipt = web3j.ethGetTransactionReceipt(transactionHash).sendAsync().get();
+	private Optional<TransactionReceipt> getReceipt(String transactionHash) 
+			throws InterruptedException, ExecutionException
+	{
+		EthGetTransactionReceipt receipt = web3j
+				.ethGetTransactionReceipt(transactionHash)
+				.sendAsync()
+				.get();
 
 		return receipt.getTransactionReceipt();
 	}
+	
 
 	/**
 	 * Converts the provided Wei amount (smallest value Unit) to Ethers.
 	 * https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
-	 * 
 	 * @param wei
 	 * @return
 	 */
 	public BigDecimal weiToEther(BigInteger wei) {
 		return Convert.fromWei(wei.toString(), Convert.Unit.ETHER);
 	}
-
+	
 	/**
 	 * Converts the provided Ether amount to Wei (smallest value Unit) .
 	 * https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
-	 * 
 	 * @param ether
 	 * @return
 	 */
 	public BigInteger etherToWei(BigDecimal ether) {
 		return Convert.toWei(ether, Convert.Unit.ETHER).toBigInteger();
 	}
-
+	
 	/*
 	@Deprecated
 	public Map<String, List<ServiceDeploymentData>> getServiceDeployments() {
