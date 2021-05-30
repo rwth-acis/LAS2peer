@@ -57,9 +57,10 @@ public class AuthenticationManager {
 	 * provided via the basic authorization header. This only attempts a login, no registration.
 	 *
 	 * However, whenever an access token is passed via any means, we use a different flow: OIDC "auto-registration".
-	 * This means that we access the user profile from the OIDC server, verifying the access token. Then we use the
-	 * (also required!) password from the basic authorization header (the username is ignored) and attempt to register
-	 * the agent. If it exists, we try to unlock the existing agent.
+	 * This means that we access the user profile from the OIDC server, verifying the access token.
+	 * Then we use the (also required!) password from the basic authorization header (the username is ignored) and
+	 * attempt to register the agent.
+	 * If it exists, we try to unlock the existing agent.
 	 */
 	public AgentImpl authenticateAgent(MultivaluedMap<String, String> requestHeaders, String accessTokenQueryParam) {
 		String authorizationHeader = requestHeaders.getFirst(HttpHeaders.AUTHORIZATION);
@@ -71,8 +72,7 @@ public class AuthenticationManager {
 		try {
 			if (accessToken != null) {
 				if (credentials == null) {
-					throw new BadRequestException(
-							"We require a password (in basic authorization header) when a OIDC access token sent! (see Javadoc)");
+					throw new BadRequestException("We require a password (in basic authorization header) when a OIDC access token sent! (see Javadoc)");
 				}
 				String oidcProviderHeader = requestHeaders.getFirst(OIDC_PROVIDER_KEY);
 				return authenticateOIDC(accessToken, oidcProviderHeader, credentials);
@@ -96,9 +96,10 @@ public class AuthenticationManager {
 	}
 
 	/**
-	 * Returns unlocked agent corresponding to the given credentials. The identifier is not simply an agent ID (sorry)
-	 * but starts with a namespace prefix as defined in {@link UserAgentManager} followed by the corresponding string.
-	 * This allows logging in via either the agent ID, a login ID, an email address, and so on.
+	 * Returns unlocked agent corresponding to the given credentials.
+	 * The identifier is not simply an agent ID (sorry) but starts with a namespace prefix as defined in
+	 * {@link UserAgentManager} followed by the corresponding string. This allows logging in via either
+	 * the agent ID, a login ID, an email address, and so on.
 	 *
 	 * {@see UserAgentManager#getAgentId(String)}
 	 */
@@ -117,26 +118,25 @@ public class AuthenticationManager {
 				agentId = connector.getL2pNode().getAgentIdForLogin(prefixedIdentifier);
 			}
 		}
+		
+		
 		AgentImpl agent = connector.getL2pNode().getAgent(agentId);
 		if (agent instanceof PassphraseAgentImpl) {
 			((PassphraseAgentImpl) agent).unlock(credentials.password);
-			connector.getL2pNode().storeAgent(agent);
 			logger.fine("passphrase accepted. Agent unlocked");
 		}
-		connector.getL2pNode().storeAgent(agent);
 		return agent;
 	}
 
 	/**
 	 * Attempts to find an existing agent and unlock it, otherwise registers a new one.
 	 *
-	 * For registration, uses OIDC profile "preferred_username" as login name, ignoring identifier in credentials. For
-	 * log-in, uses provided credentials, ignoring all OIDC data including the token.
+	 * For registration, uses OIDC profile "preferred_username" as login name, ignoring identifier in credentials.
+	 * For log-in, uses provided credentials, ignoring all OIDC data including the token.
 	 *
 	 * {@see UserAgentManager#getAgentId(String)}
 	 */
-	private PassphraseAgentImpl authenticateOIDC(String token, String oidcProviderHeader, Credentials credentials)
-			throws AgentException {
+	private PassphraseAgentImpl authenticateOIDC(String token, String oidcProviderHeader, Credentials credentials) throws AgentException {
 		try {
 			logger.info("OIDC sub found. Authenticating...");
 			AgentImpl existingAgent = authenticateCredentials(credentials);
@@ -162,8 +162,7 @@ public class AuthenticationManager {
 		}
 		try {
 			String encodedCredentials = basicAuthHeader.substring("BASIC ".length());
-			String decodedCredentials = new String(Base64.getDecoder().decode(encodedCredentials),
-					StandardCharsets.UTF_8);
+			String decodedCredentials = new String(Base64.getDecoder().decode(encodedCredentials), StandardCharsets.UTF_8);
 			int separatorPos = decodedCredentials.indexOf(':');
 
 			String identifier = decodedCredentials.substring(0, separatorPos);
@@ -243,7 +242,7 @@ public class AuthenticationManager {
 
 			// TODO provide OIDC user data for agent
 			// if (pa instanceof UserAgent) {
-			// ((UserAgent) pa).setUserData(userInfo.toJSONString());
+			// 		((UserAgent) pa).setUserData(userInfo.toJSONString());
 			// }
 
 			return pa;
@@ -266,8 +265,7 @@ public class AuthenticationManager {
 
 		JSONObject userInfo = retrieveOidcUserInfo(endpoint, token).toJSONObject();
 
-		if (!userInfo.containsKey("sub") || !userInfo.containsKey("email")
-				|| !userInfo.containsKey("preferred_username")) {
+		if (!userInfo.containsKey("sub") || !userInfo.containsKey("email") || !userInfo.containsKey("preferred_username")) {
 			throw new ForbiddenException("Could not get all necessary OIDC fields. Please check your scopes.");
 		}
 
@@ -276,8 +274,7 @@ public class AuthenticationManager {
 			if (connector.getL2pNode() instanceof EthereumNode) {
 				EthereumNode ethNode = (EthereumNode) connector.getL2pNode();
 				String loginName = (String) userInfo.get("preferred_username");
-				oidcAgent = EthereumAgent.createEthereumAgentWithClient(loginName, password,
-						ethNode.getRegistryClient());
+				oidcAgent = EthereumAgent.createEthereumAgentWithClient(loginName, password, ethNode.getRegistryClient());
 			} else {
 				// TODO: should we just always create an EthereumAgent?
 				// should Node have a createAgent (instance? static?) method?
@@ -311,7 +308,6 @@ public class AuthenticationManager {
 	private class Credentials {
 		String identifier;
 		String password;
-
 		Credentials(String identifier, String password) {
 			this.identifier = identifier;
 			this.password = password;
