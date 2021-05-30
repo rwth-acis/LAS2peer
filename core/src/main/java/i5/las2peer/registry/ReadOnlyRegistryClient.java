@@ -169,7 +169,6 @@ public class ReadOnlyRegistryClient {
 	public boolean usernameIsAvailable(String name) throws EthereumException {
 		try {
 			System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-			System.out.println(name);
 			return contracts.userRegistry.nameIsAvailable(Util.padAndConvertString(name, 32)).sendAsync().get();
 		} catch (Exception e) {
 			System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
