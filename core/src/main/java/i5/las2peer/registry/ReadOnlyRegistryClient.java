@@ -43,6 +43,7 @@ import org.web3j.utils.Convert;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import java.nio.charset.StandardCharsets;
@@ -210,7 +211,8 @@ public class ReadOnlyRegistryClient {
 		System.out.println(new String(Util.padAndConvertString(name, 32), StandardCharsets.UTF_8));
 
 		try {
-			userAsTuple = contracts.userRegistry.users(Util.padAndConvertString(name, 32)).sendAsync().get();
+			userAsTuple = contracts.userRegistry.users(Util.padAndConvertString(name, 32)).sendAsync().get(5,
+					TimeUnit.SECONDS);
 		} catch (Exception e) {
 			throw new EthereumException("Could not get user", e);
 		}
