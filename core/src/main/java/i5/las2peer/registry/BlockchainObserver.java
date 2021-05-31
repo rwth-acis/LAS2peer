@@ -180,6 +180,8 @@ class BlockchainObserver {
 		contracts.getWeb3jClient().replayPastAndFutureTransactionsFlowable(DefaultBlockParameterName.EARLIEST)
 				.subscribe(transaction -> {
 					System.out.println("^^^^^^^^^^^^^^^^^^^^^^OBSERVE TRANSACTIONNNNNN^^^^^^^^^^^^^^^^^^^^");
+					System.out.println(transaction.getBlockNumber());
+					System.out.println(transaction.getHash());
 					if (txHasAlreadyBeenHandled(transaction.getHash())) {
 						System.out.println(
 								"^^^^^^^^^^^^^^^^^^^^^^OBSERVE TRANSACTIONNNNNN BBUUUTTT NOOOTT THHHEREEEE^^^^^^^^^^^^^^^^^^^^");
@@ -278,6 +280,7 @@ class BlockchainObserver {
 					BigInteger timestamp = user.timestamp;
 					Instant i = Instant.ofEpochSecond(timestamp.longValue());
 					System.out.println("****************************************************************");
+					System.out.println(user.log.toString());
 					System.out.println(Util.recoverString(user.name));
 					this.users.put(userName, i.toString());
 					logger.info("[ChainObserver] observed user registration: " + "@[" + timestamp + "]: " + userName);
