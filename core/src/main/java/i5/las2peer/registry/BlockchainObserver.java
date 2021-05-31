@@ -178,7 +178,7 @@ class BlockchainObserver {
 
 	private void observeETHTransactions() {
 		contracts.getWeb3jClient().replayPastAndFutureTransactionsFlowable(DefaultBlockParameterName.EARLIEST)
-				.observeOn(Schedulers.io()).subscribeOn(Schedulers.io()).subscribe(transaction -> {
+				.subscribe(transaction -> {
 					System.out.println("^^^^^^^^^^^^^^^^^^^^^^OBSERVE TRANSACTIONNNNNN^^^^^^^^^^^^^^^^^^^^");
 					if (txHasAlreadyBeenHandled(transaction.getHash())) {
 						System.out.println(
