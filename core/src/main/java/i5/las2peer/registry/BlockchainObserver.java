@@ -267,7 +267,7 @@ class BlockchainObserver {
 	private void observeUserRegistrations() {
 		contracts.userRegistry
 				.userRegisteredEventFlowable(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST)
-				.observeOn(Schedulers.io()).subscribeOn(Schedulers.io()).subscribe(user -> {
+				.subscribe(user -> {
 					if (txHasAlreadyBeenHandled(user.log.getTransactionHash())) {
 						System.out.println("----------------------------------------------------");
 						System.out.println(Util.recoverString(user.name));
@@ -281,7 +281,27 @@ class BlockchainObserver {
 					System.out.println(Util.recoverString(user.name));
 					this.users.put(userName, i.toString());
 					logger.info("[ChainObserver] observed user registration: " + "@[" + timestamp + "]: " + userName);
-				}, e -> logger.severe("Error observing user registration event: " + e.toString()));
+				});
+		// contracts.userRegistry
+		// .userRegisteredEventFlowable(DefaultBlockParameterName.EARLIEST,
+		// DefaultBlockParameterName.LATEST)
+		// .observeOn(Schedulers.io()).subscribeOn(Schedulers.io()).subscribe(user -> {
+		// if (txHasAlreadyBeenHandled(user.log.getTransactionHash())) {
+		// System.out.println("----------------------------------------------------");
+		// System.out.println(Util.recoverString(user.name));
+		// return;
+		// }
+
+		// String userName = Util.recoverString(user.name);
+		// BigInteger timestamp = user.timestamp;
+		// Instant i = Instant.ofEpochSecond(timestamp.longValue());
+		// System.out.println("****************************************************************");
+		// System.out.println(Util.recoverString(user.name));
+		// this.users.put(userName, i.toString());
+		// logger.info("[ChainObserver] observed user registration: " + "@[" + timestamp
+		// + "]: " + userName);
+		// }, e -> logger.severe("Error observing user registration event: " +
+		// e.toString()));
 	}
 
 	private void observeUserProfileCreations() {
