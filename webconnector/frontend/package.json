@@ -2,13 +2,16 @@
   "name": "las2peer-node-frontend",
   "version": "2.0.0",
   "description": "A web front-end for las2peer nodes",
+  "license": "BSD-3-Clause",
   "repository": "rwth-acis/las2peer",
   "homepage": "https://las2peer.org/",
-  "license": "BSD-3-Clause",
+  "engines": {
+    "node": ">=8.0"
+  },
   "scripts": {
-    "start": "polymer serve",
     "build": "polymer build",
     "lint": "polymer lint",
+    "start": "polymer serve",
     "test": "polymer test",
     "test:integration": "polymer build # test that psk builds without error with the CLI"
   },
@@ -30,24 +33,21 @@
     "@polymer/paper-button": "3.0.1",
     "@polymer/paper-card": "^3.0.1",
     "@polymer/paper-checkbox": "^3.0.1",
-    "@polymer/paper-tabs": "^3.0.1",
     "@polymer/paper-dialog": "^3.0.1",
-    "@polymer/paper-icon-button": "^3.0.1",
     "@polymer/paper-dropdown-menu": "^3.0.1",
+    "@polymer/paper-icon-button": "^3.0.1",
+    "@polymer/paper-input": "^3.0.1",
     "@polymer/paper-item": "^3.0.1",
     "@polymer/paper-listbox": "^3.0.1",
-    "@polymer/paper-input": "^3.0.1",
     "@polymer/paper-spinner": "^3.0.1",
+    "@polymer/paper-tabs": "^3.0.1",
     "@polymer/paper-tooltip": "^3.0.1",
     "@polymer/polymer": "^3.1.0",
     "@webcomponents/webcomponentsjs": "^2.2.1",
-    "las2peer-frontend-statusbar": "github:rwth-acis/las2peer-frontend-statusbar#0.3.0"
+    "las2peer-frontend-statusbar": "github:rwth-acis/las2peer-frontend-statusbar#0.3.1"
   },
   "devDependencies": {
     "polymer-cli": "^1.9.7",
     "wct-browser-legacy": "^1.0.2"
-  },
-  "engines": {
-    "node": ">=8.0"
   }
 }
