@@ -56,7 +56,9 @@ public class PackageUploader {
 
 	}
 
-	/** @see #uploadServicePackage(PastryNodeImpl, String, String, String, String) */
+	/**
+	 * @see #uploadServicePackage(PastryNodeImpl, String, String, String, String)
+	 */
 	public static void uploadServicePackage(PastryNodeImpl node, String serviceJarFilename,
 			String developerAgentXMLFilename, String developerPassword)
 			throws ServicePackageException, EnvelopeAlreadyExistsException {
@@ -64,10 +66,11 @@ public class PackageUploader {
 	}
 
 	/**
-	 * @param serviceJarFilename The service jar that should be uploaded.
-	 * @param developerAgentXMLFilename The developers agent, who is responsible for this service.
-	 * @param developerPassword The password for the developers agent.
-	 * @param supplement additional, optional metadata
+	 * @param serviceJarFilename        The service jar that should be uploaded.
+	 * @param developerAgentXMLFilename The developers agent, who is responsible for
+	 *                                  this service.
+	 * @param developerPassword         The password for the developers agent.
+	 * @param supplement                additional, optional metadata
 	 * @see #uploadServicePackage(PastryNodeImpl, JarInputStream, AgentImpl, String)
 	 */
 	public static void uploadServicePackage(PastryNodeImpl node, String serviceJarFilename,
@@ -77,29 +80,29 @@ public class PackageUploader {
 		AgentImpl devAgent = unlockDeveloperAgent(developerAgentXMLFilename, developerPassword);
 
 		File file = new File(serviceJarFilename);
-		try (
-			InputStream inputStream = new FileInputStream(file);
-			JarInputStream jarInputStream = new JarInputStream(inputStream)
-		) {
+		try (InputStream inputStream = new FileInputStream(file);
+				JarInputStream jarInputStream = new JarInputStream(inputStream)) {
 			uploadServicePackage(node, jarInputStream, devAgent, supplement);
-		} 
-		catch (EthereumException e) {
+		} catch (EthereumException e) {
 			logger.log(Level.SEVERE, "Exception while publishing service to Blockchain", e);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Exception while reading jar file", e);
 		}
 	}
 
 	/**
-	 * Uploads the complete service (jar) and all its dependencies into the given nodes shared storage to be used for
-	 * network class loading. The dependencies are read from the "Import-Library" statement inside the jars manifest
-	 * file. All the files extracted from the jars are signed with the given developers agent to prevent manipulations.
+	 * Uploads the complete service (jar) and all its dependencies into the given
+	 * nodes shared storage to be used for network class loading. The dependencies
+	 * are read from the "Import-Library" statement inside the jars manifest file.
+	 * All the files extracted from the jars are signed with the given developers
+	 * agent to prevent manipulations.
 	 *
-	 * @param node The node storage, where the files should be uploaded into.
+	 * @param node           The node storage, where the files should be uploaded
+	 *                       into.
 	 * @param jarInputStream service JAR as JAR input stream
-	 * @param devAgent unlocked developer agent
-	 * @throws ServicePackageException If an issue occurs with the service jar itself or its dependencies (jars).
+	 * @param devAgent       unlocked developer agent
+	 * @throws ServicePackageException If an issue occurs with the service jar
+	 *                                 itself or its dependencies (jars).
 	 */
 	public static void uploadServicePackage(PastryNodeImpl node, JarInputStream jarInputStream, AgentImpl devAgent,
 			String supplement) throws ServicePackageException, EnvelopeAlreadyExistsException, EthereumException {
@@ -138,14 +141,14 @@ public class PackageUploader {
 				}
 			}
 			jarInputStream.close();
-
+			serviceName = "someNewString";
 			uploadServicePackage(node, serviceName, serviceVersion, depHashes, jarFiles, devAgent, supplement);
 			long uploadTime = System.currentTimeMillis() - uploadStart;
 			logger.info("Service package '" + serviceName + "' uploaded in " + uploadTime + " ms");
 		} catch (EnvelopeAlreadyExistsException e) {
 			logger.log(Level.SEVERE, "Service package already exists!", e);
 			throw e;
-		} catch (IOException|AgentException|SerializationException|EnvelopeException|CryptoException e) {
+		} catch (IOException | AgentException | SerializationException | EnvelopeException | CryptoException e) {
 			logger.log(Level.SEVERE, "Service package upload failed! " + e.toString(), e);
 			e.printStackTrace();
 		}
@@ -172,7 +175,8 @@ public class PackageUploader {
 
 	public static void uploadServicePackage(PastryNodeImpl node, String serviceName, String serviceVersion,
 			Map<String, byte[]> depHashes, Map<String, byte[]> jarFiles, AgentImpl devAgent, String supplement)
-			throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException, EthereumException {
+			throws SerializationException, CryptoException, EnvelopeException, ServicePackageException, AgentException,
+			EthereumException {
 		if (serviceName == null) {
 			throw new ServicePackageException("No service name given");
 		} else if (serviceVersion == null) {
@@ -221,8 +225,11 @@ public class PackageUploader {
 		try {
 			node.storeEnvelope(libEnv, devAgent);
 		} catch (EnvelopeAlreadyExistsException e) {
-			// TODO actually compare old and new service version to determine exact version change required
-			throw new ServicePackageException("Service package upload failed! Version is already known in the network. To update increase version number", e);
+			// TODO actually compare old and new service version to determine exact version
+			// change required
+			throw new ServicePackageException(
+					"Service package upload failed! Version is already known in the network. To update increase version number",
+					e);
 		}
 
 		return libId;
@@ -258,7 +265,7 @@ public class PackageUploader {
 	}
 
 	private static byte[] storeSupplement(PastryNodeImpl node, String supplement)
-		throws EnvelopeException, CryptoException {
+			throws EnvelopeException, CryptoException {
 		if (supplement == null) {
 			supplement = "";
 		}
