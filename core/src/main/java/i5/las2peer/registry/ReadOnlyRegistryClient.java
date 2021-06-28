@@ -663,23 +663,4 @@ public class ReadOnlyRegistryClient {
 	 * e.getValue())); // are you serious? // ahhhahahahahaaahaaaa embrace the dark
 	 * side, let it flow through you! }
 	 */
-	}
-
-	
-
-	 
-	 * 
-
-	
-	 *  
-	 *  
-	 *  
-	 *  
-	 * 
-	 * 
-	 *  
-	 * 
-	 *  
-	 *  
-	 *  
-	 
+}
