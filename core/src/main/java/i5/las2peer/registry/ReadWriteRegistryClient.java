@@ -147,7 +147,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			throw new EthereumException("Could not register user", e);
 		}
 		if (txMan != null) {
-			BigInteger txManNonce = txMan.getCurrentNonce();
+			txManNonce = txMan.getCurrentNonce();
 			logger.info("[TX Nonce] after: " + txManNonce);
 		}
 	}
