@@ -467,6 +467,7 @@ public class ReadOnlyRegistryClient {
 		switch (localNonce.compareTo(blockchainNonce)) {
 		default:
 		case 0: // they are in sync
+			break;
 		case 1: // local nonce is ahead
 			logger.info(
 					"[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "), incrementing by 1.");
