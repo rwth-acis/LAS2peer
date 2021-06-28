@@ -525,6 +525,7 @@ public class ReadOnlyRegistryClient {
 				break;
 			case 0: // they are in sync - should be fine?
 				System.out.println("cassse 00000000000");
+				break;
 			default:
 				logger.info("[FastRaw TX] (tx: " + txManNonce + " == local: " + localNonce + "): incrementing txMan to "
 						+ newNonce);
@@ -662,4 +663,23 @@ public class ReadOnlyRegistryClient {
 	 * e.getValue())); // are you serious? // ahhhahahahahaaahaaaa embrace the dark
 	 * side, let it flow through you! }
 	 */
-}
+	}
+
+	
+
+	 
+	 * 
+
+	
+	 *  
+	 *  
+	 *  
+	 *  
+	 * 
+	 * 
+	 *  
+	 * 
+	 *  
+	 *  
+	 *  
+	 
