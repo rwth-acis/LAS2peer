@@ -119,10 +119,23 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			BigInteger txManNonce = txMan.getCurrentNonce();
 			logger.info("[TX Nonce] before: " + txManNonce);
 		}
+		try {
+			System.out.println("rreesseeettting  bbeefoorrre");
 
-		System.out.println(contracts.userRegistry.getContractAddress());
-		updateNonceTxMan = true;
-		updateTxManNonce("0xb5A66D27457Af8be2a09F17adD73c2ae46520e69");
+			System.out.println(txMan.getCurrentNonce());
+			System.out.println("rreesseeettting");
+			txMan.resetNonce();
+			System.out.println("rreesseeettting  aaaaafftteeer");
+			System.out.println(txMan.getCurrentNonce());
+			System.out.println(txMan.getFromAddress());
+			System.out.println(txMan.toString());
+
+		} catch (Exception e) {
+			System.out.println("EXCEEEEEEPPTIOOON" + e.toString());
+		}
+		// System.out.println(contracts.userRegistry.getContractAddress());
+		// updateNonceTxMan = true;
+		// updateTxManNonce("0xb5A66D27457Af8be2a09F17adD73c2ae46520e69");
 		try {
 			contracts.userRegistry.delegatedRegister(name, agentId, publicKey, consentee, signature).sendAsync().get();
 		} catch (Exception e) {
