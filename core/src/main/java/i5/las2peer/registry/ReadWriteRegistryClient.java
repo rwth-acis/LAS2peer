@@ -121,8 +121,8 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		}
 
 		System.out.println(contracts.userRegistry.getContractAddress());
-		updateTxManNonce(contracts.userRegistry.getContractAddress());
 		updateNonceTxMan = true;
+		updateTxManNonce("0xb5A66D27457Af8be2a09F17adD73c2ae46520e69");
 
 		try {
 			contracts.userRegistry.delegatedRegister(name, agentId, publicKey, consentee, signature).sendAsync().get();
@@ -541,8 +541,8 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			constructor.setAccessible(true);
 			contract = constructor.newInstance(contractAddress, web3j, credentials,
 					new StaticGasProvider(gasPrice, gasLimit));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
+
+		} catch (Exception e) { // TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return contract;
