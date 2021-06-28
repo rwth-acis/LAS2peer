@@ -115,12 +115,14 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		String consentee = agent.getEthereumAddress();
 		byte[] signature = SignatureUtils.signFunctionCall(function, agent.getEthereumCredentials());
 
-		if ( txMan != null )
-		{
+		if (txMan != null) {
 			BigInteger txManNonce = txMan.getCurrentNonce();
 			logger.info("[TX Nonce] before: " + txManNonce);
 		}
 
+		System.out.println(contracts.userRegistry.getContractAddress());
+		updateTxManNonce(contracts.userRegistry.getContractAddress());
+		updateNonceTxMan = true;
 
 		try {
 			contracts.userRegistry.delegatedRegister(name, agentId, publicKey, consentee, signature).sendAsync().get();
@@ -128,8 +130,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			throw new EthereumException("Could not register user", e);
 		}
 
-		if ( txMan != null )
-		{
+		if (txMan != null) {
 			BigInteger txManNonce = txMan.getCurrentNonce();
 			logger.info("[TX Nonce] after: " + txManNonce);
 		}
@@ -144,7 +145,8 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		logger.info("[Reputation] registering profile: " + agent.getLoginName());
 		String txHash;
 		try {
-			TransactionReceipt txR = contracts.reputationRegistry.createProfile(agentAddress, profileName).sendAsync().get();
+			TransactionReceipt txR = contracts.reputationRegistry.createProfile(agentAddress, profileName).sendAsync()
+					.get();
 			if (!txR.isStatusOK()) {
 				logger.warning("trx fail with status " + txR.getStatus());
 				logger.warning("gas used " + txR.getCumulativeGasUsed());
@@ -152,8 +154,10 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 				throw new EthereumException("could not send transaction, transaction receipt not ok");
 			}
 			txHash = txR.getTransactionHash();
-			if ( txR != null ) { Contracts.addTransactionReceipt(txR); }
-			//waitForTransactionReceipt(txHash);
+			if (txR != null) {
+				Contracts.addTransactionReceipt(txR);
+			}
+			// waitForTransactionReceipt(txHash);
 		} catch (Exception e) {
 			throw new EthereumException("couldn't execute smart contract function call", e);
 		}
@@ -161,25 +165,28 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		return txHash;
 	}
 
-	public String addGenericTransaction(EthereumAgent senderAgent, EthereumAgent receivingAgent, String message, BigInteger weiAmount)
-			throws EthereumException {
+	public String addGenericTransaction(EthereumAgent senderAgent, EthereumAgent receivingAgent, String message,
+			BigInteger weiAmount) throws EthereumException {
 		logger.info("[TX] adding generic transaction to: " + receivingAgent.getLoginName() + " | amount: "
 				+ weiAmount.toString());
 		logger.info("[TX] transaction message: " + message + "");
 
-		String etherSendTxHash = sendEtherManaged(
-				senderAgent.getEthereumAddress(), receivingAgent.getEthereumAddress(), 
+		String etherSendTxHash = sendEtherManaged(senderAgent.getEthereumAddress(), receivingAgent.getEthereumAddress(),
 				weiAmount);
-		//sendEther(receivingAgent.getEthereumAddress(), Convert.toWei(weiAmount.toString(), Convert.Unit.ETHER));
-		// sendEther(senderAgent.getEthereumAddress(), receivingAgent.getEthereumAddress(), weiAmount).getTransactionHash();
-		//waitForTransactionReceipt(etherSendTxHash);
-		logger.info("[TX] sent funds, adding smart contract event for message and transaction type, txHash: " + etherSendTxHash);
+		// sendEther(receivingAgent.getEthereumAddress(),
+		// Convert.toWei(weiAmount.toString(), Convert.Unit.ETHER));
+		// sendEther(senderAgent.getEthereumAddress(),
+		// receivingAgent.getEthereumAddress(), weiAmount).getTransactionHash();
+		// waitForTransactionReceipt(etherSendTxHash);
+		logger.info("[TX] sent funds, adding smart contract event for message and transaction type, txHash: "
+				+ etherSendTxHash);
 
 		BigInteger timestamp = BigInteger.valueOf(java.lang.System.currentTimeMillis());
 		String txHash;
 		try {
 			TransactionReceipt txR = contracts.reputationRegistry
-					.addGenericTransaction(receivingAgent.getEthereumAddress(), weiAmount, timestamp, etherSendTxHash, message, "GENERIC")
+					.addGenericTransaction(receivingAgent.getEthereumAddress(), weiAmount, timestamp, etherSendTxHash,
+							message, "GENERIC")
 					.sendAsync().get();
 			if (!txR.isStatusOK()) {
 				logger.warning("trx fail with status " + txR.getStatus());
@@ -188,8 +195,10 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 				throw new EthereumException("could not send transaction, transaction receipt not ok");
 			}
 			txHash = txR.getTransactionHash();
-			if ( txR != null ) { Contracts.addTransactionReceipt(txR); }
-			//waitForTransactionReceipt(txHash);
+			if (txR != null) {
+				Contracts.addTransactionReceipt(txR);
+			}
+			// waitForTransactionReceipt(txHash);
 		} catch (Exception e) {
 			throw new EthereumException("couldn't execute smart contract function call", e);
 		}
@@ -202,10 +211,11 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 				+ BigInteger.valueOf(rating).toString() + ")");
 
 		// see reputation registry
-		if (rating > RegistryConfiguration.UserRating_maxRatingValue || rating < RegistryConfiguration.UserRating_minRatingValue)
-		{
-			throw new EthereumException(
-					"Could not add user rating: rating outside bounds [" + RegistryConfiguration.UserRating_minRatingValue + " - " + RegistryConfiguration.UserRating_maxRatingValue + "]");
+		if (rating > RegistryConfiguration.UserRating_maxRatingValue
+				|| rating < RegistryConfiguration.UserRating_minRatingValue) {
+			throw new EthereumException("Could not add user rating: rating outside bounds ["
+					+ RegistryConfiguration.UserRating_minRatingValue + " - "
+					+ RegistryConfiguration.UserRating_maxRatingValue + "]");
 		}
 
 		BigInteger timestamp = BigInteger.valueOf(java.lang.System.currentTimeMillis());
@@ -213,7 +223,8 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		String txHash;
 		try {
 			TransactionReceipt txR = contracts.reputationRegistry
-					.addTransaction(receivingAgent.getEthereumAddress(), BigInteger.valueOf(rating), timestamp).sendAsync().get();
+					.addTransaction(receivingAgent.getEthereumAddress(), BigInteger.valueOf(rating), timestamp)
+					.sendAsync().get();
 			if (!txR.isStatusOK()) {
 				logger.warning("trx fail with status " + txR.getStatus());
 				logger.warning("gas used " + txR.getCumulativeGasUsed());
@@ -221,16 +232,17 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 				throw new EthereumException("could not send transaction, transaction receipt not ok");
 			}
 			txHash = txR.getTransactionHash();
-			if ( txR != null ) { Contracts.addTransactionReceipt(txR); }
-			//waitForTransactionReceipt(txHash);
+			if (txR != null) {
+				Contracts.addTransactionReceipt(txR);
+			}
+			// waitForTransactionReceipt(txHash);
 		} catch (Exception e) {
 			throw new EthereumException("couldn't execute smart contract function call", e);
 		}
 		return txHash;
 	}
 
-	public boolean hasReputationProfile(String profileName)
-			throws EthereumException {
+	public boolean hasReputationProfile(String profileName) throws EthereumException {
 		Boolean hasProfile = Boolean.FALSE;
 		try {
 			hasProfile = contracts.reputationRegistry.hasProfile(profileName).sendAsync().get();
@@ -247,22 +259,23 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	 * {@link #registerUser(EthereumAgent)} for details.
 	 *
 	 * @param serviceName service (package) name of arbitrary length
-	 * @param agent Ethereum agent of the service author
+	 * @param agent       Ethereum agent of the service author
 	 */
-	public void registerService(String serviceName, EthereumAgent agent) throws EthereumException,
-	AgentLockedException {
+	public void registerService(String serviceName, EthereumAgent agent)
+			throws EthereumException, AgentLockedException {
 		byte[] authorName = Util.padAndConvertString(agent.getLoginName(), 32);
 
 		final Function function = new Function(ServiceRegistry.FUNC_REGISTER,
 				Arrays.asList(new org.web3j.abi.datatypes.Utf8String(serviceName),
-						new org.web3j.abi.datatypes.generated.Bytes32(authorName)), Collections.emptyList());
+						new org.web3j.abi.datatypes.generated.Bytes32(authorName)),
+				Collections.emptyList());
 
 		String consentee = agent.getEthereumAddress();
 		byte[] signature = SignatureUtils.signFunctionCall(function, agent.getEthereumCredentials());
 
 		try {
 			contracts.serviceRegistry.delegatedRegister(serviceName, authorName, consentee, signature).sendAsync()
-			.get();
+					.get();
 		} catch (Exception e) {
 			throw new EthereumException("Failed to register service", e);
 		}
@@ -293,16 +306,15 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	 * The release call is delegated, see description of
 	 * {@link #registerUser(EthereumAgent)} for details.
 	 *
-	 * @param serviceName name of existing service
-	 * @param versionMajor major version, as used in semantic versioning
-	 * @param versionMinor minor version, as used in semantic versioning
-	 * @param versionPatch patch version, as used in semantic versioning
-	 * @param author agent of author of this version
-	 * @param supplementHash hash of supplemental data in
-	 *                                    shared storage
+	 * @param serviceName    name of existing service
+	 * @param versionMajor   major version, as used in semantic versioning
+	 * @param versionMinor   minor version, as used in semantic versioning
+	 * @param versionPatch   patch version, as used in semantic versioning
+	 * @param author         agent of author of this version
+	 * @param supplementHash hash of supplemental data in shared storage
 	 */
 	public void releaseService(String serviceName, int versionMajor, int versionMinor, int versionPatch,
-			EthereumAgent author, byte[] supplementHash)throws EthereumException, AgentLockedException {
+			EthereumAgent author, byte[] supplementHash) throws EthereumException, AgentLockedException {
 		if (observer.getReleaseByVersion(serviceName, versionMajor, versionMinor, versionPatch) != null) {
 			logger.warning("Tried to submit duplicate release (name / version already exist), ignoring!");
 			// TODO: handle in contracts, cause this is a race condition
@@ -311,14 +323,16 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 
 		byte[] authorName = Util.padAndConvertString(author.getLoginName(), 32);
 
-		// TODO: hash parameter is unused. instead, we check whether the library NetworkArtifact signature matches the
+		// TODO: hash parameter is unused. instead, we check whether the library
+		// NetworkArtifact signature matches the
 		// author (pubkey registered in the blockchain), and consider that good enough
-		// (this leaves *some* room for undesired behavior: an author modifying his node code and replacing an already
+		// (this leaves *some* room for undesired behavior: an author modifying his node
+		// code and replacing an already
 		// released version, but the potential for abuse seems pretty low)
-		// NOTE: actually, hash is now (ab)used for supplement (which happens to also be a hash)
+		// NOTE: actually, hash is now (ab)used for supplement (which happens to also be
+		// a hash)
 
-		final Function function = new Function(
-				ServiceRegistry.FUNC_RELEASE,
+		final Function function = new Function(ServiceRegistry.FUNC_RELEASE,
 				Arrays.asList(new org.web3j.abi.datatypes.Utf8String(serviceName),
 						new org.web3j.abi.datatypes.generated.Bytes32(authorName),
 						new org.web3j.abi.datatypes.generated.Uint256(versionMajor),
@@ -331,63 +345,63 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		byte[] signature = SignatureUtils.signFunctionCall(function, author.getEthereumCredentials());
 
 		try {
-			contracts.serviceRegistry.delegatedRelease(serviceName, authorName,
-					BigInteger.valueOf(versionMajor), BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch),
-					supplementHash, consentee, signature).sendAsync().get();
+			contracts.serviceRegistry.delegatedRelease(serviceName, authorName, BigInteger.valueOf(versionMajor),
+					BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), supplementHash, consentee,
+					signature).sendAsync().get();
 		} catch (Exception e) {
 			throw new EthereumException("Failed to submit service release", e);
 		}
 	}
 
 	/**
-	 * Announce the deployment of a specific version of a service at
-	 * the given node.
+	 * Announce the deployment of a specific version of a service at the given node.
+	 * 
 	 * @param servicePackageName name of service (package). E.g.
 	 *                           <code>com.example.some.package</code>.
-	 * @param serviceClassName name of the service class that is run.
-	 *                         E.g., <code>ExampleService</code>.
-	 * @param versionMajor major version, as used in semantic versioning
-	 * @param versionMinor minor version, as used in semantic versioning
-	 * @param versionPatch patch version, as used in semantic versioning
-	 * @param nodeId identifier of the node running the deployment
+	 * @param serviceClassName   name of the service class that is run. E.g.,
+	 *                           <code>ExampleService</code>.
+	 * @param versionMajor       major version, as used in semantic versioning
+	 * @param versionMinor       minor version, as used in semantic versioning
+	 * @param versionPatch       patch version, as used in semantic versioning
+	 * @param nodeId             identifier of the node running the deployment
 	 */
-	public void announceDeployment(String servicePackageName, String serviceClassName,
-			int versionMajor, int versionMinor, int versionPatch,
-			String nodeId) throws EthereumException {
+	public void announceDeployment(String servicePackageName, String serviceClassName, int versionMajor,
+			int versionMinor, int versionPatch, String nodeId) throws EthereumException {
 		try {
-			contracts.serviceRegistry.announceDeployment(servicePackageName, serviceClassName,
-					BigInteger.valueOf(versionMajor), BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch),
-					nodeId).sendAsync().get();
+			contracts.serviceRegistry
+					.announceDeployment(servicePackageName, serviceClassName, BigInteger.valueOf(versionMajor),
+							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), nodeId)
+					.sendAsync().get();
 		} catch (Exception e) {
-			throw new EthereumException("Failed to submit service deployment announcement ("
-					+ "DEBUG: " + serviceClassName + ", " + e.getMessage() + ")", e);
+			throw new EthereumException("Failed to submit service deployment announcement (" + "DEBUG: "
+					+ serviceClassName + ", " + e.getMessage() + ")", e);
 		}
 	}
 
 	/**
-	 * Announce that a service deployment is stopping or no longer
-	 * accessible.
+	 * Announce that a service deployment is stopping or no longer accessible.
+	 * 
 	 * @param servicePackageName name of service (package). E.g.
 	 *                           <code>com.example.some.package</code>.
-	 * @param serviceClassName name of the service class that is run.
-	 *                         E.g., <code>ExampleService</code>.
-	 * @param versionMajor major version, as used in semantic versioning
-	 * @param versionMinor minor version, as used in semantic versioning
-	 * @param versionPatch patch version, as used in semantic versioning
-	 * @param nodeId identifier of the node running the deployment
+	 * @param serviceClassName   name of the service class that is run. E.g.,
+	 *                           <code>ExampleService</code>.
+	 * @param versionMajor       major version, as used in semantic versioning
+	 * @param versionMinor       minor version, as used in semantic versioning
+	 * @param versionPatch       patch version, as used in semantic versioning
+	 * @param nodeId             identifier of the node running the deployment
 	 */
 	// TODO: is there a more elegant way? referencing the tx is possible of course
 	// but not really preferable
-	public void announceDeploymentEnd(String servicePackageName, String serviceClassName,
-			int versionMajor, int versionMinor, int versionPatch,
-			String nodeId) throws EthereumException {
+	public void announceDeploymentEnd(String servicePackageName, String serviceClassName, int versionMajor,
+			int versionMinor, int versionPatch, String nodeId) throws EthereumException {
 		try {
-			contracts.serviceRegistry.announceDeploymentEnd(servicePackageName, serviceClassName,
-					BigInteger.valueOf(versionMajor), BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch),
-					nodeId).sendAsync().get();
+			contracts.serviceRegistry
+					.announceDeploymentEnd(servicePackageName, serviceClassName, BigInteger.valueOf(versionMajor),
+							BigInteger.valueOf(versionMinor), BigInteger.valueOf(versionPatch), nodeId)
+					.sendAsync().get();
 		} catch (Exception e) {
-			throw new EthereumException("Failed to submit service deployment *end* announcement ("
-					+ "DEBUG: " + serviceClassName + ", " + e.getMessage() + ")", e);
+			throw new EthereumException("Failed to submit service deployment *end* announcement (" + "DEBUG: "
+					+ serviceClassName + ", " + e.getMessage() + ")", e);
 		}
 	}
 
@@ -399,10 +413,6 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		logger.info("[ETH] Preparing raw transaction between accounts...");
 
 		Transfer transfer = new Transfer(this.web3j, this.contracts.transactionManager);
-
-
-
-
 
 		TransactionReceipt receipt = null;
 		try {
@@ -416,14 +426,13 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			throw new EthereumException("TX status field is not OK. TX failed.");
 		}
 
-		logger.info("[ETH] raw tx sent." );
+		logger.info("[ETH] raw tx sent.");
 		logger.info("[ETH] > senderAddress: " + senderAddress);
 		logger.info("[ETH] > nonce: " + nonce);
 		logger.info("[ETH] > gasPrice: " + gasPrice);
 		logger.info("[ETH] > gasLimit: " + gasLimit);
 		logger.info("[ETH] > recipientAddress: " + recipientAddress);
 		logger.info("[ETH] > value: " + weiToEther(value).toString());
-
 
 		return receipt.getTransactionHash();
 	}
@@ -457,16 +466,13 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			// this is a contract method call -> gas limit higher than simple fund transfer
 			BigInteger gasPrice = GAS_PRICE;
 			BigInteger gasLimit = GAS_LIMIT_ETHER_TX;
-			Transaction transaction = Transaction.createEtherTransaction(
-					senderAddress, nonce, 
-					gasPrice, gasLimit,
+			Transaction transaction = Transaction.createEtherTransaction(senderAddress, nonce, gasPrice, gasLimit,
 					recipientAddress, valueInWei);
 
 			logger.info("[ETH] Preparing web3j transaction between accounts...");
 
 			// directly through web3j since coinbase is one of 10 unlocked accounts.
-			EthSendTransaction ethSendTransaction = web3j.ethSendTransaction(transaction)
-					.sendAsync().get();
+			EthSendTransaction ethSendTransaction = web3j.ethSendTransaction(transaction).sendAsync().get();
 
 			if (ethSendTransaction.hasError()) {
 				Response.Error error = ethSendTransaction.getError();
@@ -477,7 +483,6 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			if (txHash.length() < 2) {
 				throw new EthereumException("Could not create ethereum transaction");
 			}
-
 
 			logger.info("[ETH] waiting for receipt on [" + txHash + "]... ");
 			txR = waitForReceipt(txHash);
@@ -502,16 +507,14 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		return txR;
 	}
 
-	public String sendEtherFromCoinbase(String recipientAddress, BigInteger valueInWei)
-			throws EthereumException {
+	public String sendEtherFromCoinbase(String recipientAddress, BigInteger valueInWei) throws EthereumException {
 		String coinbase = "";
 		try {
 			coinbase = this.getCoinbase().getResult();
 		} catch (InterruptedException | ExecutionException e) {
 			throw new EthereumException("Could not retreive coinbase address", e);
 		}
-		if ( coinbase == "" )
-		{
+		if (coinbase == "") {
 			throw new EthereumException("Could not retreive coinbase address");
 		}
 		logger.info("[ETH] Sending Faucet Transaction");
@@ -521,7 +524,8 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	public <T extends Contract> T deploySmartContract(Class<T> contractClass, String contractBinary) {
 		T contract = null;
 		try {
-			contract = T.deployRemoteCall(contractClass, web3j, credentials, gasPrice, gasLimit, contractBinary, "", BigInteger.ZERO).send();
+			contract = T.deployRemoteCall(contractClass, web3j, credentials, gasPrice, gasLimit, contractBinary, "",
+					BigInteger.ZERO).send();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -532,13 +536,11 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 	public <T extends Contract> T loadSmartContract(Class<T> contractClass, String contractAddress) {
 		T contract = null;
 		try {
-			Constructor<T> constructor = contractClass.getDeclaredConstructor(
-					String.class,
-					Web3j.class,
-					Credentials.class,
-					ContractGasProvider.class);
+			Constructor<T> constructor = contractClass.getDeclaredConstructor(String.class, Web3j.class,
+					Credentials.class, ContractGasProvider.class);
 			constructor.setAccessible(true);
-			contract = constructor.newInstance(contractAddress, web3j, credentials, new StaticGasProvider(gasPrice, gasLimit));
+			contract = constructor.newInstance(contractAddress, web3j, credentials,
+					new StaticGasProvider(gasPrice, gasLimit));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

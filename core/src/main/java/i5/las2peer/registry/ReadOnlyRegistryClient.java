@@ -71,7 +71,6 @@ public class ReadOnlyRegistryClient {
 	// raw tx - sending directly, fast raw - nonce management
 	boolean updateNonceTxMan = false;
 	FastRawTransactionManager txMan;
-			
 
 	protected final L2pLogger logger = L2pLogger.getInstance(ReadWriteRegistryClient.class);
 
@@ -109,12 +108,10 @@ public class ReadOnlyRegistryClient {
 
 		this.credentials = credentials;
 
-		logger.info("created smart contract wrapper with credentials:" + credentialsAddress + "\n contract ID:" + this.contracts.transactionManager.hashCode());
+		logger.info("created smart contract wrapper with credentials:" + credentialsAddress + "\n contract ID:"
+				+ this.contracts.transactionManager.hashCode());
 
-		
-
-		if ( this.contracts.transactionManager instanceof FastRawTransactionManager ) 
-		{
+		if (this.contracts.transactionManager instanceof FastRawTransactionManager) {
 			this.updateNonceTxMan = true;
 			this.txMan = (FastRawTransactionManager) this.contracts.transactionManager;
 		}
@@ -256,19 +253,17 @@ public class ReadOnlyRegistryClient {
 			if (userProfileData != null
 					&& !userProfileData.getOwner().equals("0x0000000000000000000000000000000000000000")) {
 				if (userProfileData.getNoTransactionsRcvd().compareTo(BigInteger.ZERO) == 0) {
-					logger.fine("[User Reputation]: valid reputation profile [" + userProfileData.getUserName() + "], no incoming reputation yet." );
+					logger.fine("[User Reputation]: valid reputation profile [" + userProfileData.getUserName()
+							+ "], no incoming reputation yet.");
 					return 0f;
-				} 
-				else 
-				{
+				} else {
 					userRatingScore_Raw = userProfileData.getStarRating();
-					logger.fine("[User Reputation]: valid reputation profile [" + userProfileData.getUserName() + "], score: " + Float.toString(userRatingScore_Raw) );
+					logger.fine("[User Reputation]: valid reputation profile [" + userProfileData.getUserName()
+							+ "], score: " + Float.toString(userRatingScore_Raw));
 					return userRatingScore_Raw;
 				}
-			}
-			else
-			{
-				logger.fine("[User Reputation]: no valid reputation profile" );
+			} else {
+				logger.fine("[User Reputation]: no valid reputation profile");
 				return 0f;
 			}
 		} catch (EthereumException | NotFoundException e) {
@@ -322,18 +317,13 @@ public class ReadOnlyRegistryClient {
 		String serviceNamespace = service.substring(0, lastDotIndex);
 		logger.info("[service names] searching for: " + serviceNamespace);
 
-		for (Map.Entry<String, String> entry : observer.serviceNameToAuthor.entrySet()) 
-		{
-			if ( entry.getKey().equals(serviceNamespace) )
-			{
-				logger.info(
-					"[service names] found entry: " + entry.getKey() + " | " + entry.getValue()
-				);
+		for (Map.Entry<String, String> entry : observer.serviceNameToAuthor.entrySet()) {
+			if (entry.getKey().equals(serviceNamespace)) {
+				logger.info("[service names] found entry: " + entry.getKey() + " | " + entry.getValue());
 			}
 		}
 
-		if (!observer.serviceNameToAuthor.containsKey(serviceNamespace))
-		{
+		if (!observer.serviceNameToAuthor.containsKey(serviceNamespace)) {
 			logger.warning("[service author] not found: " + serviceNamespace);
 			return "";
 		}
@@ -448,18 +438,16 @@ public class ReadOnlyRegistryClient {
 	 * @return nonce
 	 */
 	public BigInteger getNonce(String address) {
-		if ( address.length() == 0 )
-		{
-			if ( credentials != null )
-			{
+		if (address.length() == 0) {
+			if (credentials != null) {
 				address = credentials.getAddress();
 			}
 		}
 		BigInteger blockchainNonce = BigInteger.valueOf(-1);
 		EthGetTransactionCount ethGetTransactionCount;
 		try {
-			ethGetTransactionCount = web3j
-					.ethGetTransactionCount(address, DefaultBlockParameterName.PENDING).sendAsync().get();
+			ethGetTransactionCount = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.PENDING)
+					.sendAsync().get();
 
 			blockchainNonce = ethGetTransactionCount.getTransactionCount();
 		} catch (InterruptedException | ExecutionException e) {
@@ -472,57 +460,79 @@ public class ReadOnlyRegistryClient {
 		// transactions
 		// and the contract calls (e.g. registration, reputation) are done via managed
 		// transactions
-		
+
 		BigInteger retVal = BigInteger.ZERO;
 		BigInteger localNonce = StaticNonce.Manager().getStaticNonce(address);
 
 		switch (localNonce.compareTo(blockchainNonce)) {
-			default:
-			case 0: // they are in sync
-			case 1: // local nonce is ahead
-				logger.info("[TX Nonce] (chain: "+blockchainNonce+" vs. local: "+localNonce+"), incrementing by 1.");
-				retVal = StaticNonce.Manager().incStaticNonce(address);
-				break;
-			case -1: // local nonce is behind
-				logger.info("[TX Nonce] (chain: "+blockchainNonce+" vs. local: "+localNonce+"): override to " + blockchainNonce + "+1");
-				retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce.add(BigInteger.ONE));
-				break;
+		default:
+		case 0: // they are in sync
+		case 1: // local nonce is ahead
+			logger.info(
+					"[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "), incrementing by 1.");
+			retVal = StaticNonce.Manager().incStaticNonce(address);
+			break;
+		case -1: // local nonce is behind
+			logger.info("[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "): override to "
+					+ blockchainNonce + "+1");
+			retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce.add(BigInteger.ONE));
+			break;
 		}
 
-		//retVal = blockchainNonce;
+		// retVal = blockchainNonce;
 
 		return retVal;
 	}
 
-
-
 	/**
 	 * Overrides nonce of transactionManager with local nonce.
+	 * 
 	 * @param address
 	 */
 	protected synchronized void updateTxManNonce(String address) {
-		if ( updateNonceTxMan )
-		{
+		System.out.println("update ttxxxnnonnnnceeeee");
+		System.out.println(address);
+		System.out.println("cheeeckkk iff bool ttruuee");
+		System.out.println(updateNonceTxMan);
+
+		if (updateNonceTxMan) {
+			System.out.println("updateiiiiininnggggg");
+
 			// local client has larger nonce than txman?
 			BigInteger txManNonce = txMan.getCurrentNonce();
+			System.out.println("llooocaall");
+			System.out.println(txManNonce);
+
 			BigInteger localNonce = this.getNonce(address);
-			BigInteger newNonce = localNonce.add(BigInteger.ONE);//StaticNonce.Manager().incStaticNonce(address);
+			System.out.println("llooocaall  2222");
+			System.out.println(localNonce);
+			BigInteger newNonce = localNonce.add(BigInteger.ONE);// StaticNonce.Manager().incStaticNonce(address);
 			switch (txManNonce.compareTo(localNonce)) {
-				case -1: // txMan nonce is behind local
-					logger.info("[FastRaw TX] (tx: "+txManNonce+"  < local: "+localNonce+"): setting txMan to " + newNonce);
-					txMan.setNonce(newNonce);
-					StaticNonce.Manager().incStaticNonce(address);
-					break;
-				case 1: // txMan nonce is ahead of local
-					logger.info("[FastRaw TX] (tx: "+txManNonce+"  > local: "+localNonce+"): setting local to " + txManNonce);
-					StaticNonce.Manager().putStaticNonceIfAbsent(address, txManNonce);
-					break;
-				case 0: // they are in sync - should be fine?
-				default:
-					logger.info("[FastRaw TX] (tx: "+txManNonce+" == local: "+localNonce+"): incrementing txMan to " + newNonce);
-					txMan.setNonce(newNonce);
-					StaticNonce.Manager().putStaticNonceIfAbsent(address, newNonce);
-					break;
+			case -1: // txMan nonce is behind local
+				logger.info("[FastRaw TX] (tx: " + txManNonce + "  < local: " + localNonce + "): setting txMan to "
+						+ newNonce);
+				System.out.println("[FastRaw TX] (tx: " + txManNonce + "  < local: " + localNonce
+						+ "): setting txMan to " + newNonce);
+				txMan.setNonce(newNonce);
+				StaticNonce.Manager().incStaticNonce(address);
+				break;
+			case 1: // txMan nonce is ahead of local
+				logger.info("[FastRaw TX] (tx: " + txManNonce + "  > local: " + localNonce + "): setting local to "
+						+ txManNonce);
+				System.out.println("[FastRaw TX] (tx: " + txManNonce + "  > local: " + localNonce
+						+ "): setting local to " + txManNonce);
+				StaticNonce.Manager().putStaticNonceIfAbsent(address, txManNonce);
+				break;
+			case 0: // they are in sync - should be fine?
+				System.out.println("cassse 00000000000");
+			default:
+				logger.info("[FastRaw TX] (tx: " + txManNonce + " == local: " + localNonce + "): incrementing txMan to "
+						+ newNonce);
+				System.out.println("[FastRaw TX] (tx: " + txManNonce + " == local: " + localNonce
+						+ "): incrementing txMan to " + newNonce);
+				txMan.setNonce(newNonce);
+				StaticNonce.Manager().putStaticNonceIfAbsent(address, newNonce);
+				break;
 			}
 		}
 	}
@@ -604,55 +614,52 @@ public class ReadOnlyRegistryClient {
 	/**
 	 * Returns the TransactionRecipt for the specified tx hash as an optional.
 	 * https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
+	 * 
 	 * @param transactionHash
 	 * @return transactionReceipt
-	 * @throws ExecutionException 
+	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
-	private Optional<TransactionReceipt> getReceipt(String transactionHash) 
-			throws InterruptedException, ExecutionException
-	{
-		EthGetTransactionReceipt receipt = web3j
-				.ethGetTransactionReceipt(transactionHash)
-				.sendAsync()
-				.get();
+	private Optional<TransactionReceipt> getReceipt(String transactionHash)
+			throws InterruptedException, ExecutionException {
+		EthGetTransactionReceipt receipt = web3j.ethGetTransactionReceipt(transactionHash).sendAsync().get();
 
 		return receipt.getTransactionReceipt();
 	}
-	
 
 	/**
 	 * Converts the provided Wei amount (smallest value Unit) to Ethers.
 	 * https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
+	 * 
 	 * @param wei
 	 * @return
 	 */
 	public BigDecimal weiToEther(BigInteger wei) {
 		return Convert.fromWei(wei.toString(), Convert.Unit.ETHER);
 	}
-	
+
 	/**
 	 * Converts the provided Ether amount to Wei (smallest value Unit) .
 	 * https://github.com/matthiaszimmermann/web3j_demo / Web3jUtils
+	 * 
 	 * @param ether
 	 * @return
 	 */
 	public BigInteger etherToWei(BigDecimal ether) {
 		return Convert.toWei(ether, Convert.Unit.ETHER).toBigInteger();
 	}
-	
+
 	/*
-	@Deprecated
-	public Map<String, List<ServiceDeploymentData>> getServiceDeployments() {
-		// just getting rid of the redundant (for our purposes) nested map
-		// and filtering out those deployments that have ended (we need to keep track of them internally, but don't
-		// want to expose them)
-		return observer.deployments.entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, value -> new ArrayList<>(value.getValue().values())))
-				.entrySet().stream() // OMG
-				.filter(e -> e.getValue().stream().anyMatch(deploymentData -> deploymentData.hasEnded()))
-				.collect(Collectors.toMap(e -> e.getKey(), e-> e.getValue())); // are you serious?
-		// ahhhahahahahaaahaaaa embrace the dark side, let it flow through you!
-	}
-	*/
+	 * @Deprecated public Map<String, List<ServiceDeploymentData>>
+	 * getServiceDeployments() { // just getting rid of the redundant (for our
+	 * purposes) nested map // and filtering out those deployments that have ended
+	 * (we need to keep track of them internally, but don't // want to expose them)
+	 * return observer.deployments.entrySet().stream()
+	 * .collect(Collectors.toMap(Map.Entry::getKey, value -> new
+	 * ArrayList<>(value.getValue().values()))) .entrySet().stream() // OMG
+	 * .filter(e -> e.getValue().stream().anyMatch(deploymentData ->
+	 * deploymentData.hasEnded())) .collect(Collectors.toMap(e -> e.getKey(), e->
+	 * e.getValue())); // are you serious? // ahhhahahahahaaahaaaa embrace the dark
+	 * side, let it flow through you! }
+	 */
 }
