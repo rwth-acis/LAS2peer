@@ -467,16 +467,19 @@ public class ReadOnlyRegistryClient {
 		switch (localNonce.compareTo(blockchainNonce)) {
 		default:
 		case 0: // they are in sync
+			txMan.setNonce(blockchainNonce);
 			break;
 		case 1: // local nonce is ahead
 			logger.info(
 					"[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "), incrementing by 1.");
 			retVal = StaticNonce.Manager().incStaticNonce(address);
+			txMan.setNonce(blockchainNonce);
 			break;
 		case -1: // local nonce is behind
 			logger.info("[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "): override to "
 					+ blockchainNonce + "+1");
 			retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce.add(BigInteger.ONE));
+			txMan.setNonce(blockchainNonce);
 			break;
 		}
 
