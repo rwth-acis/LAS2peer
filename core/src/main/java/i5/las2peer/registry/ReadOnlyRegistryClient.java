@@ -473,7 +473,7 @@ public class ReadOnlyRegistryClient {
 			logger.info(
 					"[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "), incrementing by 1.");
 			retVal = StaticNonce.Manager().incStaticNonce(address);
-			txMan.setNonce(blockchainNonce.add(BigInteger.valueOf(-1)));
+			// txMan.setNonce(blockchainNonce.add(BigInteger.valueOf(-1)));
 			break;
 		case -1: // local nonce is behind
 			logger.info("[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "): override to "
