@@ -134,8 +134,8 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 			System.out.println("EXCEEEEEEPPTIOOON" + e.toString());
 		}
 		System.out.println(contracts.userRegistry.getContractAddress());
-		updateNonceTxMan = true;
-		updateTxManNonce("0xb5A66D27457Af8be2a09F17adD73c2ae46520e69");
+		// updateNonceTxMan = true;
+		getNonce("0xb5A66D27457Af8be2a09F17adD73c2ae46520e69");
 		try {
 			System.out.println("calling reggii");
 

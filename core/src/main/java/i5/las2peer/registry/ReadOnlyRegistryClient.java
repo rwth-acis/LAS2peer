@@ -516,13 +516,15 @@ public class ReadOnlyRegistryClient {
 						+ "): setting txMan to " + newNonce);
 				txMan.setNonce(newNonce);
 				StaticNonce.Manager().incStaticNonce(address);
+
 				break;
 			case 1: // txMan nonce is ahead of local
 				logger.info("[FastRaw TX] (tx: " + txManNonce + "  > local: " + localNonce + "): setting local to "
 						+ txManNonce);
 				System.out.println("[FastRaw TX] (tx: " + txManNonce + "  > local: " + localNonce
 						+ "): setting local to " + txManNonce);
-				StaticNonce.Manager().putStaticNonceIfAbsent(address, txManNonce);
+				// StaticNonce.Manager().putStaticNonceIfAbsent(address, txManNonce);
+				StaticNonce.Manager().putStaticNonce(address, txManNonce);
 				break;
 			case 0: // they are in sync - should be fine?
 				System.out.println("cassse 00000000000");
