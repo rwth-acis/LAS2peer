@@ -473,15 +473,15 @@ public class ReadOnlyRegistryClient {
 			logger.info(
 					"[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "), incrementing by 1.");
 			// retVal = StaticNonce.Manager().incStaticNonce(address);
-			retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce.add(BigInteger.ONE));
-			retVal = blockchainNonce.add(BigInteger.ONE);
+			retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce);
+			retVal = blockchainNonce;
 
 			break;
 		case -1: // local nonce is behind
 			logger.info("[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "): override to "
 					+ blockchainNonce + "+1");
-			retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce.add(BigInteger.ONE));
-			retVal = blockchainNonce.add(BigInteger.ONE);
+			retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce);
+			retVal = blockchainNonce;
 			break;
 		}
 
@@ -512,7 +512,7 @@ public class ReadOnlyRegistryClient {
 			BigInteger localNonce = this.getNonce(address);
 			System.out.println("llooocaall  2222");
 			System.out.println(localNonce);
-			BigInteger newNonce = localNonce.add(BigInteger.ONE);// StaticNonce.Manager().incStaticNonce(address);
+			BigInteger newNonce = localNonce;// StaticNonce.Manager().incStaticNonce(address);
 			StaticNonce.Manager().putStaticNonceIfAbsent(address, newNonce);
 			txMan.setNonce(newNonce);
 
