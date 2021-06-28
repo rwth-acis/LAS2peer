@@ -124,7 +124,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 
 			System.out.println(txMan.getCurrentNonce());
 			System.out.println("rreesseeettting");
-			txMan.resetNonce();
+			// txMan.resetNonce();
 			System.out.println("rreesseeettting  aaaaafftteeer");
 			System.out.println(txMan.getCurrentNonce());
 			System.out.println(txMan.getFromAddress());
