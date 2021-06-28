@@ -467,7 +467,7 @@ public class ReadOnlyRegistryClient {
 		switch (localNonce.compareTo(blockchainNonce)) {
 		default:
 		case 0: // they are in sync
-			txMan.setNonce(blockchainNonce.add(BigInteger.valueOf(-1)));
+			// txMan.setNonce(blockchainNonce.add(BigInteger.valueOf(-1)));
 			break;
 		case 1: // local nonce is ahead
 			logger.info(
