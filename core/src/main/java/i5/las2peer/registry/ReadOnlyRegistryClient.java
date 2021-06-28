@@ -512,6 +512,7 @@ public class ReadOnlyRegistryClient {
 			System.out.println(localNonce);
 			BigInteger newNonce = localNonce.add(BigInteger.ONE);// StaticNonce.Manager().incStaticNonce(address);
 			StaticNonce.Manager().putStaticNonceIfAbsent(address, newNonce);
+			txMan.setNonce(newNonce);
 
 			// switch (txManNonce.compareTo(localNonce)) {
 			// case -1: // txMan nonce is behind local
