@@ -133,10 +133,12 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		} catch (Exception e) {
 			System.out.println("EXCEEEEEEPPTIOOON" + e.toString());
 		}
-		// System.out.println(contracts.userRegistry.getContractAddress());
-		// updateNonceTxMan = true;
-		// updateTxManNonce("0xb5A66D27457Af8be2a09F17adD73c2ae46520e69");
+		System.out.println(contracts.userRegistry.getContractAddress());
+		updateNonceTxMan = true;
+		updateTxManNonce("0xb5A66D27457Af8be2a09F17adD73c2ae46520e69");
 		try {
+			System.out.println("calling reggii");
+
 			contracts.userRegistry.delegatedRegister(name, agentId, publicKey, consentee, signature).sendAsync().get();
 		} catch (Exception e) {
 			throw new EthereumException("Could not register user", e);
