@@ -479,12 +479,13 @@ public class ReadOnlyRegistryClient {
 			logger.info("[TX Nonce] (chain: " + blockchainNonce + " vs. local: " + localNonce + "): override to "
 					+ blockchainNonce + "+1");
 			retVal = StaticNonce.Manager().putStaticNonce(address, blockchainNonce.add(BigInteger.ONE));
-			txMan.setNonce(blockchainNonce.add(BigInteger.valueOf(-1)));
+			// txMan.setNonce(blockchainNonce.add(BigInteger.valueOf(-1)));
 			break;
 		}
 
 		// retVal = blockchainNonce;
-
+		updateNonceTxMan = true;
+		updateTxManNonce(address);
 		return retVal;
 	}
 
@@ -494,52 +495,28 @@ public class ReadOnlyRegistryClient {
 	 * @param address
 	 */
 	protected synchronized void updateTxManNonce(String address) {
-		System.out.println("update ttxxxnnonnnnceeeee");
-		System.out.println(address);
-		System.out.println("cheeeckkk iff bool ttruuee");
-		System.out.println(updateNonceTxMan);
-
-		if (updateNonceTxMan) {
-			System.out.println("updateiiiiininnggggg");
-
+		if ( updateNonceTxMan )
+		{
 			// local client has larger nonce than txman?
 			BigInteger txManNonce = txMan.getCurrentNonce();
-			System.out.println("llooocaall");
-			System.out.println(txManNonce);
-
 			BigInteger localNonce = this.getNonce(address);
-			System.out.println("llooocaall  2222");
-			System.out.println(localNonce);
-			BigInteger newNonce = localNonce.add(BigInteger.ONE);// StaticNonce.Manager().incStaticNonce(address);
+			BigInteger newNonce = localNonce.add(BigInteger.ONE);//StaticNonce.Manager().incStaticNonce(address);
 			switch (txManNonce.compareTo(localNonce)) {
-			case -1: // txMan nonce is behind local
-				logger.info("[FastRaw TX] (tx: " + txManNonce + "  < local: " + localNonce + "): setting txMan to "
-						+ newNonce);
-				System.out.println("[FastRaw TX] (tx: " + txManNonce + "  < local: " + localNonce
-						+ "): setting txMan to " + newNonce);
-				txMan.setNonce(newNonce);
-				StaticNonce.Manager().incStaticNonce(address);
-
-				break;
-			case 1: // txMan nonce is ahead of local
-				logger.info("[FastRaw TX] (tx: " + txManNonce + "  > local: " + localNonce + "): setting local to "
-						+ txManNonce);
-				System.out.println("[FastRaw TX] (tx: " + txManNonce + "  > local: " + localNonce
-						+ "): setting local to " + txManNonce);
-				// StaticNonce.Manager().putStaticNonceIfAbsent(address, txManNonce);
-				StaticNonce.Manager().putStaticNonce(address, txManNonce);
-				break;
-			case 0: // they are in sync - should be fine?
-				System.out.println("cassse 00000000000");
-				break;
-			default:
-				logger.info("[FastRaw TX] (tx: " + txManNonce + " == local: " + localNonce + "): incrementing txMan to "
-						+ newNonce);
-				System.out.println("[FastRaw TX] (tx: " + txManNonce + " == local: " + localNonce
-						+ "): incrementing txMan to " + newNonce);
-				txMan.setNonce(newNonce);
-				StaticNonce.Manager().putStaticNonceIfAbsent(address, newNonce);
-				break;
+				case -1: // txMan nonce is behind local
+					logger.info("[FastRaw TX] (tx: "+txManNonce+"  < local: "+localNonce+"): setting txMan to " + newNonce);
+					txMan.setNonce(newNonce);
+					StaticNonce.Manager().incStaticNonce(address);
+					break;
+				case 1: // txMan nonce is ahead of local
+					logger.info("[FastRaw TX] (tx: "+txManNonce+"  > local: "+localNonce+"): setting local to " + txManNonce);
+					StaticNonce.Manager().putStaticNonceIfAbsent(address, txManNonce);
+					break;
+				case 0: // they are in sync - should be fine?
+				default:
+					logger.info("[FastRaw TX] (tx: "+txManNonce+" == local: "+localNonce+"): incrementing txMan to " + newNonce);
+					txMan.setNonce(newNonce);
+					StaticNonce.Manager().putStaticNonceIfAbsent(address, newNonce);
+					break;
 			}
 		}
 	}
