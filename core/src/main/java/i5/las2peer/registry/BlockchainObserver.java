@@ -200,7 +200,7 @@ class BlockchainObserver {
 				// https://stackoverflow.com/a/51062494
 				transactionLog.computeIfAbsent(transactionKey, k -> new ArrayList<>()).add(btd);
 
-				logger.info("[ChainObserver] observed: " + btd.toString());
+				logger.fine("[ChainObserver] observed: " + btd.toString());
 
 			}, e -> { 
 				e.printStackTrace();
