@@ -484,8 +484,6 @@ public class ReadOnlyRegistryClient {
 		}
 
 		// retVal = blockchainNonce;
-		updateNonceTxMan = true;
-		updateTxManNonce(address);
 		return retVal;
 	}
 

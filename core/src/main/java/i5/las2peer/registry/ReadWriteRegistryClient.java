@@ -135,7 +135,7 @@ public class ReadWriteRegistryClient extends ReadOnlyRegistryClient {
 		}
 		System.out.println(contracts.userRegistry.getContractAddress());
 		// updateNonceTxMan = true;
-		getNonce(txMan.getFromAddress());
+		updateTxManNonce(txMan.getFromAddress());
 		BigInteger txManNonce = txMan.getCurrentNonce();
 		logger.info("[TX Nonce] before 2222: " + txManNonce);
 
